@@ -25,7 +25,7 @@ $ sudo make install
 
 Make sure that the environment variable `PATH` contains `/usr/local/bin/`.
 
-## 使い方
+## How to Use
 
 The first argument of `esstra.py` is a *command*, and the second or subsequent
 arguments are the arguments of *command*.
