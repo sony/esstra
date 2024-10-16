@@ -41,6 +41,12 @@ in binary files embedded by ESSTRA Core.
 In this version, it has only a feature to display contents of metadata embedded
 in binary files.
 
+## Technical Overview
+
+![Technical Overview 1](./assets/tech-overview-1.png)
+
+![Technical Overview 2](./assets/tech-overview-2.png)
+
 ## How to Build and Install
 
 Before you build the GCC plugin, you have to install a package on your system.
