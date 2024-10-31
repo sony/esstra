@@ -18,6 +18,8 @@ files from which the binary file was generated.
 
 ESSTRA is being developed on Ubuntu 22.04 with GCC 11.4.0 and Python
 3.10.12 installed on an x86\_64 PC.
+And we have also confirmed that ESSTRA can be build and run on an Aarch64 (arm64) Docker
+container virtualized with QEMU on an x86\_64 PC.
 
 This is a preliminary version. The data format and content of metadata, and the
 specifications and functionality of the tools are tentative and subject to
@@ -43,9 +45,7 @@ in binary files.
 
 ## Technical Overview
 
-![Technical Overview 1](./assets/tech-overview-1.png)
-
-![Technical Overview 2](./assets/tech-overview-2.png)
+![Technical Overview](./assets/tech-overview.png)
 
 ## How to Build and Install
 
