@@ -23,6 +23,10 @@ $ ./hello
 Hello, World!
 ```
 
+For reference, a prebuilt binary file `hello` is placed in the sub directory
+[`output_example`](./output_example), which was built on our development environment mentioned in
+the [README.md](../../README.md#status-of-this-version) file at the top directory.
+
 ## How to Display Metadata
 
 Because the binary file `hello` is the result of compilation ESSTRA Core applied,
