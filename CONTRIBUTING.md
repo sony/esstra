@@ -41,7 +41,7 @@ Our team members will review your PR, and once it is approved and passes continu
 
 Bear in mind that when you contribute a new feature, the maintenance burden is transferred to our team. This means that the benefit of the contribution must be compared against the cost of maintaining the feature.
 
-> **Warning**
+> [!WARNING]
 >
 > By submitting a PR, you agree to license your work under the same license as that used by the project.
 
