@@ -45,6 +45,10 @@ in binary files.
 
 ## Technical Overview
 
+ESSTRA Core creates a section in the resulting ELF file to store metadata during compilation.
+
+ESSTRA Utility allows users to access the metadata. For example, you may update the metadata using license information detected from the source files, delete some or all of the metadata, output the metadata to the console or pass it to some other SCA (Software Composition Analysis) tools.
+
 ![Technical Overview](./assets/tech-overview.png)
 
 ## How to Build and Install
