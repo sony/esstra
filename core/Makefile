@@ -15,7 +15,7 @@ INSTALLDIR := $(PREFIX)/share/esstra
 
 all: $(ESSTRACORE)
 
-$(ESSTRACORE):
+$(ESSTRACORE): $(ESSTRACORE_SOURCE)
 	$(CXX) -shared $(CXXFLAGS) $(ESSTRACORE_SOURCE) -o $@
 
 install: $(ESSTRACORE)
