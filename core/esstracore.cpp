@@ -21,23 +21,14 @@
 #include <map>
 #include <algorithm>
 #include <iostream>
-#include <sstream>
-#include <iomanip>
 
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>
 
-#include <unistd.h>
-
 #include "gcc-plugin.h"
 #include "output.h"
 #include "plugin-version.h"
-
-#include "lib/WjCryptLib_Md5.h"
-#include "lib/WjCryptLib_Sha1.h"
-#include "lib/WjCryptLib_Sha256.h"
-
 
 using namespace std;
 
@@ -45,15 +36,7 @@ int plugin_is_GPL_compatible;
 
 static constexpr char section_name[] = "esstra_info";
 
-struct FileInfo {
-    string abspath;
-    string md5;
-    string sha1;
-    string sha256;
-};
-
 static vector<string> allpaths;
-static map<string, FileInfo> path_to_info;
 
 
 // debug log
@@ -61,21 +44,6 @@ static bool debug_mode = false;
 
 #define DEBUG_LOG(fmt, ...) { if (debug_mode) printf("[DEBUG] " fmt, ##__VA_ARGS__); }
 
-
-/*
- * convert bytes to hex string for checksums
- */
-string bytes_to_hex(uint8_t *bytes, unsigned int size)
-{
-    stringstream hexresult;
-
-    hexresult << std::hex << std::setfill('0');
-    while (size--) {
-        hexresult << (int)*bytes++;
-    }
-
-    return hexresult.str();
-}
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
@@ -104,49 +72,6 @@ collect_paths(void *gcc_data, void *user_data)
         return;
     }
 
-    // calc hashes
-    int fd = open(resolved_path.c_str(), O_RDONLY);
-    if (fd < 0) {
-        fprintf(stderr, "cannot fopen() '%s'\n", resolved_path.c_str());
-        perror(0);
-        return;
-    }
-
-    struct stat st;
-    stat(resolved_path.c_str(), &st);
-    unsigned long fsize = st.st_size;
-
-    auto buffer = new uint8_t[fsize];
-    size_t readsize = read(fd, buffer, fsize);
-
-    if (readsize != fsize) {
-        perror(0);
-        return;
-    }
-
-    close(fd);
-
-    // calc checksums
-    MD5_HASH md5;
-    Md5Calculate(buffer, fsize, &md5);
-
-    SHA1_HASH sha1;
-    Sha1Calculate(buffer, fsize, &sha1);
-
-    SHA256_HASH sha256;
-    Sha256Calculate(buffer, fsize, &sha256);
-
-    // store sums to map
-    FileInfo finfo = {
-        string(resolved_path),
-        bytes_to_hex(md5.bytes, MD5_HASH_SIZE),
-        bytes_to_hex(sha1.bytes, SHA1_HASH_SIZE),
-        bytes_to_hex(sha256.bytes, SHA256_HASH_SIZE),
-    };
-    path_to_info[resolved_path] = finfo;
-
-    delete[] buffer;
-
     allpaths.push_back(resolved_path);
 }
 
@@ -156,20 +81,11 @@ collect_paths(void *gcc_data, void *user_data)
 static void
 create_section(void *gcc_data, void *user_data)
 {
-    vector<string> metadata;
+    // +3 for '[', ']' and '\0'
+    int datasize = strlen(main_input_filename) + 3;
 
-    metadata.push_back(string("InputFileName: ") + string(main_input_filename));
-    for (const auto& abspath : allpaths) {
-        metadata.push_back(string("SourcePath: ") + abspath);
-        FileInfo& finfo = path_to_info[abspath];
-        metadata.push_back(string("MD5: ") + finfo.md5);
-        metadata.push_back(string("SHA1: ") + finfo.sha1);
-        metadata.push_back(string("SHA256: ") + finfo.sha256);
-    }
-
-    int datasize = 0;
-    for (const auto &item: metadata) {
-        datasize += item.length() + 1;
+    for (const auto& path : allpaths) {
+        datasize += path.size() + 1;  // +1 for '\0' at the end of each c-string
     }
 
     int padding = 0;
@@ -179,8 +95,9 @@ create_section(void *gcc_data, void *user_data)
 
     fprintf(asm_out_file, "\t.pushsection %s\n", section_name);
     fprintf(asm_out_file, "\t.balign 4\n");
-    for (const auto& item : metadata) {
-        fprintf(asm_out_file, "\t.asciz \"%s\"\n", item.c_str());
+    fprintf(asm_out_file, "\t.asciz \"<%s>\"\n", main_input_filename);
+    for (const auto& pathinfo : allpaths) {
+        fprintf(asm_out_file, "\t.asciz \"%s\"\n", pathinfo.c_str());
     }
     if (padding > 0) {
         fprintf(asm_out_file, "\t.dcb %d\n", padding);
