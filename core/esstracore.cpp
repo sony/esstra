@@ -21,26 +21,37 @@
 #include <map>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "gcc-plugin.h"
 #include "output.h"
 #include "plugin-version.h"
 
+#include "lib/WjCryptLib_Md5.h"
+
 
 int plugin_is_GPL_compatible;
 
+struct FileInfo {
+    std::string md5sum;
+};
+
 static std::vector<std::string> allpaths;
+static std::map<std::string, FileInfo> infomap;
 
 static constexpr char section_name[] = "esstra_info";
 
 static constexpr char tag_input_filename[] = "InputFileName: ";
 static constexpr char tag_source_path[] = "SourcePath: ";
+static constexpr char tag_checksum[] = "Checksum: ";
 
 static bool debug_mode = false;
+
 
 /*
  * debug print
@@ -56,6 +67,18 @@ debug_log(char const* format, ...) {
     }
 }
 
+/*
+ * convert byte data to hex string
+ */
+static std::string
+bytes_to_string(uint8_t* bytes, unsigned size) {
+    std::stringstream hexstream;
+    hexstream << std::hex << std::setfill('0');
+    while (size--) {
+        hexstream << (int)*bytes++;
+    }
+    return hexstream.str();
+}
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
@@ -69,21 +92,55 @@ collect_paths(void *gcc_data, void *user_data) {
         return;
     }
 
+    // get absolute path
+
     char resolved[PATH_MAX];
     if (!realpath(path.c_str(), resolved)) {
-        fprintf(stderr, "cannot get realpath from '%s'\n", path.c_str());
-        perror(0);
+        perror((path + ": realpath() failed").c_str());
         return;
     }
 
     std::string resolved_path(resolved);
-
     if (find(allpaths.begin(), allpaths.end(), resolved_path) != allpaths.end()) {
         debug_log("skip '%s': already registered\n", resolved_path.c_str());
         return;
     }
 
     allpaths.push_back(resolved_path);
+
+    // calc checksum
+
+    int fd = open(resolved, O_RDONLY);
+    if (fd == 0) {
+        perror("open() failed");
+        return;
+    }
+
+    struct stat filestat;
+    if (fstat(fd, &filestat) < 0) {
+        perror((path + ": fstat() failed").c_str());
+        return;
+    }
+    ssize_t st_size = (ssize_t)filestat.st_size;
+
+    uint8_t* buffer = new uint8_t[st_size];
+    ssize_t size = read(fd, buffer, st_size);
+    if (size != st_size) {
+        fprintf(stderr, "size mismatch: st_size:%lu, read():%zd\n", st_size, size);
+        return;
+    }
+
+    MD5_HASH md5sum;
+    Md5Calculate(buffer, size, &md5sum);
+
+    // store to map
+    FileInfo finfo;
+    std::string md5string = bytes_to_string(md5sum.bytes, MD5_HASH_SIZE);
+    finfo.md5sum = "MD5: " + md5string;
+    infomap[resolved_path] = finfo;
+
+    delete[] buffer;
+
 }
 
 /*
@@ -97,6 +154,7 @@ create_section(void *gcc_data, void *user_data) {
     strings_to_embed.push_back(tag_input_filename + std::string(main_input_filename));
     for (const auto& path : allpaths) {
         strings_to_embed.push_back(tag_source_path + std::string(path));
+        strings_to_embed.push_back(tag_checksum + infomap[path].md5sum);
     }
 
     // calculate size of metadata
