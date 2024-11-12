@@ -3,7 +3,7 @@
 
 CXX := g++
 PLUGIN_INCLUDE_DIR := $(shell $(CXX) -print-file-name=plugin)
-CXXFLAGS += -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2
+CXXFLAGS += -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++14
 
 ESSTRACORE_SOURCE := esstracore.cpp
 ESSTRACORE := $(ESSTRACORE_SOURCE:.cpp=.so)
@@ -16,7 +16,7 @@ INSTALLDIR := $(PREFIX)/share/esstra
 all: $(ESSTRACORE)
 
 $(ESSTRACORE): $(ESSTRACORE_SOURCE)
-	$(CXX) -shared $(CXXFLAGS) $(ESSTRACORE_SOURCE) -o $@
+	$(CXX) -shared $(CXXFLAGS) $^ -o $@
 
 install: $(ESSTRACORE)
 	install -m 755 -d $(INSTALLDIR)

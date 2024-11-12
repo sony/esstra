@@ -30,31 +30,42 @@
 #include "output.h"
 #include "plugin-version.h"
 
-using namespace std;
 
 int plugin_is_GPL_compatible;
 
+static std::vector<std::string> allpaths;
+
 static constexpr char section_name[] = "esstra_info";
 
-static vector<string> allpaths;
+static constexpr char tag_input_filename[] = "InputFileName: ";
+static constexpr char tag_source_path[] = "SourcePath: ";
 
-
-// debug log
 static bool debug_mode = false;
 
-#define DEBUG_LOG(fmt, ...) { if (debug_mode) printf("[DEBUG] " fmt, ##__VA_ARGS__); }
+/*
+ * debug print
+ */
+static void
+debug_log(char const* format, ...) {
+    if (debug_mode) {
+        va_list args;
+        va_start(args, format);
+        printf("[DEBUG] ");
+        vprintf(format, args);
+        va_end(args);
+    }
+}
 
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
  */
 static void
-collect_paths(void *gcc_data, void *user_data)
-{
-    string path(reinterpret_cast<const char*>(gcc_data));
+collect_paths(void *gcc_data, void *user_data) {
+    std::string path(reinterpret_cast<const char*>(gcc_data));
 
     if (path[0] == '<') {
-        DEBUG_LOG("skip '%s': pseudo file name\n", path.c_str());
+        debug_log("skip '%s': pseudo file name\n", path.c_str());
         return;
     }
 
@@ -65,10 +76,10 @@ collect_paths(void *gcc_data, void *user_data)
         return;
     }
 
-    string resolved_path(resolved);
+    std::string resolved_path(resolved);
 
     if (find(allpaths.begin(), allpaths.end(), resolved_path) != allpaths.end()) {
-        DEBUG_LOG("skip '%s': already registered\n", resolved_path.c_str());
+        debug_log("skip '%s': already registered\n", resolved_path.c_str());
         return;
     }
 
@@ -79,25 +90,32 @@ collect_paths(void *gcc_data, void *user_data)
  * PLUGIN_FINISH_UNIT handler - create a new ELF section and store path data in it
  */
 static void
-create_section(void *gcc_data, void *user_data)
-{
-    // +3 for '[', ']' and '\0'
-    int datasize = strlen(main_input_filename) + 3;
+create_section(void *gcc_data, void *user_data) {
+    std::vector<std::string> strings_to_embed;
 
+    // construct metadata
+    strings_to_embed.push_back(tag_input_filename + std::string(main_input_filename));
     for (const auto& path : allpaths) {
-        datasize += path.size() + 1;  // +1 for '\0' at the end of each c-string
+        strings_to_embed.push_back(tag_source_path + std::string(path));
     }
 
+    // calculate size of metadata
+    int datasize = 0;
+    for (const auto& item : strings_to_embed) {
+        datasize += item.size() + 1; // plus 1 for null-character temination
+    }
     int padding = 0;
     if (datasize % 4) {
         padding = 4 - datasize % 4;   // padding for 4-byte alignment
     }
+    debug_log("size=%d\n", datasize);
+    debug_log("padding=%d\n", padding);
 
+    // add assembly code
     fprintf(asm_out_file, "\t.pushsection %s\n", section_name);
     fprintf(asm_out_file, "\t.balign 4\n");
-    fprintf(asm_out_file, "\t.asciz \"<%s>\"\n", main_input_filename);
-    for (const auto& pathinfo : allpaths) {
-        fprintf(asm_out_file, "\t.asciz \"%s\"\n", pathinfo.c_str());
+    for (const auto& item : strings_to_embed) {
+        fprintf(asm_out_file, "\t.asciz \"%s\"\n", item.c_str());
     }
     if (padding > 0) {
         fprintf(asm_out_file, "\t.dcb %d\n", padding);
@@ -110,8 +128,7 @@ create_section(void *gcc_data, void *user_data)
  */
 int
 plugin_init(struct plugin_name_args *plugin_info,
-            struct plugin_gcc_version *version)
-{
+            struct plugin_gcc_version *version) {
     if (!plugin_default_version_check(version, &gcc_version)) {
         return 1;
     }
@@ -123,13 +140,13 @@ plugin_init(struct plugin_name_args *plugin_info,
         if (strcmp(argv->key, "debug") == 0) {
             debug_mode = (atoi(argv->value) != 0);
             if (debug_mode) {
-                DEBUG_LOG("debug mode enabled\n");
+                debug_log("debug mode enabled\n");
             }
         }
         argv++;
     }
 
-    DEBUG_LOG("main_input_filename: %s\n", main_input_filename);
+    debug_log("main_input_filename: %s\n", main_input_filename);
 
     register_callback(plugin_info->base_name,
                       PLUGIN_INCLUDE_FILE, collect_paths, 0);
