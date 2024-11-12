@@ -14,6 +14,13 @@ In this directory, type:
 $ make
 ```
 
+Or, if you want to use `esstracore.so` which is not installed on the system
+but has been compiled in [../../core/](../../core), type:
+
+```sh
+$ make ESSTRACORE=../../core/esstracore.so
+```
+
 Then the source files are compiled with ESSTRA Core applied and a binary file
 `hello` is generated.
 Running `hello` just displays a string `Hello, World!` on the standard output:
