@@ -32,15 +32,9 @@
 #include "output.h"
 #include "plugin-version.h"
 
-#include "lib/WjCryptLib_Aes.h"
-#include "lib/WjCryptLib_AesCbc.h"
-#include "lib/WjCryptLib_AesCtr.h"
-#include "lib/WjCryptLib_AesOfb.h"
 #include "lib/WjCryptLib_Md5.h"
-#include "lib/WjCryptLib_Rc4.h"
 #include "lib/WjCryptLib_Sha1.h"
 #include "lib/WjCryptLib_Sha256.h"
-#include "lib/WjCryptLib_Sha512.h"
 
 
 using std::vector;
@@ -55,33 +49,27 @@ int plugin_is_GPL_compatible;
 // metadata
 static constexpr char section_name[] = "esstra_info";
 static vector<string> allpaths;
-struct FileInfo {
-    map<string, string> checksums;
-};
+using FileInfo = map<string, string>;
 static std::map<string, FileInfo> infomap;
 
 // hash algorithms
-static constexpr const char* algos[] = {
-    "aes",
-    "aescbc",
-    "aesctr",
-    "aesofb",
+static const vector<string> supported_algos = {
     "md5",
-    "rc4",
     "sha1",
     "sha256",
-    "sha512",
 };
 static vector<string> specified_algos;
-
 
 // tags
 static constexpr char tag_input_filename[] = "InputFileName: ";
 static constexpr char tag_source_path[] = "SourcePath: ";
-static constexpr char tag_checksum[] = "Checksum: ";
+static constexpr char tag_md5[] = "MD5: ";
+static constexpr char tag_sha1[] = "SHA1: ";
+static constexpr char tag_sha256[] = "SHA256: ";
 
 // debugging
 static bool debug_mode = false;
+
 
 /*
  * debug print
@@ -100,15 +88,54 @@ debug_log(const char* format, ...) {
 /*
  * convert byte data to hex string
  */
-// static string
-// bytes_to_string(uint8_t* bytes, unsigned size) {
-//     stringstream hexstream;
-//     hexstream << std::hex << std::setfill('0');
-//     while (size--) {
-//         hexstream << static_cast<int>(*bytes++);
-//     }
-//     return hexstream.str();
-// }
+static const string
+bytes_to_string(uint8_t* bytes, unsigned size) {
+    stringstream hexstream;
+    hexstream << std::hex << std::setfill('0');
+    while (size--) {
+        hexstream << static_cast<int>(*bytes++);
+    }
+    return hexstream.str();
+}
+
+/*
+ * check if specified algorithm is supported
+ */
+static bool
+is_algo_supported(const string& algo) {
+    return std::find(supported_algos.begin(), supported_algos.end(), algo) != supported_algos.end();
+}
+
+/*
+ * calculate md5sum
+ */
+static const string
+calc_md5(uint8_t *buffer, uint32_t size) {
+    MD5_HASH hash;
+    Md5Calculate(buffer, size, &hash);
+    return bytes_to_string(hash.bytes, MD5_HASH_SIZE);
+}
+
+/*
+ * calculate sha1sum
+ */
+static const string
+calc_sha1(uint8_t *buffer, uint32_t size) {
+    SHA1_HASH hash;
+    Sha1Calculate(buffer, size, &hash);
+    return bytes_to_string(hash.bytes, SHA1_HASH_SIZE);
+}
+
+/*
+ * calculate sha256sum
+ */
+static const string
+calc_sha256(uint8_t *buffer, uint32_t size) {
+    SHA256_HASH hash;
+    Sha256Calculate(buffer, size, &hash);
+    return bytes_to_string(hash.bytes, SHA256_HASH_SIZE);
+}
+
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
@@ -160,14 +187,23 @@ collect_paths(void* gcc_data, void* /* user_data */) {
         return;
     }
 
-    MD5_HASH md5sum;
-    Md5Calculate(buffer, size, &md5sum);
+    // calculate hashes with specified algorithms
+    FileInfo finfo;
 
-    // // store to map
-    // FileInfo finfo;
-    // string md5string = bytes_to_string(md5sum.bytes, MD5_HASH_SIZE);
-    // finfo.md5sum = "MD5: " + md5string;
-    // infomap[resolved_path] = finfo;
+    for (const auto &algo: specified_algos) {
+        debug_log("calculate '%s' hash\n", algo.c_str());
+        if (algo == "md5") {
+            finfo[tag_md5] = calc_md5(buffer, size);
+        } else if (algo == "sha1") {
+            finfo[tag_sha1] = calc_sha1(buffer, size);
+        } else if (algo == "sha256") {
+            finfo[tag_sha256] = calc_sha256(buffer, size);
+        } else {
+            fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
+        }
+    }
+
+    infomap[resolved] = finfo;
 
     delete[] buffer;
 }
@@ -183,7 +219,9 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     strings_to_embed.push_back(tag_input_filename + string(main_input_filename));
     for (const auto& path : allpaths) {
         strings_to_embed.push_back(tag_source_path + string(path));
-        // strings_to_embed.push_back(tag_checksum + infomap[path].md5sum);
+        for (const auto& elem : infomap[path]) {
+            strings_to_embed.push_back(elem.first + elem.second);
+        }
     }
 
     // calculate size of metadata
@@ -220,6 +258,8 @@ plugin_init(struct plugin_name_args* plugin_info,
         return 1;
     }
 
+    bool error = false;
+
     const struct plugin_argument *argv = plugin_info->argv;
     int argc = plugin_info->argc;
 
@@ -247,14 +287,24 @@ plugin_init(struct plugin_name_args* plugin_info,
             if (algo.length() > 0) {
                 specified_algos.push_back(algo);
             }
-            // show all algos
-            for (auto& algo: specified_algos)
+            // check if specified algos are supported
+            for (const auto& algo: specified_algos) {
+                if (!is_algo_supported(algo)) {
+                    fprintf(stderr, "algorithm '%s' not supported\n", algo.c_str());
+                    error = true;
+                }
                 debug_log("algo: '%s'\n", algo.c_str());
+            }
         }
         argv++;
     }
 
     debug_log("main_input_filename: %s\n", main_input_filename);
+
+    if (error) {
+        fprintf(stderr, "error occurred.");
+        return 1;
+    }
 
     register_callback(plugin_info->base_name,
                       PLUGIN_INCLUDE_FILE, collect_paths, 0);
