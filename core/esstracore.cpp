@@ -32,7 +32,15 @@
 #include "output.h"
 #include "plugin-version.h"
 
+#include "lib/WjCryptLib_Aes.h"
+#include "lib/WjCryptLib_AesCbc.h"
+#include "lib/WjCryptLib_AesCtr.h"
+#include "lib/WjCryptLib_AesOfb.h"
 #include "lib/WjCryptLib_Md5.h"
+#include "lib/WjCryptLib_Rc4.h"
+#include "lib/WjCryptLib_Sha1.h"
+#include "lib/WjCryptLib_Sha256.h"
+#include "lib/WjCryptLib_Sha512.h"
 
 
 using std::vector;
@@ -43,21 +51,37 @@ using std::stringstream;
 
 int plugin_is_GPL_compatible;
 
-struct FileInfo {
-    string md5sum;
-};
 
+// metadata
+static constexpr char section_name[] = "esstra_info";
 static vector<string> allpaths;
+struct FileInfo {
+    map<string, string> checksums;
+};
 static std::map<string, FileInfo> infomap;
 
-static constexpr char section_name[] = "esstra_info";
+// hash algorithms
+static constexpr const char* algos[] = {
+    "aes",
+    "aescbc",
+    "aesctr",
+    "aesofb",
+    "md5",
+    "rc4",
+    "sha1",
+    "sha256",
+    "sha512",
+};
+static vector<string> specified_algos;
 
+
+// tags
 static constexpr char tag_input_filename[] = "InputFileName: ";
 static constexpr char tag_source_path[] = "SourcePath: ";
 static constexpr char tag_checksum[] = "Checksum: ";
 
+// debugging
 static bool debug_mode = false;
-
 
 /*
  * debug print
@@ -76,15 +100,15 @@ debug_log(const char* format, ...) {
 /*
  * convert byte data to hex string
  */
-static string
-bytes_to_string(uint8_t* bytes, unsigned size) {
-    stringstream hexstream;
-    hexstream << std::hex << std::setfill('0');
-    while (size--) {
-        hexstream << static_cast<int>(*bytes++);
-    }
-    return hexstream.str();
-}
+// static string
+// bytes_to_string(uint8_t* bytes, unsigned size) {
+//     stringstream hexstream;
+//     hexstream << std::hex << std::setfill('0');
+//     while (size--) {
+//         hexstream << static_cast<int>(*bytes++);
+//     }
+//     return hexstream.str();
+// }
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
@@ -139,11 +163,11 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     MD5_HASH md5sum;
     Md5Calculate(buffer, size, &md5sum);
 
-    // store to map
-    FileInfo finfo;
-    string md5string = bytes_to_string(md5sum.bytes, MD5_HASH_SIZE);
-    finfo.md5sum = "MD5: " + md5string;
-    infomap[resolved_path] = finfo;
+    // // store to map
+    // FileInfo finfo;
+    // string md5string = bytes_to_string(md5sum.bytes, MD5_HASH_SIZE);
+    // finfo.md5sum = "MD5: " + md5string;
+    // infomap[resolved_path] = finfo;
 
     delete[] buffer;
 }
@@ -159,7 +183,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     strings_to_embed.push_back(tag_input_filename + string(main_input_filename));
     for (const auto& path : allpaths) {
         strings_to_embed.push_back(tag_source_path + string(path));
-        strings_to_embed.push_back(tag_checksum + infomap[path].md5sum);
+        // strings_to_embed.push_back(tag_checksum + infomap[path].md5sum);
     }
 
     // calculate size of metadata
@@ -205,6 +229,32 @@ plugin_init(struct plugin_name_args* plugin_info,
             if (debug_mode) {
                 debug_log("debug mode enabled\n");
             }
+        } else if (strcmp(argv->key, "checksum") == 0) {
+            debug_log("arg-checksum: %s\n", argv->value);
+            auto value = reinterpret_cast<const char*>(argv->value);
+            stringstream ss_checksum;
+            string algo;
+            while (*value) {
+                if (*value == ',') {
+                    algo = ss_checksum.str();
+                    if (algo.length() > 0) {
+                        specified_algos.push_back(algo);
+                        algo = "";
+                    }
+                    ss_checksum.str("");
+                    ss_checksum.clear(stringstream::goodbit);
+                } else {
+                    ss_checksum << *value;
+                }
+                value++;
+            }
+            algo = ss_checksum.str();
+            if (algo.length() > 0) {
+                specified_algos.push_back(algo);
+            }
+            // show all algos
+            for (auto& algo: specified_algos)
+                debug_log("algo: '%s'\n", algo.c_str());
         }
         argv++;
     }
