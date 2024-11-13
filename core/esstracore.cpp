@@ -232,23 +232,18 @@ plugin_init(struct plugin_name_args* plugin_info,
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug_log("arg-checksum: %s\n", argv->value);
             auto value = reinterpret_cast<const char*>(argv->value);
-            stringstream ss_checksum;
             string algo;
             while (*value) {
                 if (*value == ',') {
-                    algo = ss_checksum.str();
                     if (algo.length() > 0) {
                         specified_algos.push_back(algo);
-                        algo = "";
                     }
-                    ss_checksum.str("");
-                    ss_checksum.clear(stringstream::goodbit);
+                    algo = "";
                 } else {
-                    ss_checksum << *value;
+                    algo += string(value, 1);
                 }
                 value++;
             }
-            algo = ss_checksum.str();
             if (algo.length() > 0) {
                 specified_algos.push_back(algo);
             }
