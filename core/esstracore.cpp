@@ -16,17 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
+#include <limits.h>
+#include <errno.h>
+#include <unistd.h>
+
 #include <string>
 #include <vector>
 #include <map>
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
-
-#include <stdio.h>
-#include <limits.h>
-#include <errno.h>
-#include <unistd.h>
 
 #include "gcc-plugin.h"
 #include "output.h"
@@ -35,14 +35,20 @@
 #include "lib/WjCryptLib_Md5.h"
 
 
+using std::vector;
+using std::string;
+using std::map;
+using std::stringstream;
+
+
 int plugin_is_GPL_compatible;
 
 struct FileInfo {
-    std::string md5sum;
+    string md5sum;
 };
 
-static std::vector<std::string> allpaths;
-static std::map<std::string, FileInfo> infomap;
+static vector<string> allpaths;
+static std::map<string, FileInfo> infomap;
 
 static constexpr char section_name[] = "esstra_info";
 
@@ -57,7 +63,7 @@ static bool debug_mode = false;
  * debug print
  */
 static void
-debug_log(char const* format, ...) {
+debug_log(const char* format, ...) {
     if (debug_mode) {
         va_list args;
         va_start(args, format);
@@ -70,12 +76,12 @@ debug_log(char const* format, ...) {
 /*
  * convert byte data to hex string
  */
-static std::string
+static string
 bytes_to_string(uint8_t* bytes, unsigned size) {
-    std::stringstream hexstream;
+    stringstream hexstream;
     hexstream << std::hex << std::setfill('0');
     while (size--) {
-        hexstream << (int)*bytes++;
+        hexstream << static_cast<int>(*bytes++);
     }
     return hexstream.str();
 }
@@ -84,8 +90,8 @@ bytes_to_string(uint8_t* bytes, unsigned size) {
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
  */
 static void
-collect_paths(void *gcc_data, void *user_data) {
-    std::string path(reinterpret_cast<const char*>(gcc_data));
+collect_paths(void* gcc_data, void* /* user_data */) {
+    string path(reinterpret_cast<const char*>(gcc_data));
 
     if (path[0] == '<') {
         debug_log("skip '%s': pseudo file name\n", path.c_str());
@@ -100,7 +106,7 @@ collect_paths(void *gcc_data, void *user_data) {
         return;
     }
 
-    std::string resolved_path(resolved);
+    string resolved_path(resolved);
     if (find(allpaths.begin(), allpaths.end(), resolved_path) != allpaths.end()) {
         debug_log("skip '%s': already registered\n", resolved_path.c_str());
         return;
@@ -135,32 +141,31 @@ collect_paths(void *gcc_data, void *user_data) {
 
     // store to map
     FileInfo finfo;
-    std::string md5string = bytes_to_string(md5sum.bytes, MD5_HASH_SIZE);
+    string md5string = bytes_to_string(md5sum.bytes, MD5_HASH_SIZE);
     finfo.md5sum = "MD5: " + md5string;
     infomap[resolved_path] = finfo;
 
     delete[] buffer;
-
 }
 
 /*
  * PLUGIN_FINISH_UNIT handler - create a new ELF section and store path data in it
  */
 static void
-create_section(void *gcc_data, void *user_data) {
-    std::vector<std::string> strings_to_embed;
+create_section(void* /* gcc_data */, void* /* user_data */) {
+    vector<string> strings_to_embed;
 
     // construct metadata
-    strings_to_embed.push_back(tag_input_filename + std::string(main_input_filename));
+    strings_to_embed.push_back(tag_input_filename + string(main_input_filename));
     for (const auto& path : allpaths) {
-        strings_to_embed.push_back(tag_source_path + std::string(path));
+        strings_to_embed.push_back(tag_source_path + string(path));
         strings_to_embed.push_back(tag_checksum + infomap[path].md5sum);
     }
 
     // calculate size of metadata
     int datasize = 0;
     for (const auto& item : strings_to_embed) {
-        datasize += item.size() + 1; // plus 1 for null-character temination
+        datasize += item.size() + 1;  // plus 1 for null-character temination
     }
     int padding = 0;
     if (datasize % 4) {
@@ -185,8 +190,8 @@ create_section(void *gcc_data, void *user_data) {
  * initialization
  */
 int
-plugin_init(struct plugin_name_args *plugin_info,
-            struct plugin_gcc_version *version) {
+plugin_init(struct plugin_name_args* plugin_info,
+            struct plugin_gcc_version* version) {
     if (!plugin_default_version_check(version, &gcc_version)) {
         return 1;
     }

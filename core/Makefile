@@ -3,6 +3,7 @@
 
 CXX := g++
 PLUGIN_INCLUDE_DIR := $(shell $(CXX) -print-file-name=plugin)
+CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++14
 
 ESSTRACORE_SOURCES := esstracore.cpp
