@@ -27,6 +27,8 @@ import sys
 import argparse
 from pathlib import Path
 import subprocess
+import json
+import yaml
 
 
 COMMANDS = {
@@ -35,12 +37,8 @@ COMMANDS = {
 }
 
 SECTION_NAME = 'esstra_info'
-
 TAG_INPUT_FILE_NAME = 'InputFileName'
 TAG_SOURCE_PATH = 'SourcePath'
-TAG_MD5 = 'MD5'
-TAG_SHA1 = 'SHA1'
-TAG_SHA256 = 'SHA256'
 
 
 #
@@ -132,6 +130,34 @@ def _parse_esstra_info(esstra_info):
     return parsed_info
 
 
+def _generate_data_for_binary(binary_file):
+    path = Path(binary_file).resolve()
+
+    if not path.exists():
+        error(f'{binary_file!r}: not exist')
+        return None
+
+    if not Path(path).is_file():
+        error(f'{binary_file!r}: not a file')
+        return None
+
+    esstra_info = _extract_esstra_info(path)
+    if not esstra_info:
+        error('{given_path!r}: cannot find esstra information')
+        return None
+
+    parsed_info = _parse_esstra_info(esstra_info)
+    if not parsed_info:
+        error('{given_path!r}: cannot parse esstra information')
+        return None
+
+    return {
+        'binaryFile': binary_file,
+        'path': str(path),
+        'sourceFiles': parsed_info,
+    }
+
+
 def _print_esstra_info(esstra_info):
     import yaml
     print(yaml.safe_dump(esstra_info))
@@ -139,27 +165,43 @@ def _print_esstra_info(esstra_info):
 
 def _setup_show(parser):
     parser.add_argument(
-        'file', nargs='+',
-        help='ESSTRA-built binary to show embedded information by ESSTRA Core')
+        'binary', nargs='+',
+        help='ESSTRA-built binary file to show embedded information')
+    parser.add_argument(
+        '-o', '--output-format',
+        type=str.lower,
+        choices=['j', 'y', 'r'],
+        default='j',
+        help='output format (j:json, y:yaml, r:raw)')
 
 
 def _run_show(args):
-    for given_path in args.file:
-        path = Path(given_path).resolve()
-        if not path.exists():
-            print('Error: path not exist')
-        elif not Path(path).is_file():
-            print('Error: not a file')
-        else:
-            print('---')
-            print(f'File: {given_path}')
-            esstra_info = _extract_esstra_info(path)
-            parsed_info = _parse_esstra_info(esstra_info)
-            if not parsed_info:
-                print('Error: ESSTRA information not found')
+    if args.output_format in ('j', 'y'):
+        # gather embedded data into structured info
+        result = []
+        for given_path in args.binary:
+            data = _generate_data_for_binary(given_path)
+            if not data:
+                error(f'{given_path!r}: cannot get embedded data')
                 continue
-            _print_esstra_info(parsed_info)
-        print()
+            result.append(data)
+        # show result in specified format
+        if args.output_format == 'j':
+            print(json.dumps(data, indent=4))
+        elif args.output_format == 'y':
+            print(yaml.safe_dump(data))
+    else:
+        assert args.output_format == 'r'
+        result = []
+        for given_path in args.binary:
+            result.append('---')
+            result.append(f'File: {given_path}')
+            data = _extract_esstra_info(given_path)
+            if not data:
+                error(f'{given_path!r}: cannot get embedded data')
+                continue
+            result += [f'{tag}: {value}' for tag, value in data]
+        print('\n'.join(result))
 
     return 0
 
