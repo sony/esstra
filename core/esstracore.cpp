@@ -41,7 +41,7 @@ using std::vector;
 using std::string;
 using std::map;
 using std::stringstream;
-
+using std::string_literals::operator""s;
 
 int plugin_is_GPL_compatible;
 
@@ -61,11 +61,12 @@ static const vector<string> supported_algos = {
 static vector<string> specified_algos;
 
 // tags
-static constexpr char tag_input_filename[] = "InputFileName: ";
-static constexpr char tag_source_path[] = "SourcePath: ";
-static constexpr char tag_md5[] = "MD5: ";
-static constexpr char tag_sha1[] = "SHA1: ";
-static constexpr char tag_sha256[] = "SHA256: ";
+#define TV_DELIMITER ": "s
+#define TAG_INPUT_FILENAME "InputFileName"s
+#define TAG_SOURCE_PATH "SourcePath"s
+#define TAG_MD5 "MD5"s
+#define TAG_SHA1 "SHA1"s
+#define TAG_SHA256 "SHA256"s
 
 // debugging
 static bool debug_mode = false;
@@ -193,11 +194,11 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     for (const auto &algo: specified_algos) {
         debug_log("calculate '%s' hash\n", algo.c_str());
         if (algo == "md5") {
-            finfo[tag_md5] = calc_md5(buffer, size);
+            finfo[TAG_MD5] = calc_md5(buffer, size);
         } else if (algo == "sha1") {
-            finfo[tag_sha1] = calc_sha1(buffer, size);
+            finfo[TAG_SHA1] = calc_sha1(buffer, size);
         } else if (algo == "sha256") {
-            finfo[tag_sha256] = calc_sha256(buffer, size);
+            finfo[TAG_SHA256] = calc_sha256(buffer, size);
         } else {
             fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
         }
@@ -216,11 +217,11 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     vector<string> strings_to_embed;
 
     // construct metadata
-    strings_to_embed.push_back(tag_input_filename + string(main_input_filename));
+    strings_to_embed.push_back(TAG_INPUT_FILENAME + TV_DELIMITER + string(main_input_filename));
     for (const auto& path : allpaths) {
-        strings_to_embed.push_back(tag_source_path + string(path));
+        strings_to_embed.push_back(TAG_SOURCE_PATH + TV_DELIMITER + string(path));
         for (const auto& elem : infomap[path]) {
-            strings_to_embed.push_back(elem.first + elem.second);
+            strings_to_embed.push_back(elem.first + TV_DELIMITER + elem.second);
         }
     }
 
