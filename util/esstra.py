@@ -29,16 +29,22 @@ from pathlib import Path
 import subprocess
 
 
-COMMANDS = (
-    ('show', 'display information embedded by ESSTRA Core'),
-    ('update', 'update embedded information (*not implemented yet*)'),
-)
+COMMANDS = {
+    'show': 'display information embedded by ESSTRA Core',
+    'update': 'update embedded information (*not implemented yet*)',
+}
 
 SECTION_NAME = 'esstra_info'
 
+TAG_INPUT_FILE_NAME = 'InputFileName'
+TAG_SOURCE_PATH = 'SourcePath'
+TAG_MD5 = 'MD5'
+TAG_SHA1 = 'SHA1'
+TAG_SHA256 = 'SHA256'
+
 
 #
-# helper functions
+# basic helper functions
 #
 def error(msg):
     print(f'[ERROR] {msg}', file=sys.stderr)
@@ -56,7 +62,7 @@ def call_function_by_name(function_name, *args):
 
 
 #
-# functions for command 'show'
+# helper functions for command 'show'
 #
 def _extract_esstra_info(path):
     result = subprocess.run(
@@ -81,18 +87,54 @@ def _extract_esstra_info(path):
             pass
         elif line.startswith('['):
             rbracket = line.find(']')
-            element = line[rbracket+1:].strip()
-            esstra_info.append(element)
+            assert rbracket >= 0, 'cannot find right bracket "]"'
+            tag_value = line[rbracket+1:].strip()
+            tag, value = map(str.strip, tag_value.split(':'))
+            esstra_info.append((tag, value))
         else:
             error(f'Ignore unexpected line: {line!r}')
 
     return esstra_info
 
 
+def _parse_esstra_info(esstra_info):
+    parsed_info = []
+    input_file_name = None
+    source_path = None
+
+    input_file_info = None
+    source_info = None
+
+    for tag, value in esstra_info:
+        if tag == TAG_INPUT_FILE_NAME:
+            input_file_name = value
+            source_files_info = []
+            input_file_info = {
+                'inputFileName': input_file_name,
+                'sourceFiles': source_files_info,
+            }
+            parsed_info.append(input_file_info)
+        elif tag == TAG_SOURCE_PATH:
+            assert input_file_name is not None
+            assert source_files_info is not None
+            source_path = value
+            source_info = {
+                'path': source_path,
+            }
+            source_files_info.append(source_info)
+        else:
+            assert input_file_name is not None
+            assert source_info is not None
+            source_info.update({
+                tag: value,
+            })
+
+    return parsed_info
+
+
 def _print_esstra_info(esstra_info):
-    print('Information:')
-    for element in esstra_info:
-        print(f'- {element}')
+    import yaml
+    print(yaml.safe_dump(esstra_info))
 
 
 def _setup_show(parser):
@@ -103,19 +145,20 @@ def _setup_show(parser):
 
 def _run_show(args):
     for given_path in args.file:
-        print('---')
-        print(f'File: {given_path}')
         path = Path(given_path).resolve()
         if not path.exists():
             print('Error: path not exist')
         elif not Path(path).is_file():
             print('Error: not a file')
         else:
+            print('---')
+            print(f'File: {given_path}')
             esstra_info = _extract_esstra_info(path)
-            if not esstra_info:
+            parsed_info = _parse_esstra_info(esstra_info)
+            if not parsed_info:
                 print('Error: ESSTRA information not found')
-            else:
-                _print_esstra_info(esstra_info)
+                continue
+            _print_esstra_info(parsed_info)
         print()
 
     return 0
@@ -140,7 +183,7 @@ def _run_update(args):
 def main():
     description = '\n'.join(
         ['commands:'] +
-        [f'  {name:16}{description}' for name, description in COMMANDS])
+        [f'  {name:16}{description}' for name, description in COMMANDS.items()])
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
@@ -148,7 +191,7 @@ def main():
 
     subparsers = parser.add_subparsers()
 
-    for name, description in COMMANDS:
+    for name, description in COMMANDS.items():
         subparser = subparsers.add_parser(
             name,
             description=description,
