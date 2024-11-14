@@ -36,9 +36,15 @@ COMMANDS = {
     'update': 'update embedded information (*not implemented yet*)',
 }
 
+# tags defined in esstra core
 SECTION_NAME = 'esstra_info'
 TAG_INPUT_FILE_NAME = 'InputFileName'
 TAG_SOURCE_PATH = 'SourcePath'
+
+# tags newly defined here
+TAG_BINARY_FILE_NAME = 'BinaryFileName'
+TAG_BINARY_PATH = 'BinaryPath'
+TAG_SOURCE_FILES = 'SouceFiles'
 
 
 #
@@ -97,31 +103,25 @@ def _extract_esstra_info(path):
 
 def _parse_esstra_info(esstra_info):
     parsed_info = []
-    input_file_name = None
-    source_path = None
-
     input_file_info = None
     source_info = None
 
     for tag, value in esstra_info:
         if tag == TAG_INPUT_FILE_NAME:
-            input_file_name = value
             source_files_info = []
             input_file_info = {
-                'inputFileName': input_file_name,
-                'sourceFiles': source_files_info,
+                tag: value,
+                TAG_SOURCE_FILES: source_files_info,
             }
             parsed_info.append(input_file_info)
         elif tag == TAG_SOURCE_PATH:
-            assert input_file_name is not None
+            assert input_file_info is not None
             assert source_files_info is not None
-            source_path = value
             source_info = {
-                'path': source_path,
+                tag: value,
             }
             source_files_info.append(source_info)
         else:
-            assert input_file_name is not None
             assert source_info is not None
             source_info.update({
                 tag: value,
@@ -152,9 +152,9 @@ def _generate_data_for_binary(binary_file):
         return None
 
     return {
-        'binaryFile': binary_file,
-        'path': str(path),
-        'sourceFiles': parsed_info,
+        TAG_BINARY_FILE_NAME: binary_file,
+        TAG_BINARY_PATH: str(path),
+        TAG_SOURCE_FILES: parsed_info,
     }
 
 
@@ -163,6 +163,9 @@ def _print_esstra_info(esstra_info):
     print(yaml.safe_dump(esstra_info))
 
 
+#
+# setup command line parser for 'show'
+#
 def _setup_show(parser):
     parser.add_argument(
         'binary', nargs='+',
@@ -175,6 +178,9 @@ def _setup_show(parser):
         help='output format (j:json, y:yaml, r:raw)')
 
 
+#
+# run 'show' command
+#
 def _run_show(args):
     if args.output_format in ('j', 'y'):
         # gather embedded data into structured info
@@ -187,15 +193,17 @@ def _run_show(args):
             result.append(data)
         # show result in specified format
         if args.output_format == 'j':
-            print(json.dumps(data, indent=4))
+            print(json.dumps(result, indent=4))
         elif args.output_format == 'y':
-            print(yaml.safe_dump(data))
+            print(yaml.safe_dump(result))
     else:
         assert args.output_format == 'r'
         result = []
         for given_path in args.binary:
+            path = Path(given_path).resolve()
             result.append('---')
-            result.append(f'File: {given_path}')
+            result.append(f'{TAG_BINARY_FILE_NAME}: {given_path}')
+            result.append(f'{TAG_BINARY_PATH}: {path}')
             data = _extract_esstra_info(given_path)
             if not data:
                 error(f'{given_path!r}: cannot get embedded data')
