@@ -65,6 +65,17 @@ def call_function_by_name(function_name, *args):
     return function(*args)
 
 
+def get_resolved_file_path(filename):
+    path = Path(filename).resolve()
+    if not path.exists():
+        error(f'{filename!r}: not exist')
+        return None
+    if not Path(path).is_file():
+        error(f'{filename!r}: not a file')
+        return None
+    return str(path)
+
+
 #
 # helper functions for command 'show'
 #
@@ -130,30 +141,18 @@ def _parse_esstra_info(esstra_info):
     return parsed_info
 
 
-def _generate_data_for_binary(binary_file):
-    path = Path(binary_file).resolve()
-
-    if not path.exists():
-        error(f'{binary_file!r}: not exist')
-        return None
-
-    if not Path(path).is_file():
-        error(f'{binary_file!r}: not a file')
-        return None
-
+def _generate_data_for_binary(filename, path):
     esstra_info = _extract_esstra_info(path)
     if not esstra_info:
-        error('{given_path!r}: cannot find esstra information')
+        error('{path!r}: cannot find esstra information')
         return None
-
     parsed_info = _parse_esstra_info(esstra_info)
     if not parsed_info:
-        error('{given_path!r}: cannot parse esstra information')
+        error('{path!r}: cannot parse esstra information')
         return None
-
     return {
-        TAG_BINARY_FILE_NAME: binary_file,
-        TAG_BINARY_PATH: str(path),
+        TAG_BINARY_FILE_NAME: filename,
+        TAG_BINARY_PATH: path,
         TAG_SOURCE_FILES: parsed_info,
     }
 
@@ -186,9 +185,11 @@ def _run_show(args):
         # gather embedded data into structured info
         result = []
         for given_path in args.binary:
-            data = _generate_data_for_binary(given_path)
+            path = get_resolved_file_path(given_path)
+            if not path:
+                continue
+            data = _generate_data_for_binary(given_path, path)
             if not data:
-                error(f'{given_path!r}: cannot get embedded data')
                 continue
             result.append(data)
         # show result in specified format
@@ -200,13 +201,14 @@ def _run_show(args):
         assert args.output_format == 'r'
         result = []
         for given_path in args.binary:
-            path = Path(given_path).resolve()
-            result.append('---')
+            path = get_resolved_file_path(given_path)
+            if not path:
+                continue
+            result.append(f'#\n# Metadata in {given_path!r}\n#')
             result.append(f'{TAG_BINARY_FILE_NAME}: {given_path}')
             result.append(f'{TAG_BINARY_PATH}: {path}')
             data = _extract_esstra_info(given_path)
             if not data:
-                error(f'{given_path!r}: cannot get embedded data')
                 continue
             result += [f'{tag}: {value}' for tag, value in data]
         print('\n'.join(result))
