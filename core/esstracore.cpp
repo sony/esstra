@@ -60,13 +60,18 @@ static const vector<string> supported_algos = {
 };
 static vector<string> specified_algos;
 
-// tags
-#define TV_DELIMITER ": "s
-#define TAG_INPUT_FILENAME "InputFileName"s
-#define TAG_SOURCE_PATH "SourcePath"s
-#define TAG_MD5 "MD5"s
-#define TAG_SHA1 "SHA1"s
-#define TAG_SHA256 "SHA256"s
+// yaml
+#define YAML_ITEM "- "s
+#define YAML_INDENT "  "s
+#define YAML_DELIMITER ": "s
+
+// keys
+#define KEY_INPUT_FILENAME "InputFileName"s
+#define KEY_SOURCE_FILES "SourceFiles"s
+#define KEY_SOURCE_PATH "SourcePath"s
+#define KEY_MD5 "MD5"s
+#define KEY_SHA1 "SHA1"s
+#define KEY_SHA256 "SHA256"s
 
 // debugging
 static bool debug_mode = false;
@@ -194,11 +199,11 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     for (const auto &algo: specified_algos) {
         debug_log("calculate '%s' hash\n", algo.c_str());
         if (algo == "md5") {
-            finfo[TAG_MD5] = calc_md5(buffer, size);
+            finfo[KEY_MD5] = calc_md5(buffer, size);
         } else if (algo == "sha1") {
-            finfo[TAG_SHA1] = calc_sha1(buffer, size);
+            finfo[KEY_SHA1] = calc_sha1(buffer, size);
         } else if (algo == "sha256") {
-            finfo[TAG_SHA256] = calc_sha256(buffer, size);
+            finfo[KEY_SHA256] = calc_sha256(buffer, size);
         } else {
             fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
         }
@@ -216,12 +221,15 @@ static void
 create_section(void* /* gcc_data */, void* /* user_data */) {
     vector<string> strings_to_embed;
 
-    // construct metadata
-    strings_to_embed.push_back(TAG_INPUT_FILENAME + TV_DELIMITER + string(main_input_filename));
+    // construct metadata in yaml format
+    strings_to_embed.push_back(YAML_ITEM + KEY_INPUT_FILENAME + YAML_DELIMITER + main_input_filename);
+    strings_to_embed.push_back(YAML_INDENT + KEY_SOURCE_FILES + YAML_DELIMITER);
     for (const auto& path : allpaths) {
-        strings_to_embed.push_back(TAG_SOURCE_PATH + TV_DELIMITER + string(path));
+        strings_to_embed.push_back(
+            YAML_INDENT + YAML_INDENT + YAML_ITEM + KEY_SOURCE_PATH + YAML_DELIMITER + path);
         for (const auto& elem : infomap[path]) {
-            strings_to_embed.push_back(elem.first + TV_DELIMITER + elem.second);
+            strings_to_embed.push_back(
+                YAML_INDENT + YAML_INDENT + YAML_INDENT + elem.first + YAML_DELIMITER + elem.second);
         }
     }
 
