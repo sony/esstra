@@ -36,15 +36,15 @@ COMMANDS = {
     'update': 'update embedded information (*not implemented yet*)',
 }
 
-# tags defined in esstra core
+# keys defined in esstra core
 SECTION_NAME = 'esstra_info'
-TAG_INPUT_FILE_NAME = 'InputFileName'
-TAG_SOURCE_PATH = 'SourcePath'
+KEY_INPUT_FILE_NAME = 'InputFileName'
+KEY_SOURCE_PATH = 'SourcePath'
+KEY_SOURCE_FILES = 'SouceFiles'
 
-# tags newly defined here
-TAG_BINARY_FILE_NAME = 'BinaryFileName'
-TAG_BINARY_PATH = 'BinaryPath'
-TAG_SOURCE_FILES = 'SouceFiles'
+# keys for binary file paths
+KEY_BINARY_FILE_NAME = 'BinaryFileName'
+KEY_BINARY_PATH = 'BinaryPath'
 
 
 #
@@ -93,72 +93,30 @@ def _extract_esstra_info(path):
         return None
 
     # if ok, parse the output
-    esstra_info = []
+    lines = []
+    offset = None
     for line in result.stdout.splitlines():
         line = line.strip()
         if len(line) == 0:
-            pass
+            continue
         elif line.startswith('String dump'):
-            pass
-        elif line.startswith('['):
+            continue
+        elif not offset:
+            if not line.startswith('['):
+                continue
             rbracket = line.find(']')
             assert rbracket >= 0, 'cannot find right bracket "]"'
-            tag_value = line[rbracket+1:].strip()
-            tag, value = map(str.strip, tag_value.split(':'))
-            esstra_info.append((tag, value))
+            content = line[rbracket+1:].strip()
+            offset = len(line) - len(content)
+            lines.append(content)
         else:
-            error(f'Ignore unexpected line: {line!r}')
+            content = line[offset:].rstrip()
+            lines.append(content)
 
-    return esstra_info
-
-
-def _parse_esstra_info(esstra_info):
-    parsed_info = []
-    input_file_info = None
-    source_info = None
-
-    for tag, value in esstra_info:
-        if tag == TAG_INPUT_FILE_NAME:
-            source_files_info = []
-            input_file_info = {
-                tag: value,
-                TAG_SOURCE_FILES: source_files_info,
-            }
-            parsed_info.append(input_file_info)
-        elif tag == TAG_SOURCE_PATH:
-            assert input_file_info is not None
-            assert source_files_info is not None
-            source_info = {
-                tag: value,
-            }
-            source_files_info.append(source_info)
-        else:
-            assert source_info is not None
-            source_info.update({
-                tag: value,
-            })
-
-    return parsed_info
-
-
-def _generate_data_for_binary(filename, path):
-    esstra_info = _extract_esstra_info(path)
-    if not esstra_info:
-        error('{path!r}: cannot find esstra information')
-        return None
-    parsed_info = _parse_esstra_info(esstra_info)
-    if not parsed_info:
-        error('{path!r}: cannot parse esstra information')
-        return None
-    return {
-        TAG_BINARY_FILE_NAME: filename,
-        TAG_BINARY_PATH: path,
-        TAG_SOURCE_FILES: parsed_info,
-    }
+    return lines
 
 
 def _print_esstra_info(esstra_info):
-    import yaml
     print(yaml.safe_dump(esstra_info))
 
 
@@ -169,49 +127,31 @@ def _setup_show(parser):
     parser.add_argument(
         'binary', nargs='+',
         help='ESSTRA-built binary file to show embedded information')
-    parser.add_argument(
-        '-o', '--output-format',
-        type=str.lower,
-        choices=['j', 'y', 'r'],
-        default='j',
-        help='output format (j:json, y:yaml, r:raw)')
 
 
 #
 # run 'show' command
 #
 def _run_show(args):
-    if args.output_format in ('j', 'y'):
-        # gather embedded data into structured info
-        result = []
-        for given_path in args.binary:
-            path = get_resolved_file_path(given_path)
-            if not path:
-                continue
-            data = _generate_data_for_binary(given_path, path)
-            if not data:
-                continue
-            result.append(data)
-        # show result in specified format
-        if args.output_format == 'j':
-            print(json.dumps(result, indent=4))
-        elif args.output_format == 'y':
-            print(yaml.safe_dump(result))
-    else:
-        assert args.output_format == 'r'
-        result = []
-        for given_path in args.binary:
-            path = get_resolved_file_path(given_path)
-            if not path:
-                continue
-            result.append(f'#\n# Metadata in {given_path!r}\n#')
-            result.append(f'{TAG_BINARY_FILE_NAME}: {given_path}')
-            result.append(f'{TAG_BINARY_PATH}: {path}')
-            data = _extract_esstra_info(given_path)
-            if not data:
-                continue
-            result += [f'{tag}: {value}' for tag, value in data]
-        print('\n'.join(result))
+    # gather embedded data into structured info
+    result = []
+    for given_path in args.binary:
+        print('#')
+        print(f'# {KEY_BINARY_FILE_NAME}: {given_path}')
+        path = get_resolved_file_path(given_path)
+        if not path:
+            print('#')
+            print('---')
+            print(f'- Error: cannot resolve {given_path!r}')
+            continue
+        print(f'# {KEY_BINARY_PATH}: {path}')
+        print('#')
+        print('---')
+        yaml_lines = _extract_esstra_info(given_path)
+        if not yaml_lines:
+            print('- Error: cannot extract metadata')
+            continue
+        print('\n'.join(yaml_lines))
 
     return 0
 
