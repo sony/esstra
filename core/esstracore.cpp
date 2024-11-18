@@ -226,10 +226,10 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     strings_to_embed.push_back(YAML_INDENT + KEY_SOURCE_FILES + YAML_DELIMITER);
     for (const auto& path : allpaths) {
         strings_to_embed.push_back(
-            YAML_INDENT + YAML_INDENT + YAML_ITEM + KEY_SOURCE_PATH + YAML_DELIMITER + path);
+            YAML_INDENT + YAML_ITEM + KEY_SOURCE_PATH + YAML_DELIMITER + path);
         for (const auto& elem : infomap[path]) {
             strings_to_embed.push_back(
-                YAML_INDENT + YAML_INDENT + YAML_INDENT + elem.first + YAML_DELIMITER + elem.second);
+                YAML_INDENT + YAML_INDENT + elem.first + YAML_DELIMITER + elem.second);
         }
     }
 
