@@ -113,11 +113,11 @@ def _extract_esstra_info(path):
             content = line[offset:].rstrip()
             lines.append(content)
 
-    return lines
+    # parse esstra info that is in yaml format
+    parsed_data = yaml.safe_load('\n'.join(lines))
 
-
-def _print_esstra_info(esstra_info):
-    print(yaml.safe_dump(esstra_info))
+    # return parsed data
+    return parsed_data
 
 
 #
@@ -147,11 +147,11 @@ def _run_show(args):
         print(f'# {KEY_BINARY_PATH}: {path}')
         print('#')
         print('---')
-        yaml_lines = _extract_esstra_info(given_path)
-        if not yaml_lines:
+        info = _extract_esstra_info(given_path)
+        if not info:
             print('- Error: cannot extract metadata')
             continue
-        print('\n'.join(yaml_lines))
+        print(yaml.safe_dump(info))
 
     return 0
 
