@@ -30,46 +30,52 @@ Make sure that the environment variable `PATH` contains `/usr/local/bin/`.
 The first argument of `esstra.py` is a *command*, and the second or subsequent
 arguments are the arguments of *command*.
 
-The supported command in this version is `show`, which displays metadata in
-binary files  , passed as the second and subsequent arguments in YAML format.
+The supported command in this version is `show`. This command outputs
+contents of metadata embedded in specified ESSTRA-built binary files
+in YAML format.
 
-This command outputs contents of metadata embedded in the binary files in YAML
-format by passing binary files built with ESSTRA Core as arguments.
-
-Sample output is as follows:
+A command line:
 
 ```sh
 $ esstra.py show helloworld
+```
+
+would generate an output as follows:
+
+```yaml
+#
+# BinaryFileName: helloworld
+# BinaryPath: /home/snagao/esstra-test/helloworld
+#
 ---
-File: helloworld
-Information:
 - InputFileName: helloworld.c
-- SourcePath: /home/snagao/esstra-test/helloworld.c
-- SourcePath: /usr/include/stdc-predef.h
-- SourcePath: /usr/include/stdio.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
-- SourcePath: /usr/include/features.h
-- SourcePath: /usr/include/features-time64.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/wordsize.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/timesize.h
-- SourcePath: /usr/include/x86_64-linux-gnu/sys/cdefs.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/long-double.h
-- SourcePath: /usr/include/x86_64-linux-gnu/gnu/stubs.h
-- SourcePath: /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
-- SourcePath: /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
-- SourcePath: /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/types.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/typesizes.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/time64.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/types/__FILE.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/types/FILE.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/floatn.h
-- SourcePath: /usr/include/x86_64-linux-gnu/bits/floatn-common.h
+  SourceFiles:
+  - SourcePath: /home/snagao/esstra-test/helloworld.c
+  - SourcePath: /usr/include/stdc-predef.h
+  - SourcePath: /usr/include/stdio.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
+  - SourcePath: /usr/include/features.h
+  - SourcePath: /usr/include/features-time64.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/wordsize.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/timesize.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/sys/cdefs.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/long-double.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/gnu/stubs.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/gnu/stubs-64.h
+  - SourcePath: /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
+  - SourcePath: /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/types.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/typesizes.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/time64.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/types/__FILE.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/types/FILE.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/stdio_lim.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/floatn.h
+  - SourcePath: /usr/include/x86_64-linux-gnu/bits/floatn-common.h
 ```
 
 ## License
