@@ -1,4 +1,5 @@
 GCC Plugin file ./core/esstracore.cpp:
+======================================
 
 SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -18,7 +19,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 
+Third party modules under ./third_party:
+========================================
+
+The "third_party" directory contains code from other projects.
+Each directory has its project's license terms and conditions.
+
+
 Other files under ./:
+=====================
 
 SPDX-License-Identifier: MIT
 
