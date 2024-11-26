@@ -32,9 +32,9 @@
 #include "output.h"
 #include "plugin-version.h"
 
-#include "lib/WjCryptLib_Md5.h"
-#include "lib/WjCryptLib_Sha1.h"
-#include "lib/WjCryptLib_Sha256.h"
+#include "WjCryptLib_Md5.h"
+#include "WjCryptLib_Sha1.h"
+#include "WjCryptLib_Sha256.h"
 
 
 using std::vector;

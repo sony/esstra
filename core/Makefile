@@ -10,10 +10,12 @@ ESSTRACORE_SOURCES := esstracore.cpp
 ESSTRACORE := $(ESSTRACORE_SOURCES:.cpp=.so)
 
 # hash functions
+WJCRYPTLIB_DIR := ../third_party/WjCryptLib/lib
 ESSTRACORE_SOURCES += \
-	lib/WjCryptLib_Md5.c \
-	lib/WjCryptLib_Sha1.c \
-	lib/WjCryptLib_Sha256.c
+	$(WJCRYPTLIB_DIR)/WjCryptLib_Md5.c \
+	$(WJCRYPTLIB_DIR)/WjCryptLib_Sha1.c \
+	$(WJCRYPTLIB_DIR)/WjCryptLib_Sha256.c
+CXXFLAGS += -I $(WJCRYPTLIB_DIR)
 
 PREFIX ?= /usr/local
 INSTALLDIR := $(PREFIX)/share/esstra
