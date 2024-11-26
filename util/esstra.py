@@ -28,6 +28,7 @@ import argparse
 from pathlib import Path
 import subprocess
 import json
+import re
 import yaml
 
 
@@ -157,16 +158,98 @@ def _run_show(args):
 
 
 #
-# functions for command 'update'
+# helper functions for command 'update'
+#
+
+RE_TAG_VALUE = re.compile(r'([a-z0-9-]+):\s*(.*)\s*$', re.I)
+
+TAG_FILE_NAME = 'FileName'
+TAG_FILE_CHECKSUM = 'FileChecksum'
+TAG_LICENSE_INFO_IN_FILE = 'LicenseInfoInFile'
+
+
+def _parse_spdx_tv(filename):
+    def extract_multiline_text(tagged_text):
+        assert tagged_text.startswith('<text>'), tagged_text
+        assert tagged_text.endswith('</text>'), tagged_text
+        return tagged_text.replace('<text>', '').replace('</text>', '').strip()
+
+    with open(filename, 'r', encoding='utf-8') as fp:
+        lines = fp.readlines()
+
+    tag_values = []
+
+    tag = None
+    value = None
+    multiline = False
+
+    for line in lines:
+        if multiline:
+            if line.rstrip().endswith('</text>'):
+                value += line.rstrip()
+                multiline = False
+                tag_values.append((tag, extract_multiline_text(value)))
+            else:
+                value += line
+            continue
+        match = RE_TAG_VALUE.match(line)
+        if match:
+            tag = match[1]
+            value = match[2]
+            if value.startswith('<text>'):
+                if not value.endswith('</text>'):
+                    multiline = True
+                    value += '\n'
+                    continue
+                value = extract_multiline_text(value)
+            tag_values.append((tag, value))
+
+    return tag_values
+
+
+def _extract_file_information_from_spdx_tv(tag_values):
+    result = {}
+    current_file = None
+
+    for tag, value in tag_values:
+        if tag == TAG_FILE_NAME:
+            current_file = value
+            result[current_file] = {}
+        elif current_file:
+            if tag == TAG_FILE_CHECKSUM:
+                match = RE_TAG_VALUE.match(value)
+                assert match
+                algo = match[1]
+                checksum = match[2]
+                result[current_file][algo] = checksum
+            elif tag == TAG_LICENSE_INFO_IN_FILE:
+                result[current_file][tag] = value
+
+    return result
+
+
+#
+# setup command line parser for 'show'
 #
 def _setup_update(parser):
-    # not implemented yet
-    pass
+    parser.add_argument(
+        '-l', '--license-info', required=True,
+        help='spdx tag/value file containing license information')
+    parser.add_argument(
+        'binary', nargs='+',
+        help='ESSTRA-built binary file to update embedded information')
 
 
+#
+# run 'show' command
+#
 def _run_update(args):
-    error('not implemented yet')
-    return 1
+    tag_values = _parse_spdx_tv(args.license_info)
+    result = _extract_file_information_from_spdx_tv(tag_values)
+
+    print(json.dumps(result, indent=4))
+
+    return 0
 
 
 #
