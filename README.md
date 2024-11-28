@@ -79,7 +79,7 @@ $ git submodule init
 $ git submodule update
 ```
 
-to clone the source code for the first time.
+to clone the source code in the directory for the first time.
 
 After that, run `make` in the top directory:
 
