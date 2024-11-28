@@ -69,6 +69,18 @@ In this case, the major version is 11, so install the package named
 $ sudo apt install gcc-11-plugin-dev
 ```
 
+Here, ESSTRA depends on third party modules stored in the
+[`./third_party`](./third_party) directory.  Since the modules are [git
+submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules), you may need
+to type:
+
+```sh
+$ git submodule init
+$ git submodule update
+```
+
+to clone the source code for the first time.
+
 After that, run `make` in the top directory:
 
 ```sh
