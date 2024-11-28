@@ -151,7 +151,7 @@ def _run_show(args):
         if not info:
             print('- Error: cannot extract metadata')
             continue
-        print(yaml.safe_dump(info))
+        print(yaml.safe_dump(info, sort_keys=False))
 
     return 0
 
