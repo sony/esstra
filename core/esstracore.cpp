@@ -58,7 +58,9 @@ static const vector<string> supported_algos = {
     "sha1",
     "sha256",
 };
-static vector<string> specified_algos;
+static vector<string> specified_algos = {
+    "sha1",                     // default
+};
 
 // yaml
 #define YAML_ITEM "- "s
@@ -282,6 +284,7 @@ plugin_init(struct plugin_name_args* plugin_info,
             debug_log("arg-checksum: %s\n", argv->value);
             auto value = reinterpret_cast<const char*>(argv->value);
             string algo;
+            specified_algos.clear(); // delete default algo
             while (*value) {
                 if (*value == ',') {
                     if (algo.length() > 0) {
