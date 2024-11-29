@@ -135,7 +135,6 @@ def _setup_show(parser):
 #
 def _run_show(args):
     # gather embedded data into structured info
-    result = []
     for given_path in args.binary:
         print('#')
         print(f'# {KEY_BINARY_FILE_NAME}: {given_path}')
