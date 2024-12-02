@@ -58,8 +58,8 @@ static const vector<string> supported_algos = {
     "sha1",
     "sha256",
 };
-static vector<string> specified_algos = {
-    "sha1",                     // default
+static vector<string> specified_algos = { // embeds sha1 sum by default
+    "sha1",
 };
 
 // yaml
