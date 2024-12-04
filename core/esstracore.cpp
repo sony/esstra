@@ -97,7 +97,7 @@ debug_log(const char* format, ...) {
 static const string
 bytes_to_string(uint8_t* bytes, unsigned size) {
     stringstream hexstream;
-    hexstream << std::hex << std::setfill('0');
+    hexstream << std::hex << std::setw(2) << std::setfill('0');
     while (size--) {
         hexstream << static_cast<int>(*bytes++);
     }
