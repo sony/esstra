@@ -228,7 +228,7 @@ def _extract_file_information_from_spdx_tv(tag_values):
 
 
 #
-# setup command line parser for 'show'
+# setup command line parser for 'update'
 #
 def _setup_update(parser):
     parser.add_argument(
@@ -240,7 +240,7 @@ def _setup_update(parser):
 
 
 #
-# run 'show' command
+# run 'update' command
 #
 def _run_update(args):
     tag_values = _parse_spdx_tv(args.license_info)
