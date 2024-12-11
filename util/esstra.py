@@ -395,6 +395,7 @@ def _run_update(args):
                         args.overwrite_backup):
                     error('cannot create backup. skip')
                     errors += 1
+                    continue
             _update_esstra_info(binary, esstra_info)
 
     if errors:
