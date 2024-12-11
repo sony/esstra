@@ -38,6 +38,7 @@ DEBUG = False
 COMMANDS = {
     'show': 'display information embedded by ESSTRA Core',
     'update': 'update embedded information with SPDX tag/value file',
+    'shrink': 'shrink embedded information by removing duplication',
 }
 
 # keys in esstra_info
@@ -401,6 +402,80 @@ def _run_update(args):
     else:
         message('done.')
 
+    return 0
+
+
+#
+# helper functions for command 'shrink'
+#
+def _shrink_esstra_info(esstra_info):
+    unique_file_info = {}
+    for input_file_elem in esstra_info:
+        assert KEY_INPUT_FILE_NAME in input_file_elem
+        assert KEY_SOURCE_FILES in input_file_elem
+        for file_info in input_file_elem[KEY_SOURCE_FILES]:
+            path = file_info[KEY_SOURCE_PATH]
+            if path not in file_info:
+                unique_file_info[path] = file_info
+            else:
+                assert unique_file_info[path] == file_info
+
+    return {
+        KEY_SOURCE_FILES: [
+            unique_file_info[path]
+            for path in sorted(unique_file_info.keys())
+        ]
+    }
+
+
+#
+# setup command line parser for 'shrink'
+#
+def _setup_shrink(parser):
+    parser.add_argument(
+        'binary', nargs='+',
+        help='ESSTRA-built binary file to shrink embedded information')
+    parser.add_argument(
+        '-n', '--no-backup',
+        action='store_true',
+        help='do not create backup of binary file')
+    parser.add_argument(
+        '-o', '--overwrite-backup',
+        action='store_true',
+        help='overwrite old backup file')
+    parser.add_argument(
+        '-s', '--suffix',
+        default='bak',
+        help='suffix of backup file')
+
+
+#
+# run 'shrink' command
+#
+def _run_shrink(args):
+    errors = 0
+    unique_file_info = {}
+    for binary in args.binary:
+        if binary.endswith(f'.{args.suffix}'):
+            message(f'skip backup file {binary!r}.')
+        message(f'processing {binary!r}...')
+        esstra_info = _extract_esstra_info(binary)
+        unique_file_info = _shrink_esstra_info(esstra_info)
+        if not args.no_backup:
+            if not _create_backup_file(
+                    binary, f'{binary}.{args.suffix}',
+                    args.overwrite_backup):
+                error('cannot create backup. skip')
+                errors += 1
+        if not _update_esstra_info(binary, unique_file_info):
+            error('failed to update metadata')
+            errors += 1
+
+    if errors:
+        message(f'done with {errors} error(s).')
+        return 1
+
+    message('done.')
     return 0
 
 
