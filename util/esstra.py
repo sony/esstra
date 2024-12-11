@@ -43,7 +43,6 @@ COMMANDS = {
 
 # keys in esstra_info
 SECTION_NAME = 'esstra_info'
-KEY_INPUT_FILE_NAME = 'InputFileName'
 KEY_SOURCE_PATH = 'SourcePath'
 KEY_SOURCE_FILES = 'SourceFiles'
 KEY_LICENSE_INFO = 'LicenseInfo'
@@ -132,11 +131,11 @@ def _extract_esstra_info(path):
             content = line[offset:].rstrip()
             lines.append(content)
 
-    # parse esstra info that is in yaml format
-    parsed_data = yaml.safe_load('\n'.join(lines))
+    # parse esstra info in yaml format
+    parsed_docs = list(yaml.safe_load_all('\n'.join(lines)))
 
     # return parsed data
-    return parsed_data
+    return parsed_docs
 
 
 #
@@ -160,16 +159,18 @@ def _run_show(args):
         if not path:
             print('#')
             print('---')
-            print(f'- Error: cannot resolve {given_path!r}')
+            print(f'Error: cannot resolve {given_path!r}')
+            print()
             continue
         print(f'# {KEY_BINARY_PATH}: {path}')
         print('#')
         print('---')
-        info = _extract_esstra_info(given_path)
-        if not info:
-            print('- Error: cannot extract metadata')
+        docs = _extract_esstra_info(given_path)
+        if not docs:
+            print('Error: cannot extract metadata')
+            print()
             continue
-        print(yaml.safe_dump(info, sort_keys=False))
+        print(yaml.safe_dump_all(docs, sort_keys=False))
 
     return 0
 
@@ -270,42 +271,38 @@ def _make_hash_map_from_spdx_tv(tvfile, algo):
     return result
 
 
-def _get_file_info_by_path(file_info_list, path):
-    for file_info in file_info_list:
-        for tag, value in file_info:
+def _get_file_info_by_path(fileinfo_list, path):
+    for fileinfo in fileinfo_list:
+        for tag, value in fileinfo:
             if tag == TAG_FILE_NAME:
                 if Path(value).name == Path(path).name:
-                    return file_info
+                    return fileinfo
     return None
 
 
-def _attach_license_info(esstra_info, hash_map):
-    for input_file_elem in esstra_info:
-        assert KEY_INPUT_FILE_NAME in input_file_elem
-        assert KEY_SOURCE_FILES in input_file_elem
-        for file_info in input_file_elem[KEY_SOURCE_FILES]:
-            debug(file_info)
-            path = file_info[KEY_SOURCE_PATH]
-            sha1sum = file_info[HASH_ALGORITHM]
-            if sha1sum not in hash_map:
-                continue
+def _attach_license_info(doc, hash_map):
+    assert KEY_SOURCE_FILES in doc
+    for fileinfo in doc[KEY_SOURCE_FILES]:
+        path = fileinfo[KEY_SOURCE_PATH]
+        checksum = fileinfo[HASH_ALGORITHM]
+        if checksum not in hash_map:
+            continue
 
-            spdx_file_info = _get_file_info_by_path(hash_map[sha1sum], path)
-            assert spdx_file_info
+        spdx_file_info = _get_file_info_by_path(hash_map[checksum], path)
+        assert spdx_file_info
 
-            # attach license info
-            license_info = [
-                value for tag, value in spdx_file_info
-                if tag == TAG_LICENSE_INFO_IN_FILE
-            ]
-            if license_info:
-                file_info[KEY_LICENSE_INFO] = license_info
-                debug(f'{path}: {license_info}')
+        # attach license info
+        license_info = [
+            value for tag, value in spdx_file_info
+            if tag == TAG_LICENSE_INFO_IN_FILE
+        ]
+        if license_info:
+            fileinfo[KEY_LICENSE_INFO] = license_info
 
 
-def _update_esstra_info(binary, esstra_info):
+def _update_esstra_info(binary, docs):
     with tempfile.NamedTemporaryFile('w', encoding='utf-8') as fp:
-        esstra_info_string = yaml.safe_dump(esstra_info, sort_keys=False)
+        esstra_info_string = yaml.safe_dump_all(docs, sort_keys=False)
         for line in esstra_info_string.splitlines():
             fp.write(line)
             fp.write('\0')
@@ -360,11 +357,11 @@ def _setup_update(parser):
         'binary', nargs='+',
         help='ESSTRA-built binary file to update embedded information')
     parser.add_argument(
-        '--no-backup',
+        '-n', '--no-backup',
         action='store_true',
         help='do not create backup of binary file')
     parser.add_argument(
-        '--overwrite-backup',
+        '-o', '--overwrite-backup',
         action='store_true',
         help='overwrite old backup file')
     parser.add_argument(
@@ -382,20 +379,22 @@ def _run_update(args):
         if binary.endswith(f'.{args.suffix}'):
             message(f'skip backup file {binary!r}.')
         message(f'processing {binary!r}...')
-        for spdx_tv_file in args.info_file:
-            esstra_info = _extract_esstra_info(binary)
-            hash_map = _make_hash_map_from_spdx_tv(spdx_tv_file, HASH_ALGORITHM)
-            _attach_license_info(esstra_info, hash_map)
-            debug(yaml.dump(esstra_info))
+        docs = _extract_esstra_info(binary)
+        for doc in docs:
+            for spdx_tv_file in args.info_file:
+                hash_map = _make_hash_map_from_spdx_tv(spdx_tv_file, HASH_ALGORITHM)
+                _attach_license_info(doc, hash_map)
 
-            if not args.no_backup:
-                if not _create_backup_file(
-                        binary, f'{binary}.{args.suffix}',
-                        args.overwrite_backup):
-                    error('cannot create backup. skip')
-                    errors += 1
-                    continue
-            _update_esstra_info(binary, esstra_info)
+        if not args.no_backup:
+            if not _create_backup_file(
+                    binary, f'{binary}.{args.suffix}',
+                    args.overwrite_backup):
+                error('cannot create backup. skip')
+                errors += 1
+                continue
+        if not _update_esstra_info(binary, docs):
+            error('failed to update metadata')
+            errors += 1
 
     if errors:
         message(f'done with {errors} error(s).')
@@ -408,22 +407,21 @@ def _run_update(args):
 #
 # helper functions for command 'shrink'
 #
-def _shrink_esstra_info(esstra_info):
-    unique_file_info = {}
-    for input_file_elem in esstra_info:
-        assert KEY_INPUT_FILE_NAME in input_file_elem
-        assert KEY_SOURCE_FILES in input_file_elem
-        for file_info in input_file_elem[KEY_SOURCE_FILES]:
-            path = file_info[KEY_SOURCE_PATH]
-            if path not in file_info:
-                unique_file_info[path] = file_info
+def _shrink_esstra_info(docs):
+    shrunk = {}
+    for doc in docs:
+        assert KEY_SOURCE_FILES in doc
+        for fileinfo in doc[KEY_SOURCE_FILES]:
+            path = fileinfo[KEY_SOURCE_PATH]
+            if path not in fileinfo:
+                shrunk[path] = fileinfo
             else:
-                assert unique_file_info[path] == file_info
+                assert shrunk[path] == fileinfo
 
     return {
         KEY_SOURCE_FILES: [
-            unique_file_info[path]
-            for path in sorted(unique_file_info.keys())
+            shrunk[path]
+            for path in sorted(shrunk.keys())
         ]
     }
 
@@ -454,20 +452,20 @@ def _setup_shrink(parser):
 #
 def _run_shrink(args):
     errors = 0
-    unique_file_info = {}
+    shrunk = {}
     for binary in args.binary:
         if binary.endswith(f'.{args.suffix}'):
             message(f'skip backup file {binary!r}.')
         message(f'processing {binary!r}...')
-        esstra_info = _extract_esstra_info(binary)
-        unique_file_info = _shrink_esstra_info(esstra_info)
+        docs = _extract_esstra_info(binary)
+        shrunk = _shrink_esstra_info(docs)
         if not args.no_backup:
             if not _create_backup_file(
                     binary, f'{binary}.{args.suffix}',
                     args.overwrite_backup):
                 error('cannot create backup. skip')
                 errors += 1
-        if not _update_esstra_info(binary, unique_file_info):
+        if not _update_esstra_info(binary, [shrunk]):
             error('failed to update metadata')
             errors += 1
 
