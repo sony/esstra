@@ -34,7 +34,7 @@ import yaml
 
 COMMANDS = {
     'show': 'display information embedded by ESSTRA Core',
-    'update': 'update embedded information (*not implemented yet*)',
+    'update': 'update embedded information with SPDX tag/value file',
 }
 
 # keys defined in esstra core
