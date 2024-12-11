@@ -46,7 +46,6 @@ SECTION_NAME = 'esstra_info'
 KEY_INPUT_FILE_NAME = 'InputFileName'
 KEY_SOURCE_PATH = 'SourcePath'
 KEY_SOURCE_FILES = 'SourceFiles'
-KEY_SHA1 = 'SHA1'
 KEY_LICENSE_INFO = 'LicenseInfo'
 HASH_ALGORITHM = 'SHA1'
 
@@ -287,7 +286,7 @@ def _attach_license_info(esstra_info, hash_map):
         for file_info in input_file_elem[KEY_SOURCE_FILES]:
             debug(file_info)
             path = file_info[KEY_SOURCE_PATH]
-            sha1sum = file_info[KEY_SHA1]
+            sha1sum = file_info[HASH_ALGORITHM]
             if sha1sum not in hash_map:
                 continue
 
