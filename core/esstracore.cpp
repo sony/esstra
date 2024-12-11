@@ -46,8 +46,10 @@ using std::string_literals::operator""s;
 int plugin_is_GPL_compatible;
 
 
-// metadata
+// section name
 static constexpr char section_name[] = "esstra_info";
+
+// metadata
 static vector<string> allpaths;
 using FileInfo = map<string, string>;
 static std::map<string, FileInfo> infomap;
@@ -66,6 +68,7 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 #define YAML_ITEM "- "s
 #define YAML_INDENT "  "s
 #define YAML_DELIMITER ": "s
+#define YAML_SEPARATOR "---"s
 
 // keys
 #define KEY_INPUT_FILENAME "InputFileName"s
@@ -224,14 +227,15 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     vector<string> strings_to_embed;
 
     // construct metadata in yaml format
-    strings_to_embed.push_back(YAML_ITEM + KEY_INPUT_FILENAME + YAML_DELIMITER + main_input_filename);
-    strings_to_embed.push_back(YAML_INDENT + KEY_SOURCE_FILES + YAML_DELIMITER);
+    strings_to_embed.push_back(YAML_SEPARATOR);
+    strings_to_embed.push_back(KEY_INPUT_FILENAME + YAML_DELIMITER + main_input_filename);
+    strings_to_embed.push_back(KEY_SOURCE_FILES + YAML_DELIMITER);
     for (const auto& path : allpaths) {
         strings_to_embed.push_back(
-            YAML_INDENT + YAML_ITEM + KEY_SOURCE_PATH + YAML_DELIMITER + path);
+            YAML_ITEM + KEY_SOURCE_PATH + YAML_DELIMITER + path);
         for (const auto& elem : infomap[path]) {
             strings_to_embed.push_back(
-                YAML_INDENT + YAML_INDENT + elem.first + YAML_DELIMITER + elem.second);
+                YAML_INDENT + elem.first + YAML_DELIMITER + elem.second);
         }
     }
 
