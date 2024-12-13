@@ -20,7 +20,9 @@ CXXFLAGS += -I $(WJCRYPTLIB_DIR)
 PREFIX ?= /usr/local
 INSTALLDIR := $(PREFIX)/share/esstra
 
-.PHONY: all clean install
+SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
+
+.PHONY: all clean install install-specs uninstall-specs
 
 all: $(ESSTRACORE)
 
@@ -33,3 +35,11 @@ install: $(ESSTRACORE)
 
 clean:
 	rm -f *.so
+
+install-specs: $(INSTALLDIR)/$(ESSTRACORE)
+	gcc -dumpspecs | \
+	sed -E "N;s|\*cc1:\n(.+)$$|*cc1:\n\1 %{!fplugin*:-fplugin=$(INSTALLDIR)/$(ESSTRACORE)}|" \
+	> $(SPECFILE)
+
+uninstall-specs: $(SPECFILE)
+	rm -f $(SPECFILE)
