@@ -378,6 +378,7 @@ def _run_update(args):
     for binary in args.binary:
         if binary.endswith(f'.{args.suffix}'):
             message(f'skip backup file {binary!r}.')
+            continue
         message(f'processing {binary!r}...')
         docs = _extract_esstra_info(binary)
         for doc in docs:
@@ -456,6 +457,7 @@ def _run_shrink(args):
     for binary in args.binary:
         if binary.endswith(f'.{args.suffix}'):
             message(f'skip backup file {binary!r}.')
+            continue
         message(f'processing {binary!r}...')
         docs = _extract_esstra_info(binary)
         shrunk = _shrink_esstra_info(docs)
