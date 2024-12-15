@@ -20,6 +20,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <unistd.h>
+#include <libgen.h>
 
 #include <string>
 #include <vector>
@@ -67,16 +68,16 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 // yaml
 #define YAML_ITEM "- "s
 #define YAML_INDENT "  "s
-#define YAML_DELIMITER ": "s
 #define YAML_SEPARATOR "---"s
 
 // keys
-#define KEY_INPUT_FILENAME "InputFileName"s
-#define KEY_SOURCE_FILES "SourceFiles"s
-#define KEY_SOURCE_PATH "SourcePath"s
-#define KEY_MD5 "MD5"s
-#define KEY_SHA1 "SHA1"s
-#define KEY_SHA256 "SHA256"s
+#define KEY_INPUT_FILENAME "InputFileName: "s
+#define KEY_SOURCE_FILES "SourceFiles: "s
+#define KEY_DIRECTORY "Directory: "s
+#define KEY_FILE_NAME "FileName: "s
+#define KEY_MD5 "MD5: "s
+#define KEY_SHA1 "SHA1: "s
+#define KEY_SHA256 "SHA256: "s
 
 // debugging
 static bool debug_mode = false;
@@ -226,16 +227,26 @@ static void
 create_section(void* /* gcc_data */, void* /* user_data */) {
     vector<string> strings_to_embed;
 
+    // sort allpaths
+    std::sort(allpaths.begin(), allpaths.end());
+
     // construct metadata in yaml format
     strings_to_embed.push_back(YAML_SEPARATOR);
-    strings_to_embed.push_back(KEY_INPUT_FILENAME + YAML_DELIMITER + main_input_filename);
-    strings_to_embed.push_back(KEY_SOURCE_FILES + YAML_DELIMITER);
+    strings_to_embed.push_back(KEY_INPUT_FILENAME + main_input_filename);
+
+    string current_directory = "";
     for (const auto& path : allpaths) {
-        strings_to_embed.push_back(
-            YAML_ITEM + KEY_SOURCE_PATH + YAML_DELIMITER + path);
+        string directory = dirname(const_cast<char*>(string(path).c_str()));
+        string filename = basename(const_cast<char*>(string(path).c_str()));
+        debug_log("dir: %s\n", directory.c_str());
+        if (current_directory != directory) {
+            current_directory = directory;
+            strings_to_embed.push_back(directory + ":");
+        }
+        strings_to_embed.push_back(YAML_ITEM + KEY_FILE_NAME + filename);
         for (const auto& elem : infomap[path]) {
             strings_to_embed.push_back(
-                YAML_INDENT + elem.first + YAML_DELIMITER + elem.second);
+                YAML_INDENT + elem.first + elem.second);
         }
     }
 

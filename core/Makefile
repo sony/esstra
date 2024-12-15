@@ -38,7 +38,7 @@ clean:
 
 install-specs: $(INSTALLDIR)/$(ESSTRACORE)
 	gcc -dumpspecs | \
-	sed -E "N;s|\*cc1:\n(.+)$$|*cc1:\n\1 %{!fplugin*:-fplugin=$(INSTALLDIR)/$(ESSTRACORE)}|" \
+	sed -E "N;s|\*cc1:\n(.+)$$|*cc1:\n\1 %{!fplugin:-fplugin=$(INSTALLDIR)/$(ESSTRACORE)}|" \
 	> $(SPECFILE)
 
 uninstall-specs: $(SPECFILE)
