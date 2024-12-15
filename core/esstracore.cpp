@@ -72,8 +72,6 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 
 // keys
 #define KEY_INPUT_FILENAME "InputFileName: "s
-#define KEY_SOURCE_FILES "SourceFiles: "s
-#define KEY_DIRECTORY "Directory: "s
 #define KEY_FILE_NAME "FileName: "s
 #define KEY_MD5 "MD5: "s
 #define KEY_SHA1 "SHA1: "s
