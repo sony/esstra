@@ -43,8 +43,8 @@ COMMANDS = {
 
 # keys in esstra_info
 SECTION_NAME = 'esstra_info'
-KEY_SOURCE_PATH = 'SourcePath'
 KEY_SOURCE_FILES = 'SourceFiles'
+KEY_FILE_NAME = 'FileName'
 KEY_LICENSE_INFO = 'LicenseInfo'
 HASH_ALGORITHM = 'SHA1'
 
@@ -280,24 +280,28 @@ def _get_file_info_by_path(fileinfo_list, path):
     return None
 
 
-def _attach_license_info(doc, hash_map):
-    assert KEY_SOURCE_FILES in doc
-    for fileinfo in doc[KEY_SOURCE_FILES]:
-        path = fileinfo[KEY_SOURCE_PATH]
-        checksum = fileinfo[HASH_ALGORITHM]
-        if checksum not in hash_map:
-            continue
+def _attach_license_info(docs, hash_map):
+    for doc in docs:
+        assert KEY_SOURCE_FILES in doc
+        for directory, fileinfo_list in doc[KEY_SOURCE_FILES].items():
+            for fileinfo in fileinfo_list:
+                assert KEY_FILE_NAME in fileinfo
+                assert HASH_ALGORITHM in fileinfo
+                path = str(Path(directory) / fileinfo[KEY_FILE_NAME])
+                checksum = fileinfo[HASH_ALGORITHM]
+                if checksum not in hash_map:
+                    continue
 
-        spdx_file_info = _get_file_info_by_path(hash_map[checksum], path)
-        assert spdx_file_info
+                spdx_file_info = _get_file_info_by_path(hash_map[checksum], path)
+                assert spdx_file_info
 
-        # attach license info
-        license_info = [
-            value for tag, value in spdx_file_info
-            if tag == TAG_LICENSE_INFO_IN_FILE
-        ]
-        if license_info:
-            fileinfo[KEY_LICENSE_INFO] = license_info
+                # attach license info
+                license_info = [
+                    value for tag, value in spdx_file_info
+                    if tag == TAG_LICENSE_INFO_IN_FILE
+                ]
+                if license_info:
+                    fileinfo[KEY_LICENSE_INFO] = license_info
 
 
 def _update_esstra_info(binary, docs):
@@ -380,11 +384,10 @@ def _run_update(args):
             message(f'skip backup file {binary!r}.')
             continue
         message(f'processing {binary!r}...')
+        for spdx_tv_file in args.info_file:
+            hash_map = _make_hash_map_from_spdx_tv(spdx_tv_file, HASH_ALGORITHM)
         docs = _extract_esstra_info(binary)
-        for doc in docs:
-            for spdx_tv_file in args.info_file:
-                hash_map = _make_hash_map_from_spdx_tv(spdx_tv_file, HASH_ALGORITHM)
-                _attach_license_info(doc, hash_map)
+        _attach_license_info(docs, hash_map)
 
         if not args.no_backup:
             if not _create_backup_file(
@@ -410,20 +413,29 @@ def _run_update(args):
 #
 def _shrink_esstra_info(docs):
     shrunk = {}
+    path_found = set()
     for doc in docs:
         assert KEY_SOURCE_FILES in doc
-        for fileinfo in doc[KEY_SOURCE_FILES]:
-            path = fileinfo[KEY_SOURCE_PATH]
-            if path not in fileinfo:
-                shrunk[path] = fileinfo
-            else:
-                assert shrunk[path] == fileinfo
+        for directory, fileinfo_list in doc[KEY_SOURCE_FILES].items():
+            if directory not in shrunk:
+                shrunk[directory] = []
+            for fileinfo in fileinfo_list:
+                assert KEY_FILE_NAME in fileinfo, fileinfo
+                assert HASH_ALGORITHM in fileinfo
+                filename = fileinfo[KEY_FILE_NAME]
+                path = Path(directory) / filename
+                if path not in path_found:
+                    path_found.add(path)
+                    shrunk[directory].append(fileinfo)
+
+    for directory in shrunk:
+        shrunk[directory] = sorted(shrunk[directory], key=lambda x: x[KEY_FILE_NAME])
 
     return {
-        KEY_SOURCE_FILES: [
-            shrunk[path]
-            for path in sorted(shrunk.keys())
-        ]
+        KEY_SOURCE_FILES: {
+            directory: shrunk[directory]
+            for directory in sorted(shrunk.keys())
+        }
     }
 
 
