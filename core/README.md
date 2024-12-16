@@ -35,19 +35,6 @@ In this case, the major version is 11, so install the package named
 $ sudo apt install gcc-11-plugin-dev
 ```
 
-Here, ESSTRA depends on third party modules stored in the
-[`../third_party`](../third_party) directory.  Since the modules are [git
-submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules), you may need
-to type:
-
-```sh
-$ git submodule init
-$ git submodule update
-```
-
-to clone the source code in the directory for the first time.
-
-
 After that, run `make` in the top directory:
 
 ```sh
@@ -70,16 +57,12 @@ Then `esstracore.so` is installed in `/usr/local/share/esstra/`.
 To use ESSTRA Core, specify the path of `esstracore.so` using the option
 `-fplugin=` of `gcc` or `g++`.
 
-For example, if you compile a source file `helloworld.c` with `gcc` and
-generates a binary file `helloworld`, type:
+For example, if you compile a source file `helloworld.c` or `helloworld.cpp`
+with `gcc` or `g++` and generates a binary file `helloworld`, type:
 
 ```sh
 $ gcc -fplugin=/usr/local/share/esstra/esstracore.so helloworld.c -o helloworld
-```
-
-For a C++ source file `helloworld.cpp`, type:
-
-```sh
+or
 $ g++ -fplugin=/usr/local/share/esstra/esstracore.so helloworld.cpp -o helloworld
 ```
 
@@ -90,14 +73,42 @@ files.
 
 Note that this does not affect the behavior of the binary file itself.
 
-## Spec Files
+## Installing a Spec File
 
-It might be annoying to specify the option `-fplugin= ` for every `gcc` or
-`g++`.
-In such case, you can take advantage of GCC's
-[Spec Files](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html) mechanism
-which allows you to implicitly specify the default options of the compiler.
-See the linked article for more information.
+It will surely be annoying that you have to specify `-fplugin=....` for every
+gcc/g++ invocation.
+If you want to apply ESSTRA Core to **any** gcc/g++ occurrence, just type:
+
+```sh
+$ sudo make install-specs
+```
+
+This command installs a [GCC spec
+file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html) on your system which
+enables the option `-fplugin=....` as default.
+So, compiling something with GCC as usual:
+
+```sh
+$ gcc helloworld.c -o helloworld
+```
+
+generates a binary file with metadata embedded.
+
+This is a very useful feature when you compile some open source (or closed or
+whatever) projects and also want information ESSTRA generates for them.
+**You do not ever need to modify Makefiles, CMakeList.txts, build.ninjas,
+meson.builds, etc, etc...**
+
+However, please note that installing the spec file causes **every gcc/g++
+call hereafter will be intervened by ESSTRA Core on systemwide**.
+
+To disable this, type:
+
+```sh
+$ sudo make uninstall-specs
+```
+
+to remove the spec file.
 
 ## License
 
