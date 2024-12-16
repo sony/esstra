@@ -11,10 +11,11 @@ ESSTRACORE := $(ESSTRACORE_SOURCES:.cpp=.so)
 
 # hash functions
 WJCRYPTLIB_DIR := ../third_party/WjCryptLib/lib
-ESSTRACORE_SOURCES += \
+WJCRYPTLIB_FILES := \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Md5.c \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Sha1.c \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Sha256.c
+ESSTRACORE_SOURCES += $(WJCRYPTLIB_FILES)
 CXXFLAGS += -I $(WJCRYPTLIB_DIR)
 
 PREFIX ?= /usr/local
@@ -25,6 +26,9 @@ SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 .PHONY: all clean install install-specs uninstall-specs
 
 all: $(ESSTRACORE)
+
+$(WJCRYPTLIB_FILES):
+	(cd $(WJCRYPTLIB_DIR) ; git submodule init; git submodule update)
 
 $(ESSTRACORE): $(ESSTRACORE_SOURCES)
 	$(CXX) -shared $(CXXFLAGS) $^ -o $@
