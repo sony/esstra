@@ -11,11 +11,11 @@ x86\_64 PC.
 
 This version of ESSTRA Core has a feature to embed a list of the absolute paths
 of all source and header files involved in compilation into a binary file as
-metadata.
+metadata. Each source and header file's SHA-1 hash is embedded as well.
 
-Note that the data formats and content of the metadata, as well as the
-input/output specifications of each tool, are tentative and may change in the
-future.
+Note that the specifications and features of ESSTRA Core, the data formats
+and content of the metadata, as well as the input/output specifications of each
+tool are tentative and may change in the future versions.
 
 ## How to Build and Install
 
@@ -77,30 +77,30 @@ Note that this does not affect the behavior of the binary file itself.
 
 It will surely be annoying that you have to specify `-fplugin=....` for every
 gcc/g++ invocation.
-If you want to apply ESSTRA Core to **any** gcc/g++ occurrence, just type:
+If you want to apply ESSTRA Core to any gcc/g++ occurrence, just type:
 
 ```sh
 $ sudo make install-specs
 ```
 
-This command installs a [GCC spec
+This installs a [GCC spec
 file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html) on your system which
 enables the option `-fplugin=....` as default.
-So, compiling something with GCC as usual:
+So, compiling something hereafter with GCC as usual:
 
 ```sh
 $ gcc helloworld.c -o helloworld
 ```
 
-generates a binary file with metadata embedded.
+generates a binary file with metadata embedded by ESSTRA Core.
 
-This is a very useful feature when you compile some open source (or closed or
+This is a very useful feature if you compile some open source (or closed or
 whatever) projects and also want information ESSTRA generates for them.
-**You do not ever need to modify Makefiles, CMakeList.txts, build.ninjas,
-meson.builds, etc, etc...**
+You do not ever need to modify Makefiles, CMakeList.txts, build.ninjas,
+meson.builds, etc, etc...
 
-However, please note that installing the spec file causes **every gcc/g++
-call hereafter will be intervened by ESSTRA Core on systemwide**.
+However, please note that installing the spec file causes every gcc/g++
+call hereafter will be intervened by ESSTRA Core on systemwide.
 
 To disable this, type:
 
@@ -109,6 +109,11 @@ $ sudo make uninstall-specs
 ```
 
 to remove the spec file.
+
+## Size of Metadata
+
+In this version,
+
 
 ## License
 

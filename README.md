@@ -79,6 +79,8 @@ And as [ESSTRA Utility](./util/README.md) uses the [PyYAML](https://pyyaml.org/)
 module to handle YAML data, you may need to install it by, for example, typing:
 
 ```sh
+$ pip install pyyaml
+or
 $ sudo apt install python3-yaml
 ```
 
