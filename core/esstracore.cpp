@@ -71,12 +71,11 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 #define YAML_SEPARATOR "---"s
 
 // keys
-#define KEY_INPUT_FILENAME "InputFileName"s
-#define KEY_SOURCE_FILES "SourceFiles"s
-#define KEY_FILE_NAME "FileName"s
-#define KEY_MD5 "MD5"s
-#define KEY_SHA1 "SHA1"s
-#define KEY_SHA256 "SHA256"s
+#define KEY_INPUT_FILENAME "InputFileName: "s
+#define KEY_FILE_NAME "FileName: "s
+#define KEY_MD5 "MD5: "s
+#define KEY_SHA1 "SHA1: "s
+#define KEY_SHA256 "SHA256: "s
 
 // debugging
 static bool debug_mode = false;
@@ -231,8 +230,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 
     // construct metadata in yaml format
     strings_to_embed.push_back(YAML_SEPARATOR);
-    strings_to_embed.push_back(KEY_INPUT_FILENAME + ": " + main_input_filename);
-    strings_to_embed.push_back(KEY_SOURCE_FILES + ":");
+    strings_to_embed.push_back(KEY_INPUT_FILENAME + main_input_filename);
 
     string current_directory = "";
     for (const auto& path : allpaths) {
@@ -241,12 +239,12 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
         debug_log("dir: %s\n", directory.c_str());
         if (current_directory != directory) {
             current_directory = directory;
-            strings_to_embed.push_back(YAML_INDENT + directory + ":");
+            strings_to_embed.push_back(directory + ":");
         }
-        strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE_NAME + ": " + filename);
+        strings_to_embed.push_back(YAML_ITEM + KEY_FILE_NAME + filename);
         for (const auto& elem : infomap[path]) {
             strings_to_embed.push_back(
-                YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
+                YAML_INDENT + elem.first + elem.second);
         }
     }
 
