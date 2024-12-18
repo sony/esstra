@@ -145,8 +145,8 @@ $ esstra.py show helloworld | yq -oj
 The command `update` of the current version attaches "license information" to
 each file's information in binary files' metadata.
 
-We think some other kinds of information would also be helpful.  For example,
-copyright information, CVE numbers of fixed vulnerabilities, and so on.
+We think some other kinds of information would also be helpful.
+For example, copyright information, CVE numbers and so on.
 Since ESSTRA is at an early stage in development, we have developed a feature
 that attaches license information as a sort of feasibility study.
 
@@ -174,23 +174,45 @@ contains [an overall guide](../samples/sample-util-linux/README.md) to compile
 [util-linux](https://github.com/util-linux/util-linux) with ESSTRA Core
 applied.
 
-In that document, we perform license scan with FOSSology to generate an SPDX
-tag-value file, attach license information to binary files of util-linux by
-using ESSTRA Utility, and show the result of it.
+In the document, we build util-linux with ESSTRA Core applied, perform license
+scan with [FOSSology](https://fossology.github.io/) to generate an SPDX
+tag-value file containing license information, attach the information to binary
+files of util-linux by using ESSTRA Utility, and show the result of it.
 
 So, for more details of the command `update`, please refer to
 [the document](../samples/sample-util-linux/README.md).
 
 ### Command "shrink"
 
-The current version of ESSTRA is making use of the mechanism of
-[GCC Plugin](https://gcc.gnu.org/wiki/plugins).
-This can easily cause the size of the resulting binary files' metadata very large.
+The `shrink` command reduces the size of binary files built with ESTTRA Core by removing
+duplication in the metadata.
 
-The reason is ... (write it later)
+Here is the answer to the question "Why duplication occurs." In short, this arises from
+constraints of the GCC Plugin mechanism.
 
+First, ESTTRA Core intervenes with GCC as a GCC plugin, gathers information about the source
+and header files involved in the current compilation process, and writes information from all
+those files into the object file as metadata.
 
+Then, when the linker finally combines the object files into a single binary file, the metadata
+in the individual object files is combined "as-is" in the binary file.
 
+However, GCC compiles each source file "independently," even if multiple source files are
+specified on the command line. This means that even if multiple source files are compiled to
+produce a single binary file, a GCC plugin during compilation of one source file does not know
+the information during compilation of another source file.
+
+In software development, it is very common for a single binary file to be built from multiple
+source files, common header files are `#include`'d, and recursively common header files are
+`#include`'d. This ultimately results in duplication in metadata in binary files.
+
+To eliminate this duplication, ESSTRA utility provides a `shrink` command. The command
+minimizes the size of binary files by removing duplication in the metadata and leaving only the
+necessary data.
+
+In future versions of ESSTRA, we plan to use technologies other than GCC Plugin (possibly using
+[Linker Plugins](https://sourceware.org/binutils/docs/ld/Plugins.html)) to automatically remove
+duplication in metadata without user intervention such as the `shrink` command.
 
 ## License
 
