@@ -1,21 +1,23 @@
 # ESSTRA Core
 
-ESSTRA Core intervenes in compilation and embeds information about all source
-and header files involved in compilation as metadata in the resulting binary
-file.
+ESSTRA Core intervenes in compilation to gather information about all source
+and header files involved in compilation and embed it as metadata in the
+resulting binary file.
 
 ## Status of This Version
 
 ESSTRA Core is being developed on Ubuntu 22.04 with GCC 11.4.0 installed on a
 x86\_64 PC.
 
-This version of ESSTRA Core has a feature to embed a list of the absolute paths
-of all source and header files involved in compilation into a binary file as
-metadata. Each source and header file's SHA-1 hash is embedded as well.
+This version of ESSTRA Core creates an ELF section `esstra_info` in the
+resulting binary file of compilation with GCC.
+This section contains information about all files involved in compilation,
+including the full path and SHA-1 hash.
 
-Note that the specifications and features of ESSTRA Core, the data formats
-and content of the metadata, as well as the input/output specifications of each
-tool are tentative and may change in the future versions.
+Note that the specifications and features of ESSTRA Core, including the name of
+the ELF section, the data formats, and content of the metadata as well as the
+input/output specifications of each tool are tentative and may change in the
+future versions.
 
 ## How to Build and Install
 
@@ -58,7 +60,7 @@ To use ESSTRA Core, specify the path of `esstracore.so` using the option
 `-fplugin=` of `gcc` or `g++`.
 
 For example, if you compile a source file `helloworld.c` or `helloworld.cpp`
-with `gcc` or `g++` and generates a binary file `helloworld`, type:
+with `gcc` or `g++` to generate a binary file `helloworld`, type:
 
 ```sh
 $ gcc -fplugin=/usr/local/share/esstra/esstracore.so helloworld.c -o helloworld
@@ -68,7 +70,7 @@ $ g++ -fplugin=/usr/local/share/esstra/esstracore.so helloworld.cpp -o helloworl
 
 The generated binary file `helloworld` has metadata embedded by ESSTRA Core.
 
-Use [ESSTRA Utility](../util/README.md) a to access metadata embedded in binary
+Use [ESSTRA Utility](../util/README.md) to access metadata embedded in binary
 files.
 
 Note that this does not affect the behavior of the binary file itself.
@@ -83,10 +85,9 @@ If you want to apply ESSTRA Core to any gcc/g++ occurrence, just type:
 $ sudo make install-specs
 ```
 
-This installs a [GCC spec
-file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html) on your system which
-enables the option `-fplugin=....` as default.
-So, compiling something hereafter with GCC as usual:
+This installs a [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
+on your system which enables the option `-fplugin=....` as default.
+So, compiling anything hereafter with GCC as usual:
 
 ```sh
 $ gcc helloworld.c -o helloworld
@@ -109,11 +110,6 @@ $ sudo make uninstall-specs
 ```
 
 to remove the spec file.
-
-## Size of Metadata
-
-In this version,
-
 
 ## License
 
