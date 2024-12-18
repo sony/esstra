@@ -40,10 +40,11 @@ files involved in compilation is embedded in the binary file as metadata.
 
 ESSTRA Utility (`esstra.py`) is a Python script for accessing metadata in
 binary files embedded by ESSTRA Core.
+
 In this version, you can output metadata in YAML format, shrink metadata by
-removing duplication, attach license information to each file in metadata
-by passing license information files
-in [SPDX 2.3 tag-value format](https://spdx.github.io/spdx-spec/v2.3/).
+removing duplication, and attach license information to metadata by specifying
+files in [SPDX 2.3 tag-value format](https://spdx.github.io/spdx-spec/v2.3/)
+which contain license information.
 
 ## Technical Overview
 
@@ -75,7 +76,7 @@ In this case, the major version is 11, so install the package named
 $ sudo apt install gcc-11-plugin-dev
 ```
 
-And as [ESSTRA Utility](./util/README.md) uses the [PyYAML](https://pyyaml.org/)
+Since [ESSTRA Utility](util/README.md) uses the [PyYAML](https://pyyaml.org/)
 module to handle YAML data, you may need to install it by, for example, typing:
 
 ```sh
@@ -106,13 +107,13 @@ and `/usr/local/bin/`, respectively.
 The workflow using ESSTRA is as follows:
 
 1. Compile source files with GCC using ESSTRA Core
-2. Use ESSTRA Utility to access metadata embedded in binary files
+2. Use ESSTRA Utility to access metadata embedded in the binary files
 
-The example below compiles the source file `helloworld.c` with `gcc` and
-generates the binary file `helloworld`.
+The example below compiles a source file `helloworld.c` with `gcc` and
+generates a binary file `helloworld`.
 
 First, compile the source file `helloworld.c` by passing the path of
-`esstracore.so` to the compiler with the option `-fplugin=`:
+`esstracore.so` to the compiler with the option `-fplugin`:
 
 ```sh
 $ gcc -fplugin=/usr/local/share/esstra/esstracore.so helloworld.c -o helloworld
@@ -124,7 +125,7 @@ binary file itself.
 
 To access the embedded metadata, use the script `esstra.py`.  The first argument
 of this script is a *command*, and the second or subsequent arguments are the
-arguments of *command*.
+arguments of the *command*.
 
 The command `show` displays metadata in binary files in YAML format.
 A command line:
@@ -205,7 +206,7 @@ SourceFiles:
     SHA1: 0de70008ffa3f198baf55c7b3f3d03b4ca11c21f
 ```
 
-For details of `esstra.py`, see the [README of ESSTRA Utility](./util/README.md).
+For more details, refer to the file [util/README.md](./util/README.md).
 
 
 ### Installing a Spec File
@@ -222,7 +223,7 @@ This command installs a [GCC spec
 file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html) on your system which
 enables the option `-fplugin=....` as default.
 
-After that, compiling something with GCC as usual:
+After that, every compiling something with GCC as usual:
 
 ```sh
 $ gcc helloworld.c -o helloworld
@@ -233,8 +234,8 @@ generates a binary file with metadata embedded by ESSTRA Core.
 This is a very useful feature when you compile some open source projects and
 also want information ESSTRA generates for them.
 
-For details about installing/uninstalling the spec file, see the
-[README of ESSTRA Core](./core/README.md).
+For more details about installing/uninstalling the spec file, refer to the
+file [core/README.md](./core/README.md).
 
 ## License
 
