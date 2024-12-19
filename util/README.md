@@ -88,37 +88,9 @@ SourceFiles:
     SHA1: 2fef05d80514ca0be77efec90bda051cf87d771f
   - File: stdio.h
     SHA1: c7181b48c4194cd122024971527aab4056baf600
-  /usr/include/x86_64-linux-gnu/bits:
-  - File: typesizes.h
-    SHA1: ee94b5a60d007c23bdda9e5c46c8ba40f4eb402c
-  - File: wordsize.h
-    SHA1: 281ddd3c93f1e8653e809a45b606574c9b691092
-  /usr/include/x86_64-linux-gnu/bits/types:
-  - File: FILE.h
-    SHA1: 497924e329d53517631713ae52acb73e870d7d65
-  - File: __FILE.h
-    SHA1: 274242343e85d1c06e7f5ccc5abf15e120f6e957
-  - File: __fpos64_t.h
-    SHA1: ac38e294b004f6e2bf18f1c55e03dc80f48d6830
-  - File: __fpos_t.h
-    SHA1: 760ef77769ac1921f4b1f908cbf06863e2506775
-  - File: __mbstate_t.h
-    SHA1: e3a4f2ee55e635520db0b4610d2b361e9ce41de7
-  - File: struct_FILE.h
-    SHA1: 1dbf8bac589cb09e09aa4c1d36913e549a57bcf0
-  /usr/include/x86_64-linux-gnu/gnu:
-  - File: stubs-64.h
-    SHA1: f7603fa3908b56e9d1b33c91590db3252e13a799
-  - File: stubs.h
-    SHA1: be168037b7503a82b1cf694cdbac8c063bb6e476
-  /usr/include/x86_64-linux-gnu/sys:
-  - File: cdefs.h
-    SHA1: a419a6372029d89ba38ada0811d34f51df8d09b7
-  /usr/lib/gcc/x86_64-linux-gnu/11/include:
-  - File: stdarg.h
-    SHA1: fa23f49da8a0a5068b781dff7182f1a1c363dc30
-  - File: stddef.h
-    SHA1: 0de70008ffa3f198baf55c7b3f3d03b4ca11c21f
+          :
+        (snip)
+          :
 ```
 
 As the output of this command is in YAML format, you can parse it with any YAML
@@ -173,8 +145,10 @@ $ esstra.py shrink <binary> [<binary> ...]
 ```
 
 More detailed examples are stored in the directories
-[../samples/sample-hello](../samples/sample-hello) and
-[../samples/sample-elfutils](../samples/sample-elfutils).
+[../samples/sample-hello-main-sub/sample-hello-main-sub) and samples to be
+added in the future.
+
+#### Why duplication?
 
 Here is the answer to the question "Why does duplication occur?"
 In short, this arises from constraints of the mechanism of GCC Plugin.
@@ -228,18 +202,10 @@ files at once, you can specify them all on the command line:
 $ esstra.py update <binary> [<binary> ...] -i <spdx-tv-file> [<spdx-tv-file> ..]
 ```
 
-The example [../samples/sample-elfutils](../samples/sample-elfutils)
-gives you an overall guide to compile
-[elfutils](https://sourceware.org/elfutils/) with the ESSTRA system.
+For more details of the command `update`, please refer to documents of the
+samples stored in the directory [../samples](../samples/).
 
-In the document, we build elfutils with ESSTRA Core applied, perform license
-scan with [FOSSology](https://fossology.github.io/) to generate an SPDX
-tag-value file containing license information, attach the information to
-metadata of binary files' of elfutils by using ESSTRA Utility,
-and show the result of it.
 
-So, for more details of the command `update`, please refer to
-[the document](../samples/sample-elfutils/README.md).
 
 ## License
 

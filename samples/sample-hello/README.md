@@ -3,52 +3,80 @@
 This is a primary and very simple example. Just compiles `hello.c` and generate
 a binary file `hello`.
 
-Metadata is embedded in the binary file `hello` by applying ESSTRA Core during
-compilation.
+This document gives you an overall guide:
 
-## Build
+* To compile a source file with ESSTRA Core applied to build a binary file with
+  metadata embedded,
+* To update license information in the metadata with an SPDX tag-value file
+  generated with FOSSology,
 
-If you have [ESSTRA Core](../../core) installed on your system, type:
+and finally,
 
-```sh
-$ make
+* To confirm that the license information is surely applied to the metadata in
+  the binary file.
+
+## Notice
+
+Each source file in this directory has an `SPDX-License-Identifier:` with some
+license ID, however, it's just for feasibility of this guide.
+
+Though this directory contains a `Makefile`, we will explain what to do one by
+one precisely without using the `Makefile`.
+
+## Preparation
+
+Before you begin this guide,
+install ESSTRA Core and ESSTRA Utility on your system by following
+[How to Build and Install](../../README.md#how-to-build-and-install).
+
+## Build with ESSTRA Core
+
+The file `hello.c` is a very simple C source file:
+
+```c
+#include <stdio.h>
+
+int main(void)
+{
+    printf("Hello, world!\n");
+    return 0;
+}
 ```
 
-in this directory.
-Or, if you want to use `esstracore.so` in [../../core](../../core) without
-installing it, type:
+To compile `hello.c` with ESSTRA Core applied and generate a binary file named
+`hello`, type:
 
 ```sh
-$ make ESSTRACORE=../../core/esstracore.so
+$ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello.c -o hello
 ```
 
-Then the source file is compiled with ESSTRA Core applied and a binary file
-`hello` is generated.
+on the command line. If no errors, the file `hello` is generated.
 
-Running `hello` just displays a string `Hello, world!` on the standard output:
+Executing `hello` just displays a string `Hello, world!` on the standard output:
 
 ```sh
 $ ./hello
 Hello, world!
 ```
 
-## Display Metadata
+Note that compilation with ESSTRA Core applied does not affect the behavior of
+the resulting binary file at all.
 
-Since the binary file `hello` is the result of compilation ESSTRA Core applied,
-the file has metadata embedded by ESSTRA Core.
+## Check What's Embedded
 
-To verify this, use the ESSTRA Utility as shown below:
+To display metadata embedded in the binary file `hello`, type:
 
 ```sh
-$ esstra.py show hello
+$ esstar.py show hello
 ```
 
-Then the content of the metadata embedded in `hello` is displayed in YAML format:
+You can see a list of directories and files as well as SHA-1 hashes in YAML
+format. These files are all involved in the compilation of the file `hello`:
 
 ```yaml
 #
-# BinaryFileName: hello
-# BinaryPath: /home/snagao/esstra/samples/sample-hello/hello
+# BinaryFileName: output_example/hello
+# BinaryPath: /home/snagao/esstra/samples/sample-hello/output_example/hello
 #
 ---
 SourceFiles:
@@ -96,6 +124,13 @@ SourceFiles:
   - File: stddef.h
     SHA1: 0de70008ffa3f198baf55c7b3f3d03b4ca11c21f
 ```
+
+## Generate SPDX File with FOSSology
+
+One of the features of ESSTRA is to attach license information to metadata by
+the ESTTRA Utility's command `update` as mentioned
+[here](../../util/README.md#command-update).
+
 
 ## Prebuilt Files
 
