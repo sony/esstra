@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 // Copyright 2024 Sony Group Corporation
 
 #include <stdio.h>
