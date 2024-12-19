@@ -29,8 +29,8 @@ change.
 
 The current version of ESSTRA consists of the two tools:
 
-* [ESSTRA Core](./core/README.md)
-* [ESSTRA Utility](./util/README.md)
+* [ESSTRA Core](./core)
+* [ESSTRA Utility](./util)
 
 ESSTRA Core (`esstracore.so`) is a
 [GCC plugin](https://gcc.gnu.org/wiki/plugins) that intervenes in compilation of
@@ -76,7 +76,7 @@ In this case, the major version is 11, so install the package named
 $ sudo apt install gcc-11-plugin-dev
 ```
 
-Since [ESSTRA Utility](util/README.md) uses the [PyYAML](https://pyyaml.org/)
+Since [ESSTRA Utility](./util) uses the [PyYAML](https://pyyaml.org/)
 module to handle YAML data, you may need to install it by, for example, typing:
 
 ```sh
@@ -109,8 +109,9 @@ The workflow using ESSTRA is as follows:
 1. Compile source files with GCC using ESSTRA Core
 2. Use ESSTRA Utility to access metadata embedded in the binary files
 
-[The example](./samples/sample-hello/README.md) below compiles a source file
+The example below compiles a source file
 `hello.c` with `gcc` and generates a binary file `hello`.
+(See also [./samples/sample-hello](./samples/sample-hello))
 
 First, compile the source file `hello.c` by passing the path of
 `esstracore.so` to the compiler with the option `-fplugin`:
@@ -205,8 +206,7 @@ SourceFiles:
     SHA1: 0de70008ffa3f198baf55c7b3f3d03b4ca11c21f
 ```
 
-For more details, refer to the file [util/README.md](./util/README.md).
-
+For more details, refer to the file [./util/README.md](./util/README.md).
 
 ### Installing a Spec File
 
@@ -237,8 +237,8 @@ generates a binary file with metadata embedded by ESSTRA Core.
 This is a very useful feature when you compile some open source (or closed or
 whatever) projects and also want information ESSTRA generates for them.
 
-For more details about installing/uninstalling the spec file, refer to the
-file [core/README.md](./core/README.md).
+For more details about installing/uninstalling the spec file,
+refer to the file [./core/README.md](./core/README.md).
 
 ## License
 

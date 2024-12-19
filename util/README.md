@@ -61,7 +61,7 @@ $ esstra.py show <binary> [<binary>...]
 
 outputs metadata embedded in specified binary files in YAML format.
 For example, a binary file `hello` built from `hello.c` as in
-[../samples/sample-hello](../samples/sample-hello/README.md),
+[../samples/sample-hello](../samples/sample-hello),
 
 ```sh
 $ esstra.py show hello
@@ -167,8 +167,8 @@ $ esstra.py shrink <binary> [<binary> ...]
 ```
 
 More detailed examples are stored in the directories
-[../samples/sample-hello](../samples/sample-hello/README.md) and
-[../samples/sample-util-linux](../samples/sample-util-linux/README.md).
+[../samples/sample-hello](../samples/sample-hello) and
+[../samples/sample-util-linux](../samples/sample-util-linux).
 
 Here is the answer to the question "Why does duplication occur?"
 In short, this arises from constraints of the mechanism of GCC Plugin.
@@ -226,7 +226,7 @@ files at once, you can specify them all on the command line:
 $ esstra.py update <binary> [<binary> ...] -i <spdx-tv-file> [<spdx-tv-file> ..]
 ```
 
-The example [../samples/sample-util-linux](../samples/sample-util-linux/README.md)
+The example [../samples/sample-util-linux](../samples/sample-util-linux)
 gives you an overall guide to compile
 [util-linux](https://github.com/util-linux/util-linux/) with the ESSTRA system.
 
