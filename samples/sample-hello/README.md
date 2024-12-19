@@ -8,14 +8,14 @@ compilation.
 
 ## Build
 
-If you have [ESSTRA Core](../../core/README.md) installed on your system, type:
+If you have [ESSTRA Core](../../core) installed on your system, type:
 
 ```sh
 $ make
 ```
 
 in this directory.
-Or, if you want to use `esstracore.so` in [../../core/](../../core) without
+Or, if you want to use `esstracore.so` in [../../core](../../core) without
 installing it, type:
 
 ```sh
@@ -101,4 +101,4 @@ SourceFiles:
 
 For reference, a prebuilt binary file `hello` is placed in the sub directory
 [`output_example`](./output_example), which was built on our development environment mentioned in
-the [README.md](../../README.md#status-of-this-version) file at the top directory.
+the [README.md](../../README.md#status-of-this-version) file in the top directory.

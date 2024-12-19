@@ -6,12 +6,12 @@ generate a binary file, `hello`.
 Metadata is embedded in the binary file, `hello`, by applying ESSTRA Core during
 compilation.
 
-This is very similar to another example [sample-hello](../sample-hello/README.md),
+This is very similar to another example [sample-hello](../sample-hello),
 but in this case, we use two source files.
 
 ## Build
 
-If you have [ESSTRA Core](../../core/README.md) installed on your system, type:
+If you have [ESSTRA Core](../../core) installed on your system, type:
 
 ```sh
 $ make
@@ -19,7 +19,7 @@ $ make
 
 in this directory.
 Or, if you want to use `esstracore.so` which is not installed on the system
-but has been compiled in [../../core/](../../core), type:
+but has been compiled in [../../core](../../core), type:
 
 ```sh
 $ make ESSTRACORE=../../core/esstracore.so
@@ -193,4 +193,4 @@ For more details about the duplication in metadata, refer to the file
 
 For reference, a prebuilt binary file `hello` is placed in the sub directory
 [`output_example`](./output_example), which was built on our development environment mentioned in
-the [README.md](../../README.md#status-of-this-version) file at the top directory.
+the [README.md](../../README.md#status-of-this-version) file in the top directory.
