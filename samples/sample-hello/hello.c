@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Copyright 2024 Sony Group Corporation
 // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.
 
 #include <stdio.h>
