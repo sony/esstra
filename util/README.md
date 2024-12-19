@@ -60,12 +60,12 @@ $ esstra.py show <binary> [<binary>...]
 ```
 
 outputs metadata embedded in specified binary files in YAML format.
-For example, a binary file `hello` built from `hello.c` as in
-[../samples/sample-hello](../samples/sample-hello),
+For example, passing a binary file `hello` built from `hello.c` as in
+[../samples/sample-hello](../samples/sample-hello) to the command:
 
 ```sh
 $ esstra.py show hello
-````
+```
 
 would give you an output as follows:
 
