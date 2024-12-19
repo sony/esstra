@@ -59,16 +59,16 @@ Then `esstracore.so` is installed in `/usr/local/share/esstra/`.
 To use ESSTRA Core, specify the path of `esstracore.so` using the option
 `-fplugin=` of `gcc` or `g++`.
 
-For example, if you compile a source file `helloworld.c` or `helloworld.cpp`
-with `gcc` or `g++` to generate a binary file `helloworld`, type:
+For example, if you compile a source file `hello.c` or `hello.cpp`
+with `gcc` or `g++` to generate a binary file `hello`, type:
 
 ```sh
-$ gcc -fplugin=/usr/local/share/esstra/esstracore.so helloworld.c -o helloworld
+$ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello.c -o hello
 or
-$ g++ -fplugin=/usr/local/share/esstra/esstracore.so helloworld.cpp -o helloworld
+$ g++ -fplugin=/usr/local/share/esstra/esstracore.so hello.cpp -o hello
 ```
 
-The generated binary file `helloworld` has metadata embedded by ESSTRA Core.
+The generated binary file `hello` has metadata embedded by ESSTRA Core.
 
 Use [ESSTRA Utility](../util/README.md) to access metadata embedded in binary
 files.
@@ -90,7 +90,7 @@ on your system which enables the option `-fplugin=....` as default.
 So, compiling anything hereafter with GCC as usual:
 
 ```sh
-$ gcc helloworld.c -o helloworld
+$ gcc hello.c -o hello
 ```
 
 generates a binary file with metadata embedded by ESSTRA Core.
