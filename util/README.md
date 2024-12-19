@@ -156,6 +156,12 @@ $ esstra.py show hello | yq -oj
 
 ### Command "shrink"
 
+> [!NOTE]
+> We are planning to remove this command in the future versions by using
+> technologies other than GCC Plugin (possibly by using
+> [Linker Plugins](https://sourceware.org/binutils/docs/ld/Plugins.html)) to automatically remove
+> duplication in metadata  without user intervention.
+
 The current version of ESSTRA Core cannot avoid data duplication which
 especially occurs when a binary file is built from two or more source files.
 
@@ -192,10 +198,6 @@ source files, common header files are `#include`'d, and recursively common heade
 To eliminate this duplication, ESSTRA utility provides a `shrink` command. The command
 minimizes the size of binary files by removing duplication in the metadata and leaving only the
 necessary data.
-
-In the future versions of ESSTRA, we plan to use technologies other than GCC Plugin (possibly using
-[Linker Plugins](https://sourceware.org/binutils/docs/ld/Plugins.html)) to automatically remove
-duplication in metadata without user intervention such as the `shrink` command.
 
 ### Command "update"
 
