@@ -29,7 +29,7 @@ Running `hello` just displays a string `Hello, world!` on the standard output:
 
 ```sh
 $ ./hello
-Hello, World!
+Hello, world!
 ```
 
 ## Display Metadata
