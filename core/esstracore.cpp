@@ -73,7 +73,7 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 // keys
 #define KEY_INPUT_FILENAME "InputFileName"s
 #define KEY_SOURCE_FILES "SourceFiles"s
-#define KEY_FILE_NAME "FileName"s
+#define KEY_FILE "File"s
 #define KEY_MD5 "MD5"s
 #define KEY_SHA1 "SHA1"s
 #define KEY_SHA256 "SHA256"s
@@ -246,7 +246,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
             current_directory = directory;
             strings_to_embed.push_back(YAML_INDENT + directory + ":");
         }
-        strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE_NAME + ": " + filename);
+        strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
         for (const auto& elem : infomap[path]) {
             strings_to_embed.push_back(
                 YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);

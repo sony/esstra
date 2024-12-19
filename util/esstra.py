@@ -43,8 +43,9 @@ COMMANDS = {
 
 # keys in esstra_info
 SECTION_NAME = 'esstra_info'
+
 KEY_SOURCE_FILES = 'SourceFiles'
-KEY_FILE_NAME = 'FileName'
+KEY_FILE_NAME = 'File'
 KEY_LICENSE_INFO = 'LicenseInfo'
 HASH_ALGORITHM = 'SHA1'
 
