@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright 2024 Sony Group Corporation
 
-#include "hello_sub.h"
+#include <stdio.h>
 
 int main(void)
 {
-    sub_puts("Hello, World!");
+    printf("Hello, world!\n");
     return 0;
 }

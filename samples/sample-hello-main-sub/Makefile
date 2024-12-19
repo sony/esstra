@@ -17,4 +17,4 @@ hello: hello_main.c hello_sub.c
 	$(CC) $(CFLAGS) hello_main.c hello_sub.c -o hello
 
 clean:
-	rm -f hello
+	rm -f hello *.bak
