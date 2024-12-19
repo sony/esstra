@@ -182,7 +182,7 @@ def _run_show(args):
 
 RE_TAG_VALUE = re.compile(r'([a-z0-9-]+):\s*(.*)\s*$', re.I)
 
-TAG_FILE_NAME = 'FileName'
+TAG_FILE_NAME = 'File'
 TAG_FILE_CHECKSUM = 'FileChecksum'
 TAG_LICENSE_INFO_IN_FILE = 'LicenseInfoInFile'
 

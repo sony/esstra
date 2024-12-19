@@ -174,7 +174,7 @@ $ esstra.py shrink <binary> [<binary> ...]
 
 More detailed examples are stored in the directories
 [../samples/sample-hello](../samples/sample-hello) and
-[../samples/sample-util-linux](../samples/sample-util-linux).
+[../samples/sample-elfutils](../samples/sample-elfutils).
 
 Here is the answer to the question "Why does duplication occur?"
 In short, this arises from constraints of the mechanism of GCC Plugin.
@@ -228,17 +228,18 @@ files at once, you can specify them all on the command line:
 $ esstra.py update <binary> [<binary> ...] -i <spdx-tv-file> [<spdx-tv-file> ..]
 ```
 
-The example [../samples/sample-util-linux](../samples/sample-util-linux)
+The example [../samples/sample-elfutils](../samples/sample-elfutils)
 gives you an overall guide to compile
-[util-linux](https://github.com/util-linux/util-linux/) with the ESSTRA system.
+[elfutils](https://sourceware.org/elfutils/) with the ESSTRA system.
 
-In the document, we build util-linux with ESSTRA Core applied, perform license
+In the document, we build elfutils with ESSTRA Core applied, perform license
 scan with [FOSSology](https://fossology.github.io/) to generate an SPDX
-tag-value file containing license information, attach the information to binary
-files of util-linux by using ESSTRA Utility, and show the result of it.
+tag-value file containing license information, attach the information to
+metadata of binary files' of elfutils by using ESSTRA Utility,
+and show the result of it.
 
 So, for more details of the command `update`, please refer to
-[the document](../samples/sample-util-linux/README.md).
+[the document](../samples/sample-elfutils/README.md).
 
 ## License
 
