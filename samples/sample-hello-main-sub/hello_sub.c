@@ -1,5 +1,5 @@
+// SPDX-FileCopyrightText: Copyright 2024 Sony Group Corporation
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright 2024 Sony Group Corporation
 // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.
 
 #include <stdio.h>

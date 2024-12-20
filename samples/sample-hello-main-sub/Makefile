@@ -1,5 +1,5 @@
+# SPDX-FileCopyrightText: Copyright 2024 Sony Group Corporation
 # SPDX-License-Identifier: MIT
-# Copyright 2024 Sony Group Corporation
 
 CC := gcc
 PLUGIN_INCLUDE_DIR := $(shell $(CC) -print-file-name=plugin)/include
