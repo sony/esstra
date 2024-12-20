@@ -1,5 +1,5 @@
+# SPDX-FileCopyrightText: Copyright 2024 Sony Group Corporation
 # SPDX-License-Identifier: MIT
-# Copyright 2024 Sony Group Corporation
 
 CXX := g++
 PLUGIN_INCLUDE_DIR := $(shell $(CXX) -print-file-name=plugin)
@@ -10,7 +10,7 @@ ESSTRACORE_SOURCES := esstracore.cpp
 ESSTRACORE := $(ESSTRACORE_SOURCES:.cpp=.so)
 
 # hash functions
-WJCRYPTLIB_DIR := ../third_party/WjCryptLib/lib
+WJCRYPTLIB_DIR := ../third-party/WjCryptLib/lib
 WJCRYPTLIB_FILES := \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Md5.c \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Sha1.c \
@@ -28,7 +28,7 @@ SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 all: $(ESSTRACORE)
 
 $(WJCRYPTLIB_FILES):
-	(cd $(WJCRYPTLIB_DIR) ; git submodule init; git submodule update)
+	(cd $(WJCRYPTLIB_DIR) && git submodule init && git submodule update)
 
 $(ESSTRACORE): $(ESSTRACORE_SOURCES)
 	$(CXX) -shared $(CXXFLAGS) $^ -o $@
