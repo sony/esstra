@@ -1,3 +1,3 @@
-[submodule "third_party/WjCryptLib"]
-	path = third_party/WjCryptLib
+[submodule "third-party/WjCryptLib"]
+	path = third-party/WjCryptLib
 	url = https://github.com/WaterJuice/WjCryptLib.git
