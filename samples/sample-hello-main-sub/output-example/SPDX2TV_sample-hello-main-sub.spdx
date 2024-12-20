@@ -1,0 +1,118 @@
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+
+##-------------------------
+## Document Information
+##-------------------------
+
+DocumentNamespace: http://e6abdb6a0f0f/repo/SPDX2TV_sample-hello-main-sub.tgz_1734676053.spdx
+DocumentName: /srv/fossology/repository/report
+SPDXID: SPDXRef-DOCUMENT
+
+##-------------------------
+## Creation Information
+##-------------------------
+
+Creator: Tool: fossology-4.4.0.147
+Creator: Person: fossy (y)
+CreatorComment: <text>
+This document was created using license information and a generator from Fossology.
+</text>
+Created: 2024-12-20T06:27:33Z
+LicenseListVersion: 3.22
+
+##-------------------------
+## Package Information
+##-------------------------
+
+
+PackageName: sample-hello-main-sub.tgz
+PackageFileName: sample-hello-main-sub.tgz
+SPDXID: SPDXRef-upload11
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: true
+PackageVerificationCode: 6dcb8c031367ae43a5e75098244491feef6eb652
+PackageChecksum: SHA1: 5f7e47b1706b1fed7f2435e40cd3214f2db8dcce
+PackageChecksum: SHA256: e26b906b3f714616e55bf91e3950e1663377a8ec34ac6a39e29573eccf3d080a
+PackageChecksum: MD5: 44ab67e59242970fca2cd5619a796a35
+PackageLicenseConcluded: NOASSERTION
+PackageLicenseDeclared: NOASSERTION
+PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
+ - nomos ("4.4.0.147".b5b188)
+ - monk ("4.4.0.147".b5b188)
+ - ojo ("4.4.0.147".b5b188) </text>
+PackageLicenseInfoFromFiles: NOASSERTION
+PackageCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload11
+
+
+##--------------------------
+## File Information
+##--------------------------
+
+##File
+
+FileName: sample-hello-main-sub.tgz/sample-hello-main-sub/sample-hello-main-sub/hello_main.c
+SPDXID: SPDXRef-item87
+FileChecksum: SHA1: b2cc43993895b52da7bec7bc80566496f3021c98
+FileChecksum: SHA256: ee113e0df7d13aeeb6aae171c6e0e0fab903d7371127ef1d8455c67ba27c3fb2
+FileChecksum: MD5: 82f8272f7841997b4189b910a399cff8
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: <text> Copyright 2024 Sony Group Corporation SPDX-License-Identifier: MIT NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION. </text>
+
+##File
+
+FileName: sample-hello-main-sub.tgz/sample-hello-main-sub/sample-hello-main-sub/README.md
+SPDXID: SPDXRef-item88
+FileChecksum: SHA1: 5971bfbb4909b7e39e4cb2e19a86d7c896070637
+FileChecksum: SHA256: 2895225258196a47fc559fb09f8fd930645a72a87ef24664bb0abdc9ed151f1b
+FileChecksum: MD5: 91bf11252e45384f2e222499365a07af
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: sample-hello-main-sub.tgz/sample-hello-main-sub/sample-hello-main-sub/Makefile
+SPDXID: SPDXRef-item89
+FileChecksum: SHA1: 437916067982c7dbba15e9e1cf1feacd48e30917
+FileChecksum: SHA256: b0f63955d0b4d3973c7937e239a46a8e409cf925ed57ec92342bee942c33d1c5
+FileChecksum: MD5: 8ab0e9ce5902cf6134ebd2055332184f
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: <text> Copyright 2024 Sony Group Corporation </text>
+
+##File
+
+FileName: sample-hello-main-sub.tgz/sample-hello-main-sub/sample-hello-main-sub/hello_sub.h
+SPDXID: SPDXRef-item90
+FileChecksum: SHA1: ae424fc2fd0c4bdaead89092a56e52ee2152710d
+FileChecksum: SHA256: 36015e0b5358573a374885f4027004f68a5a49b7f4ba5f545bea22bf972fcbca
+FileChecksum: MD5: e38170da467d01f29c8556da9dac5a73
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: LGPL-2.1-or-later
+FileCopyrightText: <text> Copyright 2024 Sony Group Corporation SPDX-License-Identifier: LGPL-2.1-or-later NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION. </text>
+
+##File
+
+FileName: sample-hello-main-sub.tgz/sample-hello-main-sub/sample-hello-main-sub/hello_sub.c
+SPDXID: SPDXRef-item91
+FileChecksum: SHA1: 9ab0601ebd397643da712f2d49eeb570e8e2fc2f
+FileChecksum: SHA256: c7d9cfd5e88bd4314227decda43ffc076cfa42a57d859c0393af1d700bbe4244
+FileChecksum: MD5: 158c8959970b3e6591902b309888e2ce
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: BSD-3-Clause
+FileCopyrightText: <text> Copyright 2024 Sony Group Corporation SPDX-License-Identifier: BSD-3-Clause NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION. </text>
+
+
+
+##-------------------------
+## License Information
+##-------------------------
+

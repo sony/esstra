@@ -1,0 +1,94 @@
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+
+##-------------------------
+## Document Information
+##-------------------------
+
+DocumentNamespace: http://c1c19696d377/repo/SPDX2TV_sample-hello.tgz_1734676526.spdx
+DocumentName: /srv/fossology/repository/report
+SPDXID: SPDXRef-DOCUMENT
+
+##-------------------------
+## Creation Information
+##-------------------------
+
+Creator: Tool: fossology-4.4.0.147
+Creator: Person: fossy (y)
+CreatorComment: <text>
+This document was created using license information and a generator from Fossology.
+</text>
+Created: 2024-12-20T06:35:26Z
+LicenseListVersion: 3.22
+
+##-------------------------
+## Package Information
+##-------------------------
+
+
+PackageName: sample-hello.tgz
+PackageFileName: sample-hello.tgz
+SPDXID: SPDXRef-upload2
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: true
+PackageVerificationCode: b99b826bb0c517aeb5c316c1cadeb44a3e05052d
+PackageChecksum: SHA1: 87c70394a2ed7fb0bf87a845fb81ec74cc22ff21
+PackageChecksum: SHA256: 12b7417f26ea8034b31fb53cc2681810f447c4ab6756442f23b2162434efd2d8
+PackageChecksum: MD5: fde715cb43f88ade6f55f4d2efa90b97
+PackageLicenseConcluded: NOASSERTION
+PackageLicenseDeclared: NOASSERTION
+PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
+ - nomos ("4.4.0.147".b5b188)
+ - monk ("4.4.0.147".b5b188)
+ - ojo ("4.4.0.147".b5b188) </text>
+PackageLicenseInfoFromFiles: NOASSERTION
+PackageCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload2
+
+
+##--------------------------
+## File Information
+##--------------------------
+
+##File
+
+FileName: sample-hello.tgz/sample-hello/sample-hello/README.md
+SPDXID: SPDXRef-item7
+FileChecksum: SHA1: 92ba43b57e4dabf1a772135a56738c8435cff1f6
+FileChecksum: SHA256: b06e434ee4f6423cea8fdb01406675f31208bb3bf5d5fd098f22d7df5f5ac13c
+FileChecksum: MD5: 59741d3fa69f47627cb5902d8cb5aecc
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: sample-hello.tgz/sample-hello/sample-hello/Makefile
+SPDXID: SPDXRef-item8
+FileChecksum: SHA1: a2fb825f42596a693388a48b92e6808805f3aee1
+FileChecksum: SHA256: b0ecbbea0b472f2099debffd8334aabb740b248e6b592a98cb1777b99d68b4d2
+FileChecksum: MD5: 595fc0b2cf10d1acfa6765f56a3dcad4
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: <text> Copyright 2024 Sony Group Corporation </text>
+
+##File
+
+FileName: sample-hello.tgz/sample-hello/sample-hello/hello.c
+SPDXID: SPDXRef-item9
+FileChecksum: SHA1: e7834d0b9cb6cb116c72f0bee7da29e3d280b27e
+FileChecksum: SHA256: 8134eae34d2a46ffdaedc04628427282d3d73ae47affd33463111efc89fa5a96
+FileChecksum: MD5: b5ca38edd7197004cfb8290d0ca0e87d
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: <text> Copyright 2024 Sony Group Corporation SPDX-License-Identifier: MIT NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION. </text>
+
+
+
+##-------------------------
+## License Information
+##-------------------------
+
