@@ -10,7 +10,8 @@ ESSTRACORE_SOURCES := esstracore.cpp
 ESSTRACORE := $(ESSTRACORE_SOURCES:.cpp=.so)
 
 # hash functions
-WJCRYPTLIB_DIR := ../third-party/WjCryptLib/lib
+THIRD_PARTY_DIR = ../third-party
+WJCRYPTLIB_DIR := $(THIRD_PARTY_DIR)/WjCryptLib/lib
 WJCRYPTLIB_FILES := \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Md5.c \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Sha1.c \
@@ -28,7 +29,7 @@ SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 all: $(ESSTRACORE)
 
 $(WJCRYPTLIB_FILES):
-	(cd $(WJCRYPTLIB_DIR) && git submodule init && git submodule update)
+	(cd $(THIRD_PARTY_DIR) && git submodule init && git submodule update)
 
 $(ESSTRACORE): $(ESSTRACORE_SOURCES)
 	$(CXX) -shared $(CXXFLAGS) $^ -o $@
