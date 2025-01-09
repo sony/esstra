@@ -98,44 +98,27 @@ def get_resolved_file_path(tvfile):
 # helper functions for command 'show'
 #
 def _extract_esstra_info(path):
-    result = subprocess.run(
-        ['readelf', '--string-dump', SECTION_NAME, path],
-        encoding='utf-8',
-        check=False,
-        capture_output=True)
+    with tempfile.NamedTemporaryFile('wb', delete=False) as temp:
+        result = subprocess.run(
+            ['objcopy', '--dump-section', f'{SECTION_NAME}={temp.name}', path],
+            encoding='utf-8',
+            check=False,
+            capture_output=True)
 
-    # check if it was ok or error
-    if result.returncode:
-        error(f'readelf returned code {result.returncode}')
-        error(result.stderr)
-        return None
+        # check if it was ok or error
+        if result.returncode:
+            error(f'objcopy returned code {result.returncode}')
+            error(result.stderr)
+            Path(temp.name).unlink()
+            return None
 
-    # if ok, parse the output
-    lines = []
-    offset = None
-    for line in result.stdout.splitlines():
-        line = line.strip()
-        if len(line) == 0:
-            continue
-        elif line.startswith('String dump'):
-            continue
-        elif not offset:
-            if not line.startswith('['):
-                continue
-            rbracket = line.find(']')
-            assert rbracket >= 0, 'cannot find right bracket "]"'
-            content = line[rbracket+1:].strip()
-            offset = len(line) - len(content)
-            lines.append(content)
-        else:
-            content = line[offset:].rstrip()
-            lines.append(content)
+    with open(temp.name, 'rb') as fp:
+        metadata = fp.read().replace(b'\0', b'\n').decode(encoding='utf-8')
 
-    # parse esstra info in yaml format
-    parsed_docs = list(yaml.safe_load_all('\n'.join(lines)))
+    Path(temp.name).unlink()
 
     # return parsed data
-    return parsed_docs
+    return list(yaml.safe_load_all(metadata))
 
 
 #
