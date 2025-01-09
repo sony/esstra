@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright 2024 Sony Group Corporation
+ * SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * This program is free software: you can redistribute it and/or modify

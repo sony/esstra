@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright 2024 Sony Group Corporation
+# SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
 
 PREFIX ?= /usr/local
 SUBDIRS := core util

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# SPDX-FileCopyrightText: Copyright 2024 Sony Group Corporation
+# SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy

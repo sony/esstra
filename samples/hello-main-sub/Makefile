@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright 2024 Sony Group Corporation
+# SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
 # SPDX-License-Identifier: MIT
 
 CC := gcc
