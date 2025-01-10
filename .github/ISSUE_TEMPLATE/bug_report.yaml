@@ -1,0 +1,47 @@
+name: Bug Report
+description: File a bug report.
+title: "[Bug]: "
+body: 
+  - type: checkboxes
+    attributes:
+      label: Mandatory confirmtion
+      description: "By submitting this issue, you agree to:"
+      options:
+        - label: "follow this project's [Code of Conduct](https://github.com/sony/esstra/blob/main/CODE_OF_CONDUCT.md)."
+          required: true
+        - label: "follow this project's [Contributing Guidelines](https://github.com/sony/esstra/blob/main/CONTRIBUTING.md)."
+          required: true
+        - label: "have checked the [issue list](https://github.com/sony/esstra/issues), and confirm that a similar issue has not been reported before."
+          required: true
+  - type: textarea
+    attributes:
+      label: "Description"
+      placeholder: "A clear and concise description of the bug."
+  - type: input
+    attributes:
+      label: "Version of ESSTRA"
+      placeholder: "For example, 'version 1' or 'commit ID abc123' "
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Environment"
+      placeholder: "What environment, device and OS do you use? What is your build configuration? With what version of dependencies and with which compiler and toolchain did you build?, etc."
+  - type: textarea
+    attributes:
+      label: "Steps to reproduce"
+      placeholder: "A unit test, system test, or step by step instructions to reproduce the bug."
+  - type: textarea
+    attributes:
+      label: "Console logs, visual proof, etc."
+      placeholder: "Relevant logs, screenshots or evidence to help in debugging."
+  - type: textarea
+    attributes:
+      label: "Expected results"
+      placeholder: "A clear and concise description of what you expected to happen."
+  - type: textarea
+    attributes:
+      label: "Additional context"
+      placeholder: "Add any other context about the problem here."
+  
+      
