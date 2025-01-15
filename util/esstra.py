@@ -485,6 +485,11 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description=description)
+    parser.add_argument(
+        '-D', '--debug',
+        default=False,
+        action='store_true',
+        help='enable debug logs')
 
     subparsers = parser.add_subparsers()
 
