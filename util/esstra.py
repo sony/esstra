@@ -22,41 +22,22 @@
 # SOFTWARE.
 #
 
+from abc import ABC, abstractmethod
 import sys
 import argparse
 from pathlib import Path
 import subprocess
 import re
 import tempfile
-
 import yaml
 
 
 DEBUG = False
 
-COMMANDS = {
-    'show': 'display information embedded by ESSTRA Core',
-    'update': 'update embedded information with SPDX tag/value file',
-    'shrink': 'shrink embedded information by removing duplication',
-}
 
-# keys in esstra_info
-SECTION_NAME = 'esstra_info'
-
-KEY_SOURCE_FILES = 'SourceFiles'
-KEY_FILE_NAME = 'File'
-KEY_LICENSE_INFO = 'LicenseInfo'
-HASH_ALGORITHM = 'SHA1'
-
-# keys for binary file paths
-KEY_BINARY_FILE_NAME = 'BinaryFileName'
-KEY_BINARY_PATH = 'BinaryPath'
-
-
-#
-# basic helper functions
-#
-DEBUG = False
+def set_debug_flag(flag):
+    global DEBUG
+    DEBUG = flag
 
 
 def debug(msg):
@@ -72,448 +53,477 @@ def error(msg):
     print(f'[ERROR] {msg}', file=sys.stderr)
 
 
-def call_function_by_name(function_name, *args):
-    if function_name not in globals():
-        raise NameError(f'Fatal: function {function_name!r} not found.')
+class MetadataHandler:
+    SECTION_NAME = 'esstra_info'
+    KEY_SOURCE_FILES = 'SourceFiles'
+    KEY_FILE = 'File'
+    KEY_LICENSE_INFO = 'LicenseInfo'
+    HASH_ALGORITHM = 'SHA1'
 
-    function = globals()[function_name]
-    if not callable(function):
-        raise TypeError(f'Fatal: name {function_name!r} is not callable.')
+    def __init__(self, binary_path):
+        if not Path(binary_path).exists():
+            raise FileNotFoundError
+        if not Path(binary_path).is_file():
+            raise TypeError
 
-    return function(*args)
+        self._binary_path = binary_path
+        self._raw_data = self.__extract_metadata(binary_path)
+        self._parsed_data = self.__decode_metadata(self._raw_data)
+        self._shrunk_data = self.__shrink_parsed_data(self._parsed_data)
 
+    # public
+    def get_raw_data(self):
+        return self._raw_data
 
-def get_resolved_file_path(tvfile):
-    path = Path(tvfile).resolve()
-    if not path.exists():
-        error(f'{tvfile!r}: not exist')
-        return None
-    if not Path(path).is_file():
-        error(f'{tvfile!r}: not a file')
-        return None
-    return str(path)
+    def get_parsed_data(self):
+        return self._parsed_data
 
+    def get_shrunk_data(self):
+        return self._shrunk_data
 
-#
-# helper functions for command 'show'
-#
-def _extract_esstra_info(path):
-    with tempfile.NamedTemporaryFile('wb', delete=False) as temp:
-        result = subprocess.run(
-            ['objcopy', '--dump-section', f'{SECTION_NAME}={temp.name}', path],
-            encoding='utf-8',
-            check=False,
-            capture_output=True)
+    def enumerate_files(self):
+        assert self.KEY_SOURCE_FILES in self._shrunk_data
+        source_files = self._shrunk_data[self.KEY_SOURCE_FILES]
+        for directory, files in source_files.items():
+            for fileinfo in files:
+                abs_path = str(Path(directory) / fileinfo[self.KEY_FILE])
+                checksum = fileinfo[self.HASH_ALGORITHM]
+                yield abs_path, checksum, fileinfo
 
-        # check if it was ok or error
+    def update_metadata(self, binary_path,
+                        create_backup, backup_suffix, overwrite_backup):
+        if create_backup:
+            backup_path = binary_path + backup_suffix
+            if not overwrite_backup and Path(backup_path).exists():
+                error(f'{backup_path!r}: exists.')
+                return False
+
+            result = subprocess.run(
+                ['cp', '-a', binary_path, backup_path],
+                encoding='utf-8',
+                check=False,
+                capture_output=True)
+
+            # check if it was ok or error
+            if result.returncode:
+                error(f'cp returned code {result.returncode}')
+                error(result.stderr)
+                return False
+
+        with tempfile.NamedTemporaryFile('wb') as fp:
+            raw_data = self.__encode_metadata(self._shrunk_data)
+            fp.write(raw_data)
+            fp.flush()
+
+            result = subprocess.run(
+                ['objcopy',
+                 binary_path,
+                 '--update-section',
+                 f'{self.SECTION_NAME}={fp.name}'],
+                encoding='utf-8',
+                check=False,
+                capture_output=True)
+
+            if result.returncode:
+                raise TypeError(
+                    f'objcopy returned code {result.returncode}'
+                    f' with output {result.stderr!r}')
+
+        return True
+
+    # private
+    def __extract_metadata(self, binary_path):
+        with tempfile.NamedTemporaryFile('wb', delete=False) as temp:
+            result = subprocess.run(
+                ['objcopy',
+                 '--dump-section',
+                 f'{self.SECTION_NAME}={temp.name}',
+                 binary_path],
+                encoding='utf-8',
+                check=False,
+                capture_output=True)
+
         if result.returncode:
-            error(f'objcopy returned code {result.returncode}')
-            error(result.stderr)
-            Path(temp.name).unlink()
+            raise TypeError(f'objcopy returned code {result.returncode}'
+                            f' with output {result.stderr!r}')
+
+        with open(temp.name, 'rb') as fp:
+            raw_data = fp.read()
+
+        Path(temp.name).unlink()
+
+        return raw_data
+
+    @staticmethod
+    def __decode_metadata(raw_data):
+        yaml_lines = raw_data.replace(b'\0', b'\n').decode(encoding='utf-8')
+        yaml_docs = list(yaml.safe_load_all(yaml_lines))
+        return yaml_docs
+
+    @staticmethod
+    def __encode_metadata(data):
+        raw_data = bytes(
+            yaml.safe_dump(data, sort_keys=False)
+            .replace('\n', '\0')
+            .encode(encoding='utf-8')
+        )
+        return raw_data
+
+    def __shrink_parsed_data(self, parsed_data):
+        shrunk = {}
+        path_found = set()
+        for doc in parsed_data:
+            assert self.KEY_SOURCE_FILES in doc
+            for directory, fileinfo_list in doc[self.KEY_SOURCE_FILES].items():
+                if directory not in shrunk:
+                    shrunk[directory] = []
+                for fileinfo in fileinfo_list:
+                    assert self.KEY_FILE in fileinfo, fileinfo
+                    assert self.HASH_ALGORITHM in fileinfo
+                    filename = fileinfo[self.KEY_FILE]
+                    path = Path(directory) / filename
+                    if path not in path_found:
+                        path_found.add(path)
+                        shrunk[directory].append(fileinfo)
+
+        for directory in shrunk:
+            shrunk[directory] = sorted(
+                shrunk[directory], key=lambda x: x[self.KEY_FILE])
+
+        shrunk_data = {
+            self.KEY_SOURCE_FILES: {
+                directory: shrunk[directory]
+                for directory in sorted(shrunk.keys())
+            }
+        }
+
+        return shrunk_data
+
+
+class SpdxTagValueInfo:
+    RE_TAG_VALUE = re.compile(r'([a-z0-9-]+):\s*(.*)\s*$', re.I)
+    TAG_FILE_NAME = 'FileName'
+    TAG_FILE_CHECKSUM = 'FileChecksum'
+    TAG_LICENSE_INFO_IN_FILE = 'LicenseInfoInFile'
+    TAG_LICENSE_ID = 'LicenseID'
+    TAG_TEXT_BEGIN = '<text>'
+    TAG_TEXT_END = '</text>'
+    GROUP_HEADERS = (TAG_FILE_NAME, TAG_LICENSE_ID)
+    HASH_ALGORITHM = 'SHA1'
+
+    def __init__(self):
+        self._fileinfos = {}
+
+    def read(self, tvfile):
+        with open(tvfile, 'r', encoding='utf-8') as fp:
+            lines = fp.readlines()
+        self.__update_fileinfos(lines)
+
+    def get_fileinfo(self, path, checksum):
+        if checksum not in self._fileinfos:
+            debug(f'path {path!r} with sum {checksum!r} not found')
             return None
 
-    with open(temp.name, 'rb') as fp:
-        metadata = fp.read().replace(b'\0', b'\n').decode(encoding='utf-8')
+        for fileinfo in self._fileinfos[checksum]:
+            filepath = fileinfo[self.TAG_FILE_NAME][0]
+            if self.__check_filepath(path, filepath):
+                debug(f'FOUND: {path!r} with sum {checksum!r}')
+                return fileinfo
 
-    Path(temp.name).unlink()
+        debug(f'sum {checksum!r} found but path {path!r} not matched: {filepath!r}')
+        return None
 
-    # return parsed data
-    return list(yaml.safe_load_all(metadata))
+    # private
+    def __update_fileinfos(self, lines):
+        # make a list of file information
+        fileinfo_list = []
+        fileinfo = None
+        for tag, value in self.__parse_tag_value_lines(lines):
+            if tag in self.GROUP_HEADERS:
+                fileinfo = {}
+                if tag == self.TAG_FILE_NAME:
+                    fileinfo_list.append(fileinfo)
+            if fileinfo is not None:
+                fileinfo.setdefault(tag, [])
+                fileinfo[tag].append(value)
 
+        # update self._fileinfo as a dict whose keys are checksums
+        checksum = None
+        for fileinfo in fileinfo_list:
+            if self.TAG_FILE_CHECKSUM in fileinfo:
+                for checksum_value in fileinfo[self.TAG_FILE_CHECKSUM]:
+                    if checksum_value.startswith(self.HASH_ALGORITHM):
+                        checksum = checksum_value.split()[1]
+                        self._fileinfos.setdefault(checksum, [])
+                        self._fileinfos[checksum].append(fileinfo)
 
-#
-# setup command line parser for 'show'
-#
-def _setup_show(parser):
-    parser.add_argument(
-        'binary', nargs='+',
-        help='ESSTRA-built binary file to show embedded information')
+    @staticmethod
+    def __check_filepath(spdx_filename, path):
+        # TODO: use more accurate comparison
+        return Path(spdx_filename).name == Path(path).name
 
+    @classmethod
+    def __parse_tag_value_lines(cls, lines):
+        def extract_multiline_text(tagged_text):
+            assert tagged_text.startswith(cls.TAG_TEXT_BEGIN), tagged_text
+            assert tagged_text.endswith(cls.TAG_TEXT_END), tagged_text
+            return tagged_text.replace(cls.TAG_TEXT_BEGIN, '').replace(cls.TAG_TEXT_END, '').strip()
 
-#
-# run 'show' command
-#
-def _run_show(args):
-    # gather embedded data into structured info
-    for given_path in args.binary:
-        print('#')
-        print(f'# {KEY_BINARY_FILE_NAME}: {given_path}')
-        path = get_resolved_file_path(given_path)
-        if not path:
-            print('#')
-            print('---')
-            print(f'Error: cannot resolve {given_path!r}')
-            print()
-            continue
-        print(f'# {KEY_BINARY_PATH}: {path}')
-        print('#')
-        print('---')
-        docs = _extract_esstra_info(given_path)
-        if not docs:
-            print('Error: cannot extract metadata')
-            print()
-            continue
-        print(yaml.safe_dump_all(docs, sort_keys=False))
+        tag = None
+        value = None
+        multiline = False
 
-    return 0
-
-
-#
-# helper functions for command 'update'
-#
-
-RE_TAG_VALUE = re.compile(r'([a-z0-9-]+):\s*(.*)\s*$', re.I)
-
-TAG_FILE_NAME = 'FileName'
-TAG_FILE_CHECKSUM = 'FileChecksum'
-TAG_LICENSE_INFO_IN_FILE = 'LicenseInfoInFile'
-
-
-def _parse_spdx_tv(tvfile):
-    def extract_multiline_text(tagged_text):
-        assert tagged_text.startswith('<text>'), tagged_text
-        assert tagged_text.endswith('</text>'), tagged_text
-        return tagged_text.replace('<text>', '').replace('</text>', '').strip()
-
-    with open(tvfile, 'r', encoding='utf-8') as fp:
-        lines = fp.readlines()
-
-    tag_values = []
-
-    tag = None
-    value = None
-    multiline = False
-
-    for line in lines:
-        if multiline:
-            if line.rstrip().endswith('</text>'):
-                value += line.rstrip()
-                multiline = False
-                tag_values.append((tag, extract_multiline_text(value)))
-            else:
-                value += line
-            continue
-        match = RE_TAG_VALUE.match(line)
-        if match:
-            tag = match[1]
-            value = match[2]
-            if value.startswith('<text>'):
-                if not value.endswith('</text>'):
-                    multiline = True
-                    value += '\n'
-                    continue
-                value = extract_multiline_text(value)
-            yield tag, value
-            tag = None
-            value = None
-
-    if tag:
-        yield tag, value
-
-
-def _make_hash_map_from_spdx_tv(tvfile, algo):
-    assert algo[-1] != ':'
-    algo = algo.upper() + ':'
-
-    result = {}
-    filename = None
-    filehash = None
-    fileinfo = None
-
-    def push(fhash, finfo):
-        if fhash not in result.keys():
-            result[fhash] = [finfo]
-        else:
-            result[fhash].append(finfo)
-
-    for tag, value in _parse_spdx_tv(tvfile):
-        if tag == TAG_FILE_NAME:
-            # flush last item if any
-            if filename:
-                assert filehash
-                push(filehash, fileinfo)
-            # reset item elements
-            filename = value
-            filehash = None
-            fileinfo = [(tag, value)]
-        elif filename:
-            fileinfo.append((tag, value))
-            if tag == TAG_FILE_CHECKSUM:
-                hash_value_list = value.split(algo)
-                if len(hash_value_list) == 2:
-                    # this is the hash you want
-                    filehash = hash_value_list[-1].strip()
-        else:
-            debug(f'ignored: "{tag}: {value}"')
-
-    # flush last item if any
-    if filename:
-        assert filehash
-        push(filehash, fileinfo)
-
-    return result
-
-
-def _get_file_info_by_path(fileinfo_list, path):
-    for fileinfo in fileinfo_list:
-        for tag, value in fileinfo:
-            if tag == TAG_FILE_NAME:
-                if Path(value).name == Path(path).name:
-                    return fileinfo
-    return None
-
-
-def _attach_license_info(docs, hash_map):
-    for doc in docs:
-        assert KEY_SOURCE_FILES in doc
-        for directory, fileinfo_list in doc[KEY_SOURCE_FILES].items():
-            for fileinfo in fileinfo_list:
-                assert KEY_FILE_NAME in fileinfo
-                assert HASH_ALGORITHM in fileinfo
-                path = str(Path(directory) / fileinfo[KEY_FILE_NAME])
-                checksum = fileinfo[HASH_ALGORITHM]
-                if checksum not in hash_map:
-                    continue
-
-                spdx_file_info = _get_file_info_by_path(hash_map[checksum], path)
-                assert spdx_file_info
-
-                # attach license info
-                license_info = [
-                    value for tag, value in spdx_file_info
-                    if tag == TAG_LICENSE_INFO_IN_FILE
-                ]
-                if license_info:
-                    fileinfo[KEY_LICENSE_INFO] = license_info
-
-
-def _update_esstra_info(binary, docs):
-    with tempfile.NamedTemporaryFile('w', encoding='utf-8') as fp:
-        esstra_info_string = yaml.safe_dump_all(docs, sort_keys=False)
-        for line in esstra_info_string.splitlines():
-            fp.write(line)
-            fp.write('\0')
-        fp.flush()
-
-        result = subprocess.run(
-            ['objcopy', binary,
-             '--update-section', f'{SECTION_NAME}={fp.name}'],
-            encoding='utf-8',
-            check=False,
-            capture_output=True)
-
-        # check if it was ok or error
-        if result.returncode:
-            error(f'objcopy returned code {result.returncode}')
-            error(result.stderr)
-            return False
-
-    return True
-
-
-def _create_backup_file(src, dst, overwrite):
-    if not overwrite and Path(dst).exists():
-        error(f'{dst!r}: exists.')
-        return False
-
-    result = subprocess.run(
-        ['cp', '-a', src, dst],
-        encoding='utf-8',
-        check=False,
-        capture_output=True)
-
-    # check if it was ok or error
-    if result.returncode:
-        error(f'cp returned code {result.returncode}')
-        error(result.stderr)
-        return False
-
-    return True
-
-
-#
-# setup command line parser for 'update'
-#
-def _setup_update(parser):
-    parser.add_argument(
-        '-i', '--info-file', required=True,
-        nargs='+',
-        action='extend',
-        help='spdx tag/value file containing license information')
-    parser.add_argument(
-        'binary', nargs='+',
-        help='ESSTRA-built binary file to update embedded information')
-    parser.add_argument(
-        '-n', '--no-backup',
-        action='store_true',
-        help='do not create backup of binary file')
-    parser.add_argument(
-        '-o', '--overwrite-backup',
-        action='store_true',
-        help='overwrite old backup file')
-    parser.add_argument(
-        '-s', '--suffix',
-        default='bak',
-        help='suffix of backup file')
-
-
-#
-# run 'update' command
-#
-def _run_update(args):
-    errors = 0
-    for binary in args.binary:
-        if binary.endswith(f'.{args.suffix}'):
-            message(f'skip backup file {binary!r}.')
-            continue
-        message(f'processing {binary!r}...')
-        docs = _extract_esstra_info(binary)
-        for spdx_tv_file in args.info_file:
-            hash_map = _make_hash_map_from_spdx_tv(spdx_tv_file, HASH_ALGORITHM)
-            _attach_license_info(docs, hash_map)
-
-        if not args.no_backup:
-            if not _create_backup_file(
-                    binary, f'{binary}.{args.suffix}',
-                    args.overwrite_backup):
-                error('cannot create backup. skip')
-                errors += 1
+        for line in lines:
+            if multiline:
+                if line.rstrip().endswith(cls.TAG_TEXT_END):
+                    multiline = False
+                    value = extract_multiline_text(value + line.rstrip())
+                    yield tag, value
+                    tag, value = None, None
+                else:
+                    value += line
                 continue
-        if not _update_esstra_info(binary, docs):
-            error('failed to update metadata')
-            errors += 1
+            match = cls.RE_TAG_VALUE.match(line)
+            if match:
+                tag, value = match[1], match[2]
+                if value.startswith(cls.TAG_TEXT_BEGIN):
+                    if value.endswith(cls.TAG_TEXT_END):
+                        value = extract_multiline_text(value)
+                    else:
+                        multiline = True
+                        value += '\n'
+                        continue
+                yield tag, value
+                tag, value = None, None
 
-    if errors:
-        message(f'done with {errors} error(s).')
-    else:
-        message('done.')
-
-    return 0
-
-
-#
-# helper functions for command 'shrink'
-#
-def _shrink_esstra_info(docs):
-    shrunk = {}
-    path_found = set()
-    for doc in docs:
-        assert KEY_SOURCE_FILES in doc
-        for directory, fileinfo_list in doc[KEY_SOURCE_FILES].items():
-            if directory not in shrunk:
-                shrunk[directory] = []
-            for fileinfo in fileinfo_list:
-                assert KEY_FILE_NAME in fileinfo, fileinfo
-                assert HASH_ALGORITHM in fileinfo
-                filename = fileinfo[KEY_FILE_NAME]
-                path = Path(directory) / filename
-                if path not in path_found:
-                    path_found.add(path)
-                    shrunk[directory].append(fileinfo)
-
-    for directory in shrunk:
-        shrunk[directory] = sorted(shrunk[directory], key=lambda x: x[KEY_FILE_NAME])
-
-    return {
-        KEY_SOURCE_FILES: {
-            directory: shrunk[directory]
-            for directory in sorted(shrunk.keys())
-        }
-    }
+        if tag:
+            yield tag, value
 
 
-#
-# setup command line parser for 'shrink'
-#
-def _setup_shrink(parser):
-    parser.add_argument(
-        'binary', nargs='+',
-        help='ESSTRA-built binary file to shrink embedded information')
-    parser.add_argument(
-        '-n', '--no-backup',
-        action='store_true',
-        help='do not create backup of binary file')
-    parser.add_argument(
-        '-o', '--overwrite-backup',
-        action='store_true',
-        help='overwrite old backup file')
-    parser.add_argument(
-        '-s', '--suffix',
-        default='bak',
-        help='suffix of backup file')
+class CommandBase(ABC):
+    NAME = 'command_name'
+    DESCRIPTION = 'description of this command'
+    BACKUP_SUFFIX = '.bak'
+
+    @abstractmethod
+    def setup_parser(self, parser):
+        pass
+
+    @abstractmethod
+    def run_command(self, args):
+        pass
 
 
-#
-# run 'shrink' command
-#
-def _run_shrink(args):
-    errors = 0
-    shrunk = {}
-    for binary in args.binary:
-        if binary.endswith(f'.{args.suffix}'):
-            message(f'skip backup file {binary!r}.')
-            continue
-        message(f'processing {binary!r}...')
-        docs = _extract_esstra_info(binary)
-        shrunk = _shrink_esstra_info(docs)
-        if not args.no_backup:
-            if not _create_backup_file(
-                    binary, f'{binary}.{args.suffix}',
-                    args.overwrite_backup):
-                error('cannot create backup. skip')
-                errors += 1
-        if not _update_esstra_info(binary, [shrunk]):
-            error('failed to update metadata')
-            errors += 1
+class CommandDispatcher:
+    def __init__(self, *command_classes):
+        self._command_table = {}
 
-    if errors:
-        message(f'done with {errors} error(s).')
-        return 1
+        description = ''
+        for command_class in command_classes:
+            if not issubclass(command_class, CommandBase):
+                raise TypeError(
+                    f'{command_class.__name__!r} not subclass of CommandBase')
+            command = command_class()
+            description += ('commands:\n' +
+                            f'  {command.NAME:10}{command.DESCRIPTION}')
+            self._command_table[command.NAME] = command
 
-    message('done.')
-    return 0
-
-
-#
-# main function
-#
-def main():
-    description = '\n'.join(
-        ['commands:'] +
-        [f'  {name:16}{description}' for name, description in COMMANDS.items()])
-
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter,
-        description=description)
-
-    subparsers = parser.add_subparsers()
-
-    for name, description in COMMANDS.items():
-        subparser = subparsers.add_parser(
-            name,
-            description=description,
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-        subparser.set_defaults(name=name)
-        subparser.add_argument(
+        self._parser = argparse.ArgumentParser(
+            formatter_class=argparse.RawTextHelpFormatter,
+            description=description)
+        self._parser.add_argument(
             '-D', '--debug',
             default=False,
             action='store_true',
             help='enable debug logs')
 
-        call_function_by_name(f'_setup_{name}', subparser)
+        subparsers = self._parser.add_subparsers()
 
-    args = parser.parse_args()
+        for name, command in self._command_table.items():
+            subparser = subparsers.add_parser(
+                name,
+                description=command.DESCRIPTION,
+                formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+            subparser.set_defaults(name=name)
+            subparser.add_argument(
+                '-D', '--debug',
+                default=False,
+                action='store_true',
+                help='enable debug logs')
+            command.setup_parser(subparser)
 
-    global DEBUG
-    DEBUG = args.debug
+    def run_command(self):
+        args = self._parser.parse_args()
 
-    if not hasattr(args, 'name'):
-        print('no command specified. show help by "-h".')
-        sys.exit(1)
+        set_debug_flag(args.debug)
 
-    ret = call_function_by_name(f'_run_{args.name}', args)
+        if not hasattr(args, 'name'):
+            print('no command specified. show help by "-h".')
+            sys.exit(1)
 
-    return ret
+        return (self._command_table[args.name]).run_command(args)
+
+
+class CommandShow(CommandBase):
+    NAME = 'show'
+    DESCRIPTION = 'display information embedded by ESSTRA Core'
+    KEY_BINARY_FILE_NAME = 'BinaryFileName'
+    KEY_BINARY_PATH = 'BinaryPath'
+
+    def setup_parser(self, parser):
+        parser.add_argument(
+            'binary', nargs='+',
+            help='ESSTRA-built binary file to show embedded information')
+        parser.add_argument(
+            '-r', '--raw',
+            action='store_true',
+            help='display raw data')
+
+    def run_command(self, args):
+        for given_path in args.binary:
+            print('#')
+            print(f'# {self.KEY_BINARY_FILE_NAME}: {given_path}')
+            try:
+                path = str(Path(given_path).resolve())
+                handler = MetadataHandler(path)
+                string_to_display = self.__make_string_to_display(args, handler)
+            except Exception as ex:
+                print('#')
+                print(f'Exeption: {ex!r}')
+                print()
+                continue
+            print(f'# {self.KEY_BINARY_PATH}: {path}')
+            print('#')
+            print(string_to_display)
+
+    # private
+    def __make_string_to_display(self, args, handler):
+        if args.raw:
+            return handler.get_raw_data().decode(encoding='utf-8').replace('\0', '\n')
+
+        return yaml.safe_dump(handler.get_shrunk_data())
+
+
+class CommandShrink(CommandBase):
+    NAME = 'shrink'
+    DESCRIPTION = 'shrink embedded information by removing duplication'
+
+    def setup_parser(self, parser):
+        parser.add_argument(
+            'binary', nargs='+',
+            help='ESSTRA-built binary file to shrink embedded information')
+        parser.add_argument(
+            '-n', '--no-backup',
+            action='store_true',
+            help='do not create backup of binary file')
+        parser.add_argument(
+            '-O', '--overwrite-backup',
+            action='store_true',
+            help='overwrite old backup file')
+        parser.add_argument(
+            '-b', '--backup-suffix',
+            default=self.BACKUP_SUFFIX,
+            help='suffix of backup file')
+
+    def run_command(self, args):
+        errors = 0
+        for binary in args.binary:
+            if binary.endswith(f'.{args.backup_suffix}'):
+                message(f'skip backup file {binary!r}.')
+                continue
+            message(f'processing {binary!r}...')
+            handler = MetadataHandler(binary)
+            try:
+                handler.update_metadata(
+                    binary,
+                    not args.no_backup,
+                    args.backup_suffix,
+                    args.overwrite_backup)
+            except Exception as ex:
+                error(f'failed to update metadata: {ex}')
+                errors += 1
+
+        if errors:
+            message(f'done with {errors} error(s).')
+            return 1
+
+        message('done.')
+        return 0
+
+
+class CommandUpdate(CommandBase):
+    NAME = 'update'
+    DESCRIPTION = 'update embedded information with SPDX tag/value file'
+
+    def setup_parser(self, parser):
+        parser.add_argument(
+            '-i', '--info-file', required=True,
+            nargs='+',
+            action='extend',
+            help='spdx tag/value file containing license information')
+        parser.add_argument(
+            'binary', nargs='+',
+            help='ESSTRA-built binary file to update embedded information')
+        parser.add_argument(
+            '-n', '--no-backup',
+            action='store_true',
+            help='do not create backup of binary file')
+        parser.add_argument(
+            '-O', '--overwrite-backup',
+            action='store_true',
+            help='overwrite old backup file')
+        parser.add_argument(
+            '-b', '--backup-suffix',
+            default=self.BACKUP_SUFFIX,
+            help='suffix of backup file')
+
+    def run_command(self, args):
+        errors = 0
+
+        spdx_info = SpdxTagValueInfo()
+        try:
+            for info_file in args.info_file:
+                spdx_info.read(info_file)
+        except Exception as ex:
+            error(f'cannot read {info_file!r}: {ex!r}')
+            return False
+
+        for binary in args.binary:
+            if binary.endswith(f'.{args.backup_suffix}'):
+                message(f'skip backup file {binary!r}.')
+                continue
+            message(f'processing {binary!r}...')
+
+            handler = MetadataHandler(binary)
+            for path, checksum, fileinfo in handler.enumerate_files():
+                spdx_fileinfo = spdx_info.get_fileinfo(path, checksum)
+                if not spdx_fileinfo:
+                    continue
+                license_info = spdx_fileinfo[
+                    SpdxTagValueInfo.TAG_LICENSE_INFO_IN_FILE]
+                fileinfo[MetadataHandler.KEY_LICENSE_INFO] = license_info
+
+            try:
+                handler.update_metadata(
+                    binary,
+                    not args.no_backup,
+                    args.backup_suffix,
+                    args.overwrite_backup)
+            except Exception as ex:
+                error(f'failed to update metadata: {ex}')
+                errors += 1
+
+        if errors:
+            message(f'done with {errors} error(s).')
+            return False
+
+        message('done.')
+        return True
+
+
+def main():
+    dispatcher = CommandDispatcher(CommandShow, CommandShrink, CommandUpdate)
+    return dispatcher.run_command()
 
 
 #
