@@ -399,9 +399,9 @@ class CommandShow(CommandBase):
     # private
     def __make_string_to_display(self, args, handler):
         if args.raw:
-            return handler.get_raw_data().decode(encoding='utf-8').replace('\0', '\n')
+            return handler.get_raw_data().decode(encoding='utf-8').replace('\0', '\n').rstrip()
 
-        return yaml.safe_dump(handler.get_shrunk_data())
+        return yaml.safe_dump(handler.get_shrunk_data()).rstrip()
 
 
 class CommandShrink(CommandBase):
