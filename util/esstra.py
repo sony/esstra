@@ -142,9 +142,18 @@ class MetadataHandler:
             command_line, capture_output=True, shell=True, encoding='utf-8')
 
     def __exists_metadata(self, bianry_path):
-        pass
+        result = self.__run_command(
+            f'readelf -SW {bianry_path} | grep {self.SECTION_NAME}')
+
+        if result.returncode:
+            return False
+
+        return True
 
     def __extract_metadata(self, binary_path):
+        if not self.__exists_metadata(binary_path):
+            raise RuntimeError(f'section not found: {self.SECTION_NAME!r}')
+
         with tempfile.NamedTemporaryFile('wb', delete=False) as temp:
             result = self.__run_command(
                 f'objcopy --dump-section '
