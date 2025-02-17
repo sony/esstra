@@ -101,14 +101,9 @@ class MetadataHandler:
             fp.write(raw_data)
             fp.flush()
 
-            result = subprocess.run(
-                ['objcopy',
-                 binary_path,
-                 '--update-section',
-                 f'{self.SECTION_NAME}={fp.name}'],
-                encoding='utf-8',
-                check=False,
-                capture_output=True)
+            result = self.__run_command(
+                f'objcopy {binary_path} '
+                f'--update-section {self.SECTION_NAME}={fp.name}')
 
             if result.returncode:
                 raise TypeError(
@@ -127,13 +122,8 @@ class MetadataHandler:
             self.__create_backup_file(
                 binary_path, backup_suffix, overwrite_backup)
 
-        result = subprocess.run(
-            ['objcopy',
-             f'-R{self.SECTION_NAME}',
-             binary_path],
-            encoding='utf-8',
-            check=False,
-            capture_output=True)
+        result = self.__run_command(
+            f'objcopy -R{self.SECTION_NAME} {binary_path}')
 
         if result.returncode:
             raise TypeError(
@@ -147,16 +137,18 @@ class MetadataHandler:
         return True
 
     # private
+    def __run_command(self, command_line):
+        return subprocess.run(
+            command_line, capture_output=True, shell=True, encoding='utf-8')
+
+    def __exists_metadata(self, bianry_path):
+        pass
+
     def __extract_metadata(self, binary_path):
         with tempfile.NamedTemporaryFile('wb', delete=False) as temp:
-            result = subprocess.run(
-                ['objcopy',
-                 '--dump-section',
-                 f'{self.SECTION_NAME}={temp.name}',
-                 binary_path],
-                encoding='utf-8',
-                check=False,
-                capture_output=True)
+            result = self.__run_command(
+                f'objcopy --dump-section '
+                f'{self.SECTION_NAME}={temp.name} {binary_path}')
 
         if result.returncode:
             raise TypeError(f'objcopy returned code {result.returncode}'
@@ -180,8 +172,7 @@ class MetadataHandler:
         raw_data = bytes(
             yaml.safe_dump(data, sort_keys=False)
             .replace('\n', '\0')
-            .encode(encoding='utf-8')
-        )
+            .encode(encoding='utf-8'))
         return raw_data
 
     def __shrink_parsed_data(self, parsed_data):
@@ -221,13 +212,8 @@ class MetadataHandler:
             error(f'{backup_path!r}: exists.')
             return False
 
-        result = subprocess.run(
-            ['cp', '-a', binary_path, backup_path],
-            encoding='utf-8',
-            check=False,
-            capture_output=True)
+        result = self.__run_command(f'cp -a {binary_path} {backup_path}')
 
-        # check if it was ok or error
         if result.returncode:
             error(f'cp returned code {result.returncode}')
             error(result.stderr)
@@ -600,7 +586,6 @@ class CommandStrip(CommandBase):
 
         message('done.')
         return 0
-
 
 
 def main():
