@@ -115,6 +115,10 @@ class MetadataHandler:
                     f'objcopy returned code {result.returncode}'
                     f' with output {result.stderr!r}')
 
+            if Path(fp.name).stat().st_size == 0:
+                raise RuntimeError(
+                    f'objcopy dumped zero-sized file: {result.stderr!r}')
+
         return True
 
     def strip_metadata(self, binary_path,
@@ -135,6 +139,10 @@ class MetadataHandler:
             raise TypeError(
                 f'objcopy returned code {result.returncode}'
                 f' with output {result.stderr!r}')
+
+        if len(result.stderr):
+            raise RuntimeError(
+                f'objcopy returned with some string: {result.stderr!r}')
 
         return True
 
