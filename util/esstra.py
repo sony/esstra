@@ -62,9 +62,9 @@ class MetadataHandler:
 
     def __init__(self, binary_path):
         if not Path(binary_path).exists():
-            raise FileNotFoundError
+            raise FileNotFoundError(f'not found: {binary_path!r}')
         if not Path(binary_path).is_file():
-            raise TypeError
+            raise RuntimeError(f'not a file: {binary_path!r}')
 
         self._binary_path = binary_path
         self._raw_data = self.__extract_metadata(binary_path)
@@ -106,13 +106,13 @@ class MetadataHandler:
                 f'--update-section {self.SECTION_NAME}={fp.name}')
 
             if result.returncode:
-                raise TypeError(
+                raise RuntimeError(
                     f'objcopy returned code {result.returncode}'
                     f' with output {result.stderr!r}')
 
             if Path(fp.name).stat().st_size == 0:
                 raise RuntimeError(
-                    f'objcopy dumped zero-sized file: {result.stderr!r}')
+                    f'objcopy dumped zero length file: {result.stderr!r}')
 
         return True
 
@@ -126,13 +126,13 @@ class MetadataHandler:
             f'objcopy -R{self.SECTION_NAME} {binary_path}')
 
         if result.returncode:
-            raise TypeError(
-                f'objcopy returned code {result.returncode}'
-                f' with output {result.stderr!r}')
+            raise RuntimeError(
+                f'objcopy returned code {result.returncode} '
+                f'with output {result.stderr!r}')
 
         if len(result.stderr):
             raise RuntimeError(
-                f'objcopy returned with some string: {result.stderr!r}')
+                f'objcopy returned with output: {result.stderr!r}')
 
         return True
 
@@ -151,8 +151,9 @@ class MetadataHandler:
                 f'{self.SECTION_NAME}={temp.name} {binary_path}')
 
         if result.returncode:
-            raise TypeError(f'objcopy returned code {result.returncode}'
-                            f' with output {result.stderr!r}')
+            raise RuntimeError(
+                f'objcopy returned code {result.returncode} '
+                f'with output {result.stderr!r}')
 
         with open(temp.name, 'rb') as fp:
             raw_data = fp.read()
@@ -209,15 +210,13 @@ class MetadataHandler:
             self, binary_path, backup_suffix, overwrite_backup):
         backup_path = binary_path + backup_suffix
         if not overwrite_backup and Path(backup_path).exists():
-            error(f'{backup_path!r}: exists.')
-            return False
+            raise RuntimeError(f'file already exists: {backup_path!r}')
 
         result = self.__run_command(f'cp -a {binary_path} {backup_path}')
 
         if result.returncode:
-            error(f'cp returned code {result.returncode}')
-            error(result.stderr)
-            return False
+            raise RuntimeError(f'cp returned code {result.returncode} '
+                               f'with output {result.stderr!r}')
 
 
 class SpdxTagValueInfo:
@@ -345,7 +344,8 @@ class CommandDispatcher:
         for command_class in command_classes:
             if not issubclass(command_class, CommandBase):
                 raise TypeError(
-                    f'{command_class.__name__!r} not subclass of CommandBase')
+                    'not a subclass of CommandBase: '
+                    f'{command_class.__name__!r}')
             command = command_class()
             description += ('commands:\n' +
                             f'  {command.NAME:10}{command.DESCRIPTION}')
