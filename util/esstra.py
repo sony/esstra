@@ -93,22 +93,8 @@ class MetadataHandler:
     def update_metadata(self, binary_path,
                         create_backup, backup_suffix, overwrite_backup):
         if create_backup:
-            backup_path = binary_path + backup_suffix
-            if not overwrite_backup and Path(backup_path).exists():
-                error(f'{backup_path!r}: exists.')
-                return False
-
-            result = subprocess.run(
-                ['cp', '-a', binary_path, backup_path],
-                encoding='utf-8',
-                check=False,
-                capture_output=True)
-
-            # check if it was ok or error
-            if result.returncode:
-                error(f'cp returned code {result.returncode}')
-                error(result.stderr)
-                return False
+            self.__create_backup_file(
+                binary_path, backup_suffix, overwrite_backup)
 
         with tempfile.NamedTemporaryFile('wb') as fp:
             raw_data = self.__encode_metadata(self._shrunk_data)
@@ -128,6 +114,27 @@ class MetadataHandler:
                 raise TypeError(
                     f'objcopy returned code {result.returncode}'
                     f' with output {result.stderr!r}')
+
+        return True
+
+    def strip_metadata(self, binary_path,
+                       create_backup, backup_suffix, overwrite_backup):
+        if create_backup:
+            self.__create_backup_file(
+                binary_path, backup_suffix, overwrite_backup)
+
+        result = subprocess.run(
+            ['objcopy',
+             f'-R{self.SECTION_NAME}',
+             binary_path],
+            encoding='utf-8',
+            check=False,
+            capture_output=True)
+
+        if result.returncode:
+            raise TypeError(
+                f'objcopy returned code {result.returncode}'
+                f' with output {result.stderr!r}')
 
         return True
 
@@ -198,6 +205,25 @@ class MetadataHandler:
         }
 
         return shrunk_data
+
+    def __create_backup_file(
+            self, binary_path, backup_suffix, overwrite_backup):
+        backup_path = binary_path + backup_suffix
+        if not overwrite_backup and Path(backup_path).exists():
+            error(f'{backup_path!r}: exists.')
+            return False
+
+        result = subprocess.run(
+            ['cp', '-a', binary_path, backup_path],
+            encoding='utf-8',
+            check=False,
+            capture_output=True)
+
+        # check if it was ok or error
+        if result.returncode:
+            error(f'cp returned code {result.returncode}')
+            error(result.stderr)
+            return False
 
 
 class SpdxTagValueInfo:
@@ -521,8 +547,61 @@ class CommandUpdate(CommandBase):
         return True
 
 
+class CommandStrip(CommandBase):
+    NAME = 'strip'
+    DESCRIPTION = 'discard metadata from binary files built with ESSTRA Core'
+
+    def setup_parser(self, parser):
+        parser.add_argument(
+            'binary', nargs='+',
+            help='ESSTRA-built binary file')
+        parser.add_argument(
+            '-n', '--no-backup',
+            action='store_true',
+            help='do not create backup of binary file')
+        parser.add_argument(
+            '-O', '--overwrite-backup',
+            action='store_true',
+            help='overwrite old backup file')
+        parser.add_argument(
+            '-b', '--backup-suffix',
+            default=self.BACKUP_SUFFIX,
+            help='suffix of backup file')
+
+    def run_command(self, args):
+        errors = 0
+        for binary in args.binary:
+            if binary.endswith(f'.{args.backup_suffix}'):
+                message(f'skip backup file {binary!r}.')
+                continue
+            message(f'processing {binary!r}...')
+            handler = MetadataHandler(binary)
+            try:
+                handler.strip_metadata(
+                    binary,
+                    not args.no_backup,
+                    args.backup_suffix,
+                    args.overwrite_backup)
+            except Exception as ex:
+                error(f'failed to update metadata: {ex}')
+                errors += 1
+
+        if errors:
+            message(f'done with {errors} error(s).')
+            return 1
+
+        message('done.')
+        return 0
+
+
+
 def main():
-    dispatcher = CommandDispatcher(CommandShow, CommandShrink, CommandUpdate)
+    dispatcher = CommandDispatcher(
+        CommandShow,
+        CommandShrink,
+        CommandUpdate,
+        CommandStrip
+    )
     return dispatcher.run_command()
 
 
