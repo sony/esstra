@@ -287,7 +287,10 @@ class SpdxTagValueInfo:
         def extract_multiline_text(tagged_text):
             assert tagged_text.startswith(cls.TAG_TEXT_BEGIN), tagged_text
             assert tagged_text.endswith(cls.TAG_TEXT_END), tagged_text
-            return tagged_text.replace(cls.TAG_TEXT_BEGIN, '').replace(cls.TAG_TEXT_END, '').strip()
+            return (tagged_text
+                    .replace(cls.TAG_TEXT_BEGIN, '')
+                    .replace(cls.TAG_TEXT_END, '')
+                    .strip())
 
         tag = None
         value = None
@@ -419,7 +422,10 @@ class CommandShow(CommandBase):
     # private
     def __make_string_to_display(self, args, handler):
         if args.raw:
-            return handler.get_raw_data().decode(encoding='utf-8').replace('\0', '\n').rstrip()
+            return (handler.get_raw_data()
+                    .decode(encoding='utf-8')
+                    .replace('\0', '\n')
+                    .rstrip())
 
         return yaml.safe_dump(handler.get_shrunk_data()).rstrip()
 
