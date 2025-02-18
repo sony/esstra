@@ -467,8 +467,8 @@ class CommandShrink(CommandBase):
                 message(f'skip backup file {binary!r}.')
                 continue
             message(f'processing {binary!r}...')
-            handler = MetadataHandler(binary)
             try:
+                handler = MetadataHandler(binary)
                 handler.update_metadata(
                     binary,
                     not args.no_backup,
@@ -529,7 +529,13 @@ class CommandUpdate(CommandBase):
                 continue
             message(f'processing {binary!r}...')
 
-            handler = MetadataHandler(binary)
+            try:
+                handler = MetadataHandler(binary)
+            except Exception as ex:
+                error(f'failed to update {binary!r}: {ex}')
+                errors += 1
+                continue
+
             for path, checksum, fileinfo in handler.enumerate_files():
                 spdx_fileinfo = spdx_info.get_fileinfo(path, checksum)
                 if not spdx_fileinfo:
@@ -584,15 +590,15 @@ class CommandStrip(CommandBase):
                 message(f'skip backup file {binary!r}.')
                 continue
             message(f'processing {binary!r}...')
-            handler = MetadataHandler(binary)
             try:
+                handler = MetadataHandler(binary)
                 handler.strip_metadata(
                     binary,
                     not args.no_backup,
                     args.backup_suffix,
                     args.overwrite_backup)
             except Exception as ex:
-                error(f'failed to update metadata: {ex}')
+                error(f'failed to strip {binary!r}: {ex}')
                 errors += 1
 
         if errors:
