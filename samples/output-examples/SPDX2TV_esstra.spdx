@@ -1,0 +1,421 @@
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+
+##-------------------------
+## Document Information
+##-------------------------
+
+DocumentNamespace: http://789bc35d6e0e/repo/SPDX2TV_esstra.spdx
+DocumentName: /srv/fossology/repository/report
+SPDXID: SPDXRef-DOCUMENT
+
+##-------------------------
+## Creation Information
+##-------------------------
+
+Creator: Tool: fossology-4.4.0.204
+Creator: Person: fossy (y)
+CreatorComment: <text>
+This document was created using license information and a generator from Fossology.
+</text>
+Created: 2025-01-09T07:18:17Z
+LicenseListVersion: 3.22
+
+##-------------------------
+## Package Information
+##-------------------------
+
+
+PackageName: esstra
+PackageFileName: esstra
+SPDXID: SPDXRef-upload5
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: true
+PackageVerificationCode: ac1c4fca97c45131d8804b28a53c3f0bdac67fef
+PackageChecksum: SHA1: 46d2bee0314da88df4a9f85ac34d3619418d3d59
+PackageChecksum: SHA256: 096755c54fdbbf9115d893a6b1645ca9d7bfea21756d156e97c8fc78952e9d52
+PackageChecksum: MD5: a763a4219786689947848e6d78e74782
+PackageLicenseConcluded: NOASSERTION
+PackageLicenseDeclared: NOASSERTION
+PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
+ - nomos ("4.4.0.204".698e34)
+ - monk ("4.4.0.204".698e34)
+ - ojo ("4.4.0.204".698e34) </text>
+PackageLicenseInfoFromFiles: NOASSERTION
+PackageCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload5
+
+
+##--------------------------
+## File Information
+##--------------------------
+
+##File
+
+FileName: esstra/samples/hello/output-example/SPDX2TV_sample-hello.spdx
+SPDXID: SPDXRef-item148
+FileChecksum: SHA1: 2d14fc88f44cc2cbe223c8cbb2daaddd2d97590d
+FileChecksum: SHA256: d87140c6628c10dee3de3d03607aecf2d5edcaaafd9dd6184e1d3e3e4ff3119e
+FileChecksum: MD5: e17c16ab3580288740a2690a66a45690
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+
+LicenseInfoInFile: CC0-1.0
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello/output-example/hello
+SPDXID: SPDXRef-item149
+FileChecksum: SHA1: ed80ec29b35c3219db87667f681f6114819bf73d
+FileChecksum: SHA256: 8f4e0631bd8530e194b4d0f062b9223b7fa46edcf56ddbf627263b9c8c5cfa81
+FileChecksum: MD5: a7647c04ffbed6fe871913beb5b43dde
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: LicenseRef-fossology-MIT-possibility
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello/README.md
+SPDXID: SPDXRef-item144
+FileChecksum: SHA1: f1dc758d298334a5c38cb850174a247da2f110aa
+FileChecksum: SHA256: feeb99d157829e1d166a03abca340c65583dc1ea649a53f2c4e1bb374b41c1ef
+FileChecksum: MD5: ca4ef6e17b48ccee0fc4ec0415cd6517
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/AUTHORS
+SPDXID: SPDXRef-item126
+FileChecksum: SHA1: dace6bff1566e39e5aa4f11f1ef534f64ed77d2f
+FileChecksum: SHA256: 3f171de6f60a34ab259489ed93c4e335ff13abe083baff980266aa3f44739bf3
+FileChecksum: MD5: 0cf863b6a30b310488013891c2a1a14e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello-main-sub/README.md
+SPDXID: SPDXRef-item136
+FileChecksum: SHA1: 5971bfbb4909b7e39e4cb2e19a86d7c896070637
+FileChecksum: SHA256: 2895225258196a47fc559fb09f8fd930645a72a87ef24664bb0abdc9ed151f1b
+FileChecksum: MD5: 91bf11252e45384f2e222499365a07af
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/core/README.md
+SPDXID: SPDXRef-item128
+FileChecksum: SHA1: 10b2d56228c30888fea7eb2cc91fcfee4d526bb1
+FileChecksum: SHA256: 4299708ba24bed0898f5b40a316673864a6f6b6606dbfc3e115318465eaa2890
+FileChecksum: MD5: 03c2cad83e020527969a9c3fd618e325
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/CODE_OF_CONDUCT.md
+SPDXID: SPDXRef-item156
+FileChecksum: SHA1: d7c3010f125c99c16c8f88df856813eb1ba8b68c
+FileChecksum: SHA256: 2e9404f9832159f3fc7cf10bf16132f210326533a25e43677a20fd1a7ab62fcb
+FileChecksum: MD5: 3e4c893cf534cd76f0aa47497867a4eb
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello-main-sub/hello_main.c
+SPDXID: SPDXRef-item135
+FileChecksum: SHA1: b2cc43993895b52da7bec7bc80566496f3021c98
+FileChecksum: SHA256: ee113e0df7d13aeeb6aae171c6e0e0fab903d7371127ef1d8455c67ba27c3fb2
+FileChecksum: MD5: 82f8272f7841997b4189b910a399cff8
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello-main-sub/output-example/hello
+SPDXID: SPDXRef-item140
+FileChecksum: SHA1: 40784c137307895b16962d79729d3ef3b8055c0b
+FileChecksum: SHA256: fd14e07fdc7835bebc0b988eb5edf09a4c40171e2f4a704259cb07b0b3295aab
+FileChecksum: MD5: 92b75eaeab43f28d2bfc9ef0f5a7a2f8
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: LGPL-2.1-or-later
+
+LicenseInfoInFile: BSD-3-Clause
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello-main-sub/output-example/SPDX2TV_sample-hello-main-sub.spdx
+SPDXID: SPDXRef-item139
+FileChecksum: SHA1: ce9f2247667d135c77dc8410be2cd14ad7afda59
+FileChecksum: SHA256: 880b4e935ef8a4a6fd6f4cd0a2c1adda54a38248c9bb0381ae4c3515978f782b
+FileChecksum: MD5: b4a0d7da0eff5e50e3e82cfcc1d2316f
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+
+LicenseInfoInFile: LGPL-2.1-or-later
+
+LicenseInfoInFile: BSD-3-Clause
+
+LicenseInfoInFile: CC0-1.0
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/core/esstracore.cpp
+SPDXID: SPDXRef-item130
+FileChecksum: SHA1: cfdc3133edb3b69f47d05290011b44104779ffba
+FileChecksum: SHA256: 3bbadb3e58640d5e576400aa2e9c104c819c0078a6257d3b21501921c927e945
+FileChecksum: MD5: ad0f2c7b0a265201d30b5a0e5cc219f5
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: GPL-3.0-or-later
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/README.md
+SPDXID: SPDXRef-item123
+FileChecksum: SHA1: df4e77f494b8649527419a6ba85286ba23a763b0
+FileChecksum: SHA256: ca21ab3b4264f919852535d971c27da23f021127f4832875c7dbe8763ab26759
+FileChecksum: MD5: 71cd6dd975fbd860b129cfcf98d64e70
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/LICENSE
+SPDXID: SPDXRef-item131
+FileChecksum: SHA1: 5a43ea7fcd125a944d7de5cc81a012167286d616
+FileChecksum: SHA256: ec7a418a48d45719e4ff33f48f8b2580f62a7c6646165179f0b27e7f35e09f85
+FileChecksum: MD5: effde1812c457ab738f80a581aa66a47
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+
+LicenseInfoInFile: GPL-3.0-or-later
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/util/README.md
+SPDXID: SPDXRef-item158
+FileChecksum: SHA1: 5531f5ca69868051a1ae7e34524c1d8f30b85a5d
+FileChecksum: SHA256: 370ff84d65b53d1916263d90b3b962a1e2a0b3e09eb3cffc93d051d7e968c01c
+FileChecksum: MD5: f3158fb509a627a8829793955ad458e5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/Makefile
+SPDXID: SPDXRef-item124
+FileChecksum: SHA1: 7ac453ff0e3f89f1977845f685691fffb0c22e5a
+FileChecksum: SHA256: ada484038c02bd838e4b2a211c01a78ef0c02d23fb2ba409b0997af7ff756676
+FileChecksum: MD5: f6d6bc19ecd01044ecee7940949da462
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/core/Makefile
+SPDXID: SPDXRef-item129
+FileChecksum: SHA1: 0ea62a4a393010e6ca5223e9786869abedcc09df
+FileChecksum: SHA256: 97599e2758b212f9d8166f1ba89190a72ba4bb34c069e4bad3d88844d959b040
+FileChecksum: MD5: eba960be0b28ca6c82708d7ae229f653
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello-main-sub/hello_sub.h
+SPDXID: SPDXRef-item141
+FileChecksum: SHA1: ae424fc2fd0c4bdaead89092a56e52ee2152710d
+FileChecksum: SHA256: 36015e0b5358573a374885f4027004f68a5a49b7f4ba5f545bea22bf972fcbca
+FileChecksum: MD5: e38170da467d01f29c8556da9dac5a73
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: LGPL-2.1-or-later
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/third-party/README.md
+SPDXID: SPDXRef-item151
+FileChecksum: SHA1: 246cb3a0524f871725f6bf7f6c9426263c8e245c
+FileChecksum: SHA256: 74cd11c5e31ea26545592b96f615e29ef66392eafc98a01714480cc44df945ea
+FileChecksum: MD5: ea258c9ee2fe822b71bb5934e053d6eb
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello/Makefile
+SPDXID: SPDXRef-item145
+FileChecksum: SHA1: 780c1976aba2a4f58b10e1bd6d75edfa28704195
+FileChecksum: SHA256: b02af5b1ecac80868f886fdebc383373cf2911781e40d103a6ddcdd2030c6e0f
+FileChecksum: MD5: c29a0ecf169877e838ff106c3e3fbfba
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/README.md
+SPDXID: SPDXRef-item133
+FileChecksum: SHA1: 51dd82b4bcd66cc217471b9c5bf17ccf2102a04e
+FileChecksum: SHA256: 0211a6e764691eaabbdada71babfbe7b1f483d6ef19d0e865646e6ff1f9b6bdd
+FileChecksum: MD5: e5a9c1225dac6dbd38f1b0ba7801db94
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: LicenseRef-fossology-See-doc.OTHER
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/.gitmodules
+SPDXID: SPDXRef-item125
+FileChecksum: SHA1: 392cdd655b3c0e971467278e9113de9ebf31a2be
+FileChecksum: SHA256: c6f66c7b3a0677335ac081c041d35ac9f4bd9d78d910a07db174cf7bab50e0e8
+FileChecksum: MD5: 916cd8ac8e794bfd177df704872b01d2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/CONTRIBUTING.md
+SPDXID: SPDXRef-item155
+FileChecksum: SHA1: e85e083445d245ca87a32f1036fe3f4d8ca424c5
+FileChecksum: SHA256: 4227ca11245564ddf7ff884b67344651a95b1c571a092a1591fedb72cd442f46
+FileChecksum: MD5: df24a85bf5be1b5c1e6c8b1c329a5642
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: LicenseRef-fossology-See-file
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello-main-sub/hello_sub.c
+SPDXID: SPDXRef-item142
+FileChecksum: SHA1: 9ab0601ebd397643da712f2d49eeb570e8e2fc2f
+FileChecksum: SHA256: c7d9cfd5e88bd4314227decda43ffc076cfa42a57d859c0393af1d700bbe4244
+FileChecksum: MD5: 158c8959970b3e6591902b309888e2ce
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: BSD-3-Clause
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello-main-sub/Makefile
+SPDXID: SPDXRef-item137
+FileChecksum: SHA1: 53565e1b67dd89079cab244c1aa91dd77efac8d5
+FileChecksum: SHA256: 0c14fd00cc3df8964ef8de6c6b0db4e597e29b52c8895f9d8cc64f9012bb4cb3
+FileChecksum: MD5: b9668bfedd4f987afec27e7edad7fcc3
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/samples/hello/hello.c
+SPDXID: SPDXRef-item146
+FileChecksum: SHA1: e7834d0b9cb6cb116c72f0bee7da29e3d280b27e
+FileChecksum: SHA256: 8134eae34d2a46ffdaedc04628427282d3d73ae47affd33463111efc89fa5a96
+FileChecksum: MD5: b5ca38edd7197004cfb8290d0ca0e87d
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/util/esstra.py
+SPDXID: SPDXRef-item160
+FileChecksum: SHA1: 10e6259cafdf9cc21ffb3cf2b5799e8750f4d6b7
+FileChecksum: SHA256: 30fb42081e0fdc9e48cfa6cf1d781c3288816c4b3d68f93031acec1ae06b1012
+FileChecksum: MD5: 4e48e1c4c721e40742226fed30541de5
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/assets/tech-overview.png
+SPDXID: SPDXRef-item154
+FileChecksum: SHA1: d033e36e6f70b9d160f2c96d49f3dbf6445a61cc
+FileChecksum: SHA256: 6890ee0799ff5ec2e49a8541efb39e015578d93fa3df715406d8ecc752b6830b
+FileChecksum: MD5: ac89291ce57d28a2869a326c1fe445af
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+##File
+
+FileName: esstra/util/Makefile
+SPDXID: SPDXRef-item159
+FileChecksum: SHA1: e4c96ad65db719943d40fe3bcdfb7e80931d2e35
+FileChecksum: SHA256: 2981700eb665277282c2178b362743992a0282b18bb3a54db77e37dc8dbc3d86
+FileChecksum: MD5: bc5dc150bc2e0360bf1c153db7cd17f6
+LicenseConcluded: NOASSERTION
+
+LicenseInfoInFile: MIT
+FileCopyrightText: NOASSERTION
+
+
+
+##-------------------------
+## License Information
+##-------------------------
+
+
+LicenseID: LicenseRef-fossology-MIT-possibility
+LicenseName: MIT-possibility
+ExtractedText: <text> License by Nomos. </text>
+
+
+LicenseID: LicenseRef-fossology-See-doc.OTHER
+LicenseName: See-doc.OTHER
+ExtractedText: <text> License by Nomos. </text>
+
+
+LicenseID: LicenseRef-fossology-See-file
+LicenseName: See-file
+ExtractedText: <text> This license means that you can get copyright or license information through a reference file.
+
+one example below:
+/* 
+ * Copyright (C) 2007  Olli Salonen &lt;oasalonen@gmail.com&gt;
+ * see btnx.c for detailed license information
+ * 
+ * revoco.c is under a different copyright. See that file for details.
+ * 
+ */ </text>
+
