@@ -5,17 +5,18 @@ written in C. This document is structured as a step-by-step guide, allowing you
 to easily understand the basic operations of ESSTRA by following each step in
 order.
 
-First, we will compile `hello.c`, which is located in this directory, using
-ESSTRA Core to generate the binary file `hello`. This binary includes metadata
-containing information about all the source files involved in the compilation,
-such as absolute paths and checksums. We will verify this using ESSTRA Utility.
+First, we will compile [`hello.c`](./hello.c), which is located in this
+directory, using the ESSTRA Core to generate the binary file `hello`. This
+binary includes metadata containing information about all the source files
+involved in the compilation, such as absolute paths and checksums. We will
+verify this using the ESSTRA Utility.
 
-Next, we will demonstrate how to use the feature of ESSTRA Utility that adds
+Next, we will demonstrate how to use the feature of the ESSTRA Utility that adds
 license information of source files to the metadata. In this sample, we will
 use the open-source software license analysis tool
 [FOSSology](https://github.com/fossology/fossology)
 to scan the source code for licenses and generate a license information
-file. We will then update the metadata using ESSTRA Utility based on this
+file. We will then update the metadata using the ESSTRA Utility based on this
 information and verify that the license information has been correctly added to
 the metadata.
 
@@ -36,12 +37,12 @@ If there are no errors, the build is complete. Then, enter:
 $ sudo make install
 ```
 
-This will install ESSTRA Core and ESSTRA Utility on your system.
+This will install the ESSTRA Core and the ESSTRA Utility on your system.
 
 ## Source Code to Compile
 
-In this sample, we will compile the source code `hello.c` using
-ESSTRA Core. The content of the code is as follows, and it is a very simple
+In this sample, we will compile the source code [`hello.c`](./hello.c) using
+the ESSTRA Core. The content of the code is as follows, and it is a very simple
 program that just prints `Hello, world!` to the standard output:
 
 ```c
@@ -64,18 +65,18 @@ license so that FOSSology can scan it in a later step:
 This declaration indicates that this file is available under the
 [MIT License](https://spdx.org/licenses/MIT.html).
 
-## Compiling with ESSTRA Core
+## Compiling with the ESSTRA Core
 
-Use the following command line to compile `hello.c` and generate the binary
-`hello`. By involving ESSTRA Core during compilation, metadata will be
-embedded into `hello`.
+Use the following command line to compile [`hello.c`](./hello.c) and generate
+the binary `hello`. By involving the ESSTRA Core during compilation, metadata
+will be embedded into `hello`.
 
 ```sh
 $ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello.c -o hello
 ```
 
 If you have already [installed the Spec File](../../README.md),
-ESSTRA Core will intervene in
+the ESSTRA Core will intervene in
 the compilation without needing the `-fplugin=` option, yielding the same
 result as above:
 
@@ -83,7 +84,7 @@ result as above:
 $ gcc hello.c -o hello
 ```
 
-Note that ESSTRA Core does not affect the behavior of the binary. When you
+Note that the ESSTRA Core does not affect the behavior of the binary. When you
 run the generated binary `hello`, you will get the following result:
 
 ```sh
@@ -181,17 +182,17 @@ SourceFiles:
       :
 ```
 
-The metadata of the binary `hello` includes not only the source code `hello.c`
+The metadata of the binary `hello` includes not only the source code [`hello.c`](./hello.c)
 specified at compile time and the explicitly `#include`'d `stdio.h` from
-`hello.c`, but also additional header files. This is because GCC implicitly
+[`hello.c`](./hello.c), but also additional header files. This is because GCC implicitly
 `#include`'s the header file `stdc-predef.h` and all the header files recursively
 `#include`'d from `stdio.h`.
 
 ## License Analysis Using FOSSology
 
-ESSTRA Utility has a feature that adds license information to the metadata of
-each file. Below are the steps to add the license information of hello.c to the
-metadata of the binary hello using this feature.
+The ESSTRA Utility has a feature that adds license information to the metadata
+of each file. Below are the steps to add the license information of
+[`hello.c`](./hello.c) to the metadata of the binary `hello` using this feature.
 
 As a preliminary step, you need to create a document in
 [SPDX tag-value format](https://spdx.dev/learn/overview/)
@@ -230,7 +231,7 @@ both "Username:" and "Password:" to log in.
 
 ### Analyzing Source Code with FOSSology
 
-Although we only need the license information for `hello.c` in this sample, for
+Although we only need the license information for [`hello.c`](./hello.c) in this sample, for
 simplicity, we will scan the entire
 [ESSTRA GitHub repository](https://github.com/sony/esstra)
 and generate a single license information file that can be used for other samples
@@ -286,18 +287,18 @@ see the results of the license scan for all files in the
 
 ![License Browser](../assets/foss-08.png)
 
-In this sample, we will check if `hello.c` is recognized as MIT licensed as
-intended. Click on `samples` \> `hello` \> `hello.c` in sequence.
+In this sample, we will check if [`hello.c`](./hello.c) is recognized as MIT licensed as
+intended. Click on `samples` \> `hello` \> [`hello.c`](./hello.c) in sequence.
 
 ![License Browser: samples/hello](../assets/foss-09.png)
 
 Finally, you will be taken to a screen displaying the contents of
-`hello.c`. Check the "License" section in the table at the bottom right.
+[`hello.c`](./hello.c). Check the "License" section in the table at the bottom right.
 
 ![Change concluded License: hello.c](../assets/foss-10.png)
 
 Since it shows "MIT", we can confirm that FOSSology has correctly recognized
-the license of `hello.c` as "MIT License".
+the license of [`hello.c`](./hello.c) as "MIT License".
 
 ### Downloading FOSSology Scan Results
 
@@ -313,7 +314,7 @@ as an SPDX tag-value format file named
 
 ![Browse: Export SPDX tag:value report](../assets/foss-11.png)
 
-Below is a portion of the downloaded file `SPDX2TV_esstra.spdx`:
+Below is a portion of the downloaded file [`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx):
 
 ```yaml
 SPDXVersion: SPDX-2.3
@@ -352,13 +353,14 @@ FileCopyrightText: NOASSERTION
 ```
 
 This file contains various pieces of information, however, you can see that the
-information of the file `hello.c` includes a line `LicenseInfoInFile: MIT`.
+information of the file [`hello.c`](./hello.c) includes a line `LicenseInfoInFile: MIT`.
 
 ## Adding License Information to Metadata
 
-To add license information to the metadata in the binary using ESSTRA Utility
-with the `SPDX2TV_esstra.spdx` file downloaded from FOSSology, execute the
-following command:
+To add license information to the metadata in the binary using the ESSTRA Utility
+with the
+[`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx)
+file downloaded from FOSSology, execute the following command:
 
 ```sh
 $ esstra.py update hello -i SPDX2TV_esstra.spdx
@@ -367,7 +369,7 @@ $ esstra.py update hello -i SPDX2TV_esstra.spdx
 ```
 
 If no errors occur, the process is successful. To display the metadata content
-of the binary hello, use:
+of the binary `hello`, type:
 
 ```sh
 $ esstra.py show hello
@@ -393,23 +395,25 @@ SourceFiles:
 
 ```
 
-From the above results, we can see that the file `hello.c` has been tagged with
+From the above results, we can see that the file [`hello.c`](./hello.c) has been tagged with
 `LicenseInfo`, and the value assigned to it is `MIT`.
 
-Please note that the file `SPDX2TV_esstra.spdx` generated previously by
-FOSSology only contains license information for the files present in the
+Please note that the file
+[`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx)
+generated previously by FOSSology only contains license information
+for the files present in the
 [ESSTRA repository](https://github.com/sony/esstra).
 Therefore, license information will not be assigned to files
-other than `hello.c` in the metadata of `hello`.
+other than [`hello.c`](./hello.c) in the metadata of `hello`.
 
 To add license information for those files, you can also use FOSSology or
 similar tools to identify their licenses and generate an SPDX tag-value format
-file. By passing the file to ESSTRA Utility, you can add license information
+file. By passing the file to the ESSTRA Utility, you can add license information
 to the metadata in the binary.
 
 ## Summary
 
-In this sample, we first compiled the source file `hello.c` using ESSTRA Core
+In this sample, we first compiled the source file [`hello.c`](./hello.c) using the ESSTRA Core
 to generate the binary `hello`, and confirmed that the metadata in `hello`
 includes information about all the files involved in the compilation.
 
