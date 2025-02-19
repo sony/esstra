@@ -1,23 +1,23 @@
 # ESSTRA Utility
 
-ESSTRA Utility is a Python script for accessing metadata
-in binary files embedded by ESSTRA Core.
+The ESSTRA Utility is a Python script for accessing metadata
+in binary files embedded by the ESSTRA Core.
 
 ## Status of This Version
 
-ESSTRA Utility is being developed on Ubuntu 22.04 with Python 3.10.12
+The ESSTRA Utility is being developed on Ubuntu 22.04 with Python 3.10.12
 installed on a x86\_64 PC.
 
 This version of the ESSTRA Utility has features named `show`, `shrink`,
 `update` and `strip` as described below.
 
-Note that the specifications and features of ESSTRA Utility, the data formats
+Note that the specifications and features of the ESSTRA Utility, the data formats
 and content of the metadata, as well as the input/output specifications of each
 tool are tentative and may change in the future versions.
 
 ## Prerequisite
 
-Since ESSTRA Utility depends on the [PyYAML](https://pyyaml.org/)
+Since the ESSTRA Utility depends on the [PyYAML](https://pyyaml.org/)
 module to handle YAML data, you may need to install it by, for example, typing:
 
 ```sh
@@ -135,7 +135,7 @@ $ esstra.py show hello | yq -oj
 > [Linker Plugins](https://sourceware.org/binutils/docs/ld/Plugins.html)) to automatically remove
 > duplication in metadata  without user intervention.
 
-The current version of ESSTRA Core cannot avoid data duplication which
+The current version of the ESSTRA Core cannot avoid data duplication which
 especially occurs when a binary file is built from two or more source files.
 
 The command `shrink` is meant to be used in such situation. It reduces the size
@@ -209,13 +209,13 @@ samples stored in the directory [../samples](../samples/).
 ### Command "strip"
 
 The command `strip` completely removes metadata embedded in binary files by
-ESSTRA Core during compilation.
+the ESSTRA Core during compilation.
 
 ```sh
 $ esstra.py strip <binary> [<binary> ...]
 ```
 
-When a binary file with metadata removed is specified for ESSTRA Utility, an
+When a binary file with metadata removed is specified for the ESSTRA Utility, an
 error occurs as shown below:
 
 ```sh
