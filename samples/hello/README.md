@@ -195,7 +195,7 @@ each file. Below are the steps to add the license information of hello.c to the
 metadata of the binary hello using this feature.
 
 As a preliminary step, you need to create a document in
-[SPDX Tag/Value format](https://spdx.dev/learn/overview/)
+[SPDX tag-value format](https://spdx.dev/learn/overview/)
 that includes the license information of the source files. Here, we will
 demonstrate how to use the open-source software license analysis tool
 [FOSSology](https://github.com/fossology/fossology)
@@ -309,7 +309,7 @@ Click on "-- select action --" to the right of "esstra" to reveal a dropdown
 list, then select "Export SPDX tag:value report". This will download the scan
 results for all files in the
 [ESSTRA repository](https://github.com/sony/esstra)
-as an SPDX Tag/Value format file named
+as an SPDX tag-value format file named
 [`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx).
 
 ![Browse: Export SPDX tag:value report](../assets/foss-11.png)
@@ -404,7 +404,7 @@ Therefore, license information will not be assigned to files
 other than `hello.c` in the metadata of `hello`.
 
 To add license information for those files, you can also use FOSSology or
-similar tools to identify their licenses and generate an SPDX Tag/Value format
+similar tools to identify their licenses and generate an SPDX tag-value format
 file. By passing the file to ESSTRA Utility, you can add license information
 to the metadata in the binary.
 
@@ -421,4 +421,4 @@ open-source license analysis tool
 [FOSSology](https://github.com/fossology/fossology)
 to scan the licenses of all the files in the
 [ESSTRA repository](https://github.com/sony/esstra)
-and generate an SPDX Tag/Value format file.
+and generate an SPDX tag-value format file.
