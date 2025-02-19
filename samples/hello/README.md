@@ -104,14 +104,13 @@ format. These files are all involved in the compilation of the file `hello`:
 
 ```yaml
 #
-# BinaryFileName: output_example/hello
-# BinaryPath: /home/snagao/esstra/samples/sample-hello/output_example/hello
+# BinaryFileName: hello
+# BinaryPath: /home/snagao/esstra/samples/hello/hello
 #
----
 SourceFiles:
-  /home/snagao/esstra/samples/sample-hello:
+  /home/snagao/esstra/samples/hello:
   - File: hello.c
-    SHA1: 62592ce351eab2dfb75deb8c01101e07d6fe3c67
+    SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
   /usr/include:
   - File: features-time64.h
     SHA1: 57c3c8093c3af70e5851f6d498600e2f6e24fdeb
@@ -324,7 +323,7 @@ DataLicense: CC0-1.0
 ## Document Information
 ##-------------------------
 
-DocumentNamespace: http://789bc35d6e0e/repo/SPDX2TV_esstra.spdx
+DocumentNamespace: http://1b75db623c27/repo/SPDX2TV_esstra.spdx
 DocumentName: /srv/fossology/repository/report
 SPDXID: SPDXRef-DOCUMENT
 
@@ -339,10 +338,10 @@ SPDXID: SPDXRef-DOCUMENT
 ##File
 
 FileName: esstra/samples/hello/hello.c
-SPDXID: SPDXRef-item146
-FileChecksum: SHA1: e7834d0b9cb6cb116c72f0bee7da29e3d280b27e
-FileChecksum: SHA256: 8134eae34d2a46ffdaedc04628427282d3d73ae47affd33463111efc89fa5a96
-FileChecksum: MD5: b5ca38edd7197004cfb8290d0ca0e87d
+SPDXID: SPDXRef-item35
+FileChecksum: SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
+FileChecksum: SHA256: 2b4563b56041b0d364b2a80055b411de735ff11ea3849beae68b9dd398424f61
+FileChecksum: MD5: b591a48f3cde94911fa7cd81b682d812
 LicenseConcluded: NOASSERTION
 
 LicenseInfoInFile: MIT
@@ -384,9 +383,9 @@ The result will be as follows:
 SourceFiles:
   /home/snagao/esstra/samples/hello:
   - File: hello.c
-    SHA1: e7834d0b9cb6cb116c72f0bee7da29e3d280b27e
     LicenseInfo:
     - MIT
+    SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
   /usr/include:
   - File: features-time64.h
 
