@@ -64,7 +64,7 @@ FileCopyrightText: NOASSERTION
 
 ##File
 
-FileName: esstra/samples/hello-main-sub/output-example/SPDX2TV_sample-hello-main-sub.spdx
+FileName: esstra/samples/hello2/output-example/SPDX2TV_sample-hello2.spdx
 SPDXID: SPDXRef-item28
 FileChecksum: SHA1: ce9f2247667d135c77dc8410be2cd14ad7afda59
 FileChecksum: SHA256: 880b4e935ef8a4a6fd6f4cd0a2c1adda54a38248c9bb0381ae4c3515978f782b
@@ -131,7 +131,7 @@ FileCopyrightText: NOASSERTION
 
 ##File
 
-FileName: esstra/samples/hello-main-sub/output-example/hello
+FileName: esstra/samples/hello2/output-example/hello
 SPDXID: SPDXRef-item29
 FileChecksum: SHA1: 40784c137307895b16962d79729d3ef3b8055c0b
 FileChecksum: SHA256: fd14e07fdc7835bebc0b988eb5edf09a4c40171e2f4a704259cb07b0b3295aab
@@ -145,7 +145,7 @@ FileCopyrightText: NOASSERTION
 
 ##File
 
-FileName: esstra/samples/hello-main-sub/hello_sub.c
+FileName: esstra/samples/hello2/hello_sub.c
 SPDXID: SPDXRef-item31
 FileChecksum: SHA1: cfb72998ae0242237fa42c8bcf61ee5887137392
 FileChecksum: SHA256: afff73221469c384b0efb244783ae9f7b8e07dabf6f274dc63db53c21c12c3ce
@@ -190,7 +190,7 @@ FileCopyrightText: NOASSERTION
 
 ##File
 
-FileName: esstra/samples/hello-main-sub/Makefile
+FileName: esstra/samples/hello2/Makefile
 SPDXID: SPDXRef-item26
 FileChecksum: SHA1: 6927c3bc1c86ccfb1e137c5242b3ffa0e995f6bf
 FileChecksum: SHA256: d4b6819d55051108cc5634dfb96716bb9d839295290d27b84a82293017e877ea
@@ -247,7 +247,7 @@ FileCopyrightText: NOASSERTION
 
 ##File
 
-FileName: esstra/samples/hello-main-sub/README.md
+FileName: esstra/samples/hello2/README.md
 SPDXID: SPDXRef-item25
 FileChecksum: SHA1: 5971bfbb4909b7e39e4cb2e19a86d7c896070637
 FileChecksum: SHA256: 2895225258196a47fc559fb09f8fd930645a72a87ef24664bb0abdc9ed151f1b
@@ -383,7 +383,7 @@ FileCopyrightText: NOASSERTION
 
 ##File
 
-FileName: esstra/samples/hello-main-sub/hello_main.c
+FileName: esstra/samples/hello2/hello_main.c
 SPDXID: SPDXRef-item24
 FileChecksum: SHA1: f7f5c447d68fd9685594a31cb10c8d8b1dd5ebd6
 FileChecksum: SHA256: 9bf0c5b2232b1cb6d8437d88047d420e372c597ac93bd1a91249073c0fc539de
@@ -406,7 +406,7 @@ FileCopyrightText: NOASSERTION
 
 ##File
 
-FileName: esstra/samples/hello-main-sub/hello_sub.h
+FileName: esstra/samples/hello2/hello_sub.h
 SPDXID: SPDXRef-item30
 FileChecksum: SHA1: 3e5b3ed1aed966c0e0c183eac8fe6ea02dfa62a0
 FileChecksum: SHA256: ea1fa1bd0bf3cceac43857dc44724e30b70fda8ebdd5c74132438f251053193f
