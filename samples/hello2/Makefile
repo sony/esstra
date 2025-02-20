@@ -9,12 +9,15 @@ ESSTRACORE ?= $(PREFIX)/share/esstra/esstracore.so
 
 CFLAGS += -fplugin=$(ESSTRACORE) -fplugin-arg-esstracore-debug=$(DEBUG) -O2 -Wall
 
+SOURCES := hello_main.c hello_sub.c
+TARGET := hello2
+
 .PHONY: all clean
 
-all: hello
+all: $(TARGET)
 
-hello: hello_main.c hello_sub.c
-	$(CC) $(CFLAGS) hello_main.c hello_sub.c -o hello
+$(TARGET): $(SOURCES)
+	$(CC) $(CFLAGS) $^ -o $@
 
 clean:
-	rm -f hello *.bak
+	rm -f $(TARGET) *.o *.bak

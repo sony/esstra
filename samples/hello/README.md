@@ -245,7 +245,7 @@ Version Control System".
 You will be taken to a screen titled "Upload from Version Control System".
 Then enter:
 
-* "https://github.com/sony/esstra".
+* "https://github.com/sony/esstra"
 
 in the field "3. Enter the URL of the repo:".
 
