@@ -1,9 +1,9 @@
 # ESSTRA Samples
 
-This directory is for samples that show how to use ESSTRA.
+This directory contains samples demonstrating how to use ESSTRA.
 
-Each sample is located in each subdirectory.  See the documentation and the
-code in the subdirectory for more information about the samples.
+Each sample is located in its own subdirectory. Refer to the documentation and
+code within each subdirectory for more details about the samples.
 
-Build and install ESSTRA Core and ESSTRA Utility according to
-[README.md](../README.md) in the top directory in advance.
+Before proceeding, build and install the ESSTRA Core and the ESSTRA Utility as
+instructed in the [README.md](../README.md) file in the top directory.
