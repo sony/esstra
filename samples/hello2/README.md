@@ -121,7 +121,7 @@ To verify the metadata within `hello2`,
 use the `show` command of the ESSTRA Utility `esstra.py`:
 
 ```sh
-$ esstra.py show hello
+$ esstra.py show hello2
 ```
 
 And you will get a result as follows:
