@@ -111,7 +111,7 @@ The workflow using ESSTRA is as follows:
 
 The example below compiles a source file
 `hello.c` with `gcc` and generates a binary file `hello`.
-(See also [./samples/sample-hello](./samples/sample-hello))
+(See also [./samples/hello/](./samples/hello/))
 
 First, compile the source file `hello.c` by passing the path of
 `esstracore.so` to the compiler with the option `-fplugin`:
