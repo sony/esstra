@@ -62,7 +62,7 @@ $ esstra.py show <binary> [<binary>...]
 
 outputs metadata embedded in specified binary files in YAML format.
 For example, passing a binary file `hello` built from `hello.c` as in
-[../samples/sample-hello](../samples/sample-hello) to the command:
+[../samples/hello/](../samples/hello/) to the command:
 
 ```sh
 $ esstra.py show hello
@@ -73,11 +73,11 @@ would give you an output as follows:
 ```yaml
 #
 # BinaryFileName: hello
-# BinaryPath: /home/snagao/esstra/samples/sample-hello/hello
+# BinaryPath: /home/snagao/esstra/samples/hello/hello
 #
 ---
 SourceFiles:
-  /home/snagao/esstra/samples/sample-hello:
+  /home/snagao/esstra/samples/hello:
   - File: hello.c
     SHA1: 62592ce351eab2dfb75deb8c01101e07d6fe3c67
   /usr/include:
@@ -103,7 +103,7 @@ Below is an example of how to use the command
 $ esstra.py show hello | yq -oj
 {
   "SourceFiles": {
-    "/home/snagao/esstra/samples/sample-hello": [
+    "/home/snagao/esstra/samples/hello": [
       {
         "File": "hello.c",
         "SHA1": "62592ce351eab2dfb75deb8c01101e07d6fe3c67"
@@ -146,7 +146,7 @@ $ esstra.py shrink <binary> [<binary> ...]
 ```
 
 More detailed examples are stored in the directories
-[../samples/sample-hello-main-sub/sample-hello-main-sub) and samples to be
+[../samples/hello2/hello2) and samples to be
 added in the future.
 
 #### Why duplication?
