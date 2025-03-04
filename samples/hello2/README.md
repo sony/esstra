@@ -1,7 +1,7 @@
 # Sample "hello2"
 
 This sample is essentially the same as [Sample "hello"](../hello/README.md),
-but it demonstrates how to compile multiple source files into a single binary
+but it demonstrates how to compile multiple source codes into a single binary
 using the ESSTRA Core.
 
 Please note that this document assumes you have completed all the steps
@@ -9,13 +9,13 @@ outlined in [Sample "hello"](../hello/README.md).
 
 ## Source Code to be Compiled
 
-In this sample, we use the ESSTRA Core to compile the source files
-[`hello_main.c`](./hello_main.c) and [`hello_sub.c`](./hello_sub.c)
-into a single binary `hello2`. The binary`hello2` is a program that,
-like in [Sample "hello"](../hello/README.md),
+In this sample, we use the [ESSTRA Core](../../core/README.md) to compile
+the two source files [`hello_main.c`](./hello_main.c) and [`hello_sub.c`](./hello_sub.c)
+into a single binary `hello2`.
+The binary `hello2` is a program that, like in [Sample "hello"](../hello/README.md),
 simply prints `Hello, world!` to the standard output.
 
-**[`hello_main.c`](./hello_main.c)**:
+**`hello_main.c`**:
 ```c
 #include "hello_sub.h"
 
@@ -26,7 +26,7 @@ int main(void)
 }
 ```
 
-**[`hello_sub.c`](./hello_sub.c)**:
+**`hello_sub.c`**:
 ```c
 #include <stdio.h>
 
@@ -38,11 +38,11 @@ void sub_puts(const char *str)
 
 In this program, the function `sub_puts()` provided by
 [`hello_sub.c`](./hello_sub.c) is called within the `main()` function of
-[`hello_main.c`](./hello_main.c). Therefore, we have prepared a header file
+[`hello_main.c`](./hello_main.c). So, we have prepared a header file
 [`hello_sub.h`](./hello_sub.h) to use the function defined in
 [`hello_sub.c`](./hello_sub.c) externally:
 
-**[`hello_sub.h`](./hello_sub.h)**:
+**`hello_sub.h`**:
 ```c
 #ifndef _HELLO_SUB_H_
 
@@ -54,58 +54,43 @@ extern void sub_puts(const char *);
 As in the case of [Sample "hello"](../hello/README.md), the license is
 specified at the beginning of each file as follows:
 
-**[`hello_main.c`](./hello_main.c)**:
+**`hello_main.c`**:
 ```c
 // SPDX-License-Identifier: MIT
 ```
 
-**[`hello_sub.c`](./hello_sub.c)**:
+**`hello_sub.c`**:
 ```c
 // SPDX-License-Identifier: BSD-3-Clause
 ```
 
-**[`hello_sub.h`](./hello_sub.h)**:
+**`hello_sub.h`**:
 ```c
 // SPDX-License-Identifier: LGPL-2.1-or-later
 ```
 
-Please note that these licenses are only for verifying the operation of ESSTRA
-and do not represent the actual licenses of the source code. For the actual
-source code licenses, please refer to the [LICENSE](../../LICENSE) file in the
-top directory.
+Please note that these licenses are only for verifying the operation of the
+ESSTRA and do not represent the actual licenses of the source code. For the
+actual source code licenses, please refer to the [LICENSE](../../LICENSE) file
+in the top directory.
 
 ## Compiling with ESSTRA Core
 
 We will compile the source files shown above to generate the binary
-`hello2`. By involving the ESSTRA Core during compilation, metadata is embedded
-into `hello2`:
+`hello2`. By involving the
+[ESSTRA Core](../../core/README.md) during compilation,
+metadata is embedded into `hello2`:
 
 ```sh
 $ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello_main.c hello_sub.c -o hello2
 ```
 
-Or, you can also compile each source file separately to generate the binary `hello2`:
-
-```sh
-$ gcc -fplugin=/usr/local/share/esstra/esstracore.so -c hello_main.c
-$ gcc -fplugin=/usr/local/share/esstra/esstracore.so -c hello_sub.c
-$ gcc hello_main.o hello_sub.o -o hello2
-```
-
 If you have already [installed the Spec File](../../README.md) beforehand, the
-ESSTRA Core will intervene in the compilation without needing to specify the
-`-fplugin=` option, yielding the same result as above:
+[ESSTRA Core](../../core/README.md) will intervene in the compilation
+without needing to specify the `-fplugin=` option, yielding the same result as above:
 
 ```sh
 $ gcc hello_main.c hello_sub.c -o hello2
-```
-
-Or, you can compile each file separately:
-
-```sh
-$ gcc -c hello_main.c
-$ gcc -c hello_sub.c
-$ gcc hello_main.o hello_sub.o -o hello2
 ```
 
 The result of the generated binary `hello2` is shown below:
@@ -117,8 +102,8 @@ Hello, world!
 
 ## Verifying Metadata in the Binary
 
-To verify the metadata within `hello2`,
-use the `show` command of the ESSTRA Utility `esstra.py`:
+Use the `show` command of the [ESSTRA utility](../../util/README.md) to verify
+the metadata within `hello2`:
 
 ```sh
 $ esstra.py show hello2
@@ -138,7 +123,7 @@ SourceFiles:
   - File: hello_sub.c
     SHA1: cfb72998ae0242237fa42c8bcf61ee5887137392
   - File: hello_sub.h
-    SHA1: 3e5b3ed1aed966c0e0c183eac8fe6ea02dfa62a0
+    SHA1: ae424fc2fd0c4bdaead89092a56e52ee2152710d
   /usr/include:
   - File: features-time64.h
     SHA1: 57c3c8093c3af70e5851f6d498600e2f6e24fdeb
@@ -181,22 +166,21 @@ SourceFiles:
     SHA1: 0de70008ffa3f198baf55c7b3f3d03b4ca11c21f
 ```
 
-You can see that the metadata includes the source files specified during
+You can see that the metadata includes the source codes specified during
 compilation: [`hello_main.c`](./hello_main.c), [`hello_sub.c`](./hello_sub.c),
-and [`hello_sub.h`](./hello_sub.h). Additionally, as in the case of [Sample
-"hello"](../hello/README.md), it also includes information on all header files
-that are explicitly or implicitly `#include`'d.
+and [`hello_sub.h`](./hello_sub.h). Additionally, as in the case of
+[Sample "hello"](../hello/README.md),
+it also includes information about all header files that are explicitly or
+implicitly `#include`'d.
 
 ## Adding License Information to Metadata
 
-If you have already completed the steps in
-[Sample "hello"](../hello/README.md), the license scan for all files in
-this repository should be finished,
-and the result should be stored in the SPDX tag-value
-format file [`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx).
-
-Therefore, the following command adds the license information to the metadata
-in the binary `hello2`:
+Here, as in [Sample "hello"](../hello/README.md#adding-license-information-to-metadata),
+we will use the license information file
+[`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx)
+that has already been prepared.
+Then, you can add license information to the metadata in the binary
+`hello2` using the following command:
 
 ```sh
 $ esstra.py update hello2 -i SPDX2TV_esstra.spdx
@@ -204,13 +188,13 @@ $ esstra.py update hello2 -i SPDX2TV_esstra.spdx
 * done.
 ```
 
-To display the metadata content of the binary `hello2`, type:
+By displaying the metadata content of the binary `hello2`:
 
 ```sh
 $ esstra.py show hello2
 ```
 
-Then, you will get the result as follows:
+You will get the following result:
 
 ```yaml
 #
@@ -230,7 +214,7 @@ SourceFiles:
   - File: hello_sub.h
     LicenseInfo:
     - LGPL-2.1-or-later
-    SHA1: 3e5b3ed1aed966c0e0c183eac8fe6ea02dfa62a0
+    SHA1: ae424fc2fd0c4bdaead89092a56e52ee2152710d
   /usr/include:
   - File: features-time64.h
 
@@ -239,18 +223,21 @@ SourceFiles:
 ```
 
 From the above result, you can see that the `LicenseInfo` tags have been added
-to the information for the files [`hello_main.c`](./hello_main.c),
-[`hello_sub.c`](./hello_sub.c), and [`hello_sub.h`](./hello_sub.h), with the
-values `MIT`, `BSD-3-Clause`, and `LGPL-2.1-or-later`, respectively.
+to the information for the files
+[`hello_main.c`](./hello_main.c),
+[`hello_sub.c`](./hello_sub.c), and
+[`hello_sub.h`](./hello_sub.h),
+with the values `MIT`, `BSD-3-Clause`, and `LGPL-2.1-or-later`, respectively.
 
 ## Summary
 
-In this sample, we confirmed that by involving the ESSTRA Core during the
-compilation of multiple source files into a single binary, the metadata
-includes information of all the source files involved in the compilation and
-all the `#include`'d header files.
+In this sample, we confirmed that by involving the
+[ESSTRA Core](../../core/README.md) during the compilation of multiple
+source files into a single binary, the metadata includes information on
+all the source files involved in the compilation and
+all the header files they `#include`.
 
-Additionally, by using the ESSTRA Utility's feature to add license information
-to the metadata, we updated the metadata in the binary `hello2` and confirmed
-that the license information declared in each source file was added to the
-metadata.
+Additionally, by using the [ESSTRA Utility](../../util/README.md)'s feature
+to add license information to the metadata,
+we updated the metadata in the binary `hello2` and confirmed that the license
+information declared in each source file was added to the metadata.
