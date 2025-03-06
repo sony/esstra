@@ -116,8 +116,8 @@ class MetadataHandler:
 
         return True
 
-    def strip_metadata(self, binary_path,
-                       create_backup, backup_suffix, overwrite_backup):
+    def remove_metadata(self, binary_path,
+                        create_backup, backup_suffix, overwrite_backup):
         if create_backup:
             self.__create_backup_file(
                 binary_path, backup_suffix, overwrite_backup)
@@ -562,9 +562,9 @@ class CommandUpdate(CommandBase):
         return True
 
 
-class CommandStrip(CommandBase):
-    NAME = 'strip'
-    DESCRIPTION = 'discard metadata from binary files built with ESSTRA Core'
+class CommandRemove(CommandBase):
+    NAME = 'rm'
+    DESCRIPTION = 'remove metadata from binary files built with ESSTRA Core'
 
     def setup_parser(self, parser):
         parser.add_argument(
@@ -592,13 +592,13 @@ class CommandStrip(CommandBase):
             message(f'processing {binary!r}...')
             try:
                 handler = MetadataHandler(binary)
-                handler.strip_metadata(
+                handler.remove_metadata(
                     binary,
                     not args.no_backup,
                     args.backup_suffix,
                     args.overwrite_backup)
             except Exception as ex:
-                error(f'failed to strip {binary!r}: {ex}')
+                error(f'failed to remove metadata from {binary!r}: {ex}')
                 errors += 1
 
         if errors:
@@ -614,7 +614,7 @@ def main():
         CommandShow,
         CommandShrink,
         CommandUpdate,
-        CommandStrip
+        CommandRemove
     )
     return dispatcher.run_command()
 

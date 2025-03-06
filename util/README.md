@@ -9,7 +9,7 @@ The ESSTRA Utility is being developed on Ubuntu 22.04 with Python 3.10.12
 installed on a x86\_64 PC.
 
 This version of the ESSTRA Utility has features named `show`, `shrink`,
-`update` and `strip` as described below.
+`update` and `rm` as described below.
 
 Note that the specifications and features of the ESSTRA Utility, the data formats
 and content of the metadata, as well as the input/output specifications of each
@@ -50,7 +50,7 @@ Supported commands in this version are as follows:
 * `show`: outputs metadata in binary files
 * `shrink`: reduce sizes of binary files by removing duplication in metadata
 * `update`: update metadata in binary files by specifying additional information of the source files
-* `strip`: discard metadata from binary files
+* `rm`: remove metadata from binary files
 
 ### Command "show"
 
@@ -206,20 +206,20 @@ $ esstra.py update <binary> [<binary> ...] -i <spdx-tv-file> [<spdx-tv-file> ..]
 For more details of the command `update`, please refer to documents of the
 samples stored in the directory [../samples](../samples/).
 
-### Command "strip"
+### Command "rm"
 
-The command `strip` completely removes metadata embedded in binary files by
+The command `rm` completely removes metadata embedded in binary files by
 the ESSTRA Core during compilation.
 
 ```sh
-$ esstra.py strip <binary> [<binary> ...]
+$ esstra.py rm <binary> [<binary> ...]
 ```
 
 When a binary file with metadata removed is specified for the ESSTRA Utility, an
 error occurs as shown below:
 
 ```sh
-$ esstra.py strip hello
+$ esstra.py rm hello
 * processing 'hello'...
 * done.
 $ esstra.py show hello
