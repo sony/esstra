@@ -237,19 +237,24 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     }
 
     string current_directory = "";
-    strings_to_embed.push_back(KEY_SOURCE_FILES + ":");
-    for (const auto& path : allpaths) {
-        string directory = dirname(const_cast<char*>(string(path).c_str()));
-        string filename = basename(const_cast<char*>(string(path).c_str()));
-        debug_log("dir: %s\n", directory.c_str());
-        if (current_directory != directory) {
-            current_directory = directory;
-            strings_to_embed.push_back(YAML_INDENT + directory + ":");
-        }
-        strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
-        for (const auto& elem : infomap[path]) {
-            strings_to_embed.push_back(
-                YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
+
+    if (allpaths.size() == 0) {
+        strings_to_embed.push_back(KEY_SOURCE_FILES + ": {}");
+    } else {
+        strings_to_embed.push_back(KEY_SOURCE_FILES + ":");
+        for (const auto& path : allpaths) {
+            string directory = dirname(const_cast<char*>(string(path).c_str()));
+            string filename = basename(const_cast<char*>(string(path).c_str()));
+            debug_log("dir: %s\n", directory.c_str());
+            if (current_directory != directory) {
+                current_directory = directory;
+                strings_to_embed.push_back(YAML_INDENT + directory + ":");
+            }
+            strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
+            for (const auto& elem : infomap[path]) {
+                strings_to_embed.push_back(
+                    YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
+            }
         }
     }
 
