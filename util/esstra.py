@@ -448,15 +448,15 @@ class CommandShrink(CommandBase):
             'binary', nargs='+',
             help='ESSTRA-built binary file to shrink embedded information')
         parser.add_argument(
-            '-n', '--no-backup',
+            '-b', '--backup',
             action='store_true',
-            help='do not create backup of binary file')
+            help='create backup of binary file')
         parser.add_argument(
             '-O', '--overwrite-backup',
             action='store_true',
             help='overwrite old backup file')
         parser.add_argument(
-            '-b', '--backup-suffix',
+            '-s', '--backup-suffix',
             default=self.BACKUP_SUFFIX,
             help='suffix of backup file')
 
@@ -471,7 +471,7 @@ class CommandShrink(CommandBase):
                 handler = MetadataHandler(binary)
                 handler.update_metadata(
                     binary,
-                    not args.no_backup,
+                    args.backup,
                     args.backup_suffix,
                     args.overwrite_backup)
             except Exception as ex:
@@ -500,15 +500,15 @@ class CommandUpdate(CommandBase):
             'binary', nargs='+',
             help='ESSTRA-built binary file to update embedded information')
         parser.add_argument(
-            '-n', '--no-backup',
+            '-b', '--backup',
             action='store_true',
-            help='do not create backup of binary file')
+            help='create backup of binary file')
         parser.add_argument(
             '-O', '--overwrite-backup',
             action='store_true',
             help='overwrite old backup file')
         parser.add_argument(
-            '-b', '--backup-suffix',
+            '-s', '--backup-suffix',
             default=self.BACKUP_SUFFIX,
             help='suffix of backup file')
 
@@ -547,7 +547,7 @@ class CommandUpdate(CommandBase):
             try:
                 handler.update_metadata(
                     binary,
-                    not args.no_backup,
+                    args.backup,
                     args.backup_suffix,
                     args.overwrite_backup)
             except Exception as ex:
@@ -571,15 +571,15 @@ class CommandRemove(CommandBase):
             'binary', nargs='+',
             help='ESSTRA-built binary file')
         parser.add_argument(
-            '-n', '--no-backup',
+            '-b', '--backup',
             action='store_true',
-            help='do not create backup of binary file')
+            help='create backup of binary file')
         parser.add_argument(
             '-O', '--overwrite-backup',
             action='store_true',
             help='overwrite old backup file')
         parser.add_argument(
-            '-b', '--backup-suffix',
+            '-s', '--backup-suffix',
             default=self.BACKUP_SUFFIX,
             help='suffix of backup file')
 
@@ -594,7 +594,7 @@ class CommandRemove(CommandBase):
                 handler = MetadataHandler(binary)
                 handler.remove_metadata(
                     binary,
-                    not args.no_backup,
+                    args.backup,
                     args.backup_suffix,
                     args.overwrite_backup)
             except Exception as ex:
