@@ -382,6 +382,10 @@ class CommandDispatcher:
                 default=False,
                 action='store_true',
                 help='enable debug logs')
+            subparser.add_argument(
+                '-I', '--ignore-errors',
+                action='store_true',
+                help='do not return error code even if there are errors')
             command.setup_parser(subparser)
 
     def run_command(self):
@@ -393,7 +397,11 @@ class CommandDispatcher:
             print('no command specified. show help by "-h".')
             sys.exit(1)
 
-        return (self._command_table[args.name]).run_command(args)
+        result = (self._command_table[args.name]).run_command(args)
+        if args.ignore_errors:
+            return 0
+
+        return result
 
 
 class CommandShow(CommandBase):
