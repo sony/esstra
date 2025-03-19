@@ -462,7 +462,7 @@ class CommandShrink(CommandBase):
         parser.add_argument(
             '-O', '--overwrite-backup',
             action='store_true',
-            help='overwrite old backup file')
+            help='overwrite existing backup file')
         parser.add_argument(
             '-s', '--backup-suffix',
             default=self.BACKUP_SUFFIX,
@@ -514,7 +514,7 @@ class CommandUpdate(CommandBase):
         parser.add_argument(
             '-O', '--overwrite-backup',
             action='store_true',
-            help='overwrite old backup file')
+            help='overwrite existing backup file')
         parser.add_argument(
             '-s', '--backup-suffix',
             default=self.BACKUP_SUFFIX,
@@ -585,7 +585,7 @@ class CommandRemove(CommandBase):
         parser.add_argument(
             '-O', '--overwrite-backup',
             action='store_true',
-            help='overwrite old backup file')
+            help='overwrite existing backup file')
         parser.add_argument(
             '-s', '--backup-suffix',
             default=self.BACKUP_SUFFIX,
