@@ -336,9 +336,24 @@ class CommandBase(ABC):
     DESCRIPTION = 'description of this command'
     BACKUP_SUFFIX = '.bak'
 
-    @abstractmethod
-    def setup_parser(self, parser):
-        pass
+    def setup_parser(self, parser, *, binaries=False, backup=False):
+        if binaries:
+            parser.add_argument(
+                'binary', nargs='+',
+                help='ESSTRA-built binary file to show embedded information')
+        if backup:
+            parser.add_argument(
+                '-b', '--backup',
+                action='store_true',
+                help='create backup of binary file')
+            parser.add_argument(
+                '-O', '--overwrite-backup',
+                action='store_true',
+                help='overwrite existing backup file')
+            parser.add_argument(
+                '-s', '--backup-suffix',
+                default=self.BACKUP_SUFFIX,
+                help='suffix of backup file')
 
     @abstractmethod
     def run_command(self, args):
@@ -411,9 +426,7 @@ class CommandShow(CommandBase):
     KEY_BINARY_PATH = 'BinaryPath'
 
     def setup_parser(self, parser):
-        parser.add_argument(
-            'binary', nargs='+',
-            help='ESSTRA-built binary file to show embedded information')
+        super().setup_parser(parser, binaries=True)
         parser.add_argument(
             '-r', '--raw',
             action='store_true',
@@ -452,21 +465,7 @@ class CommandShrink(CommandBase):
     DESCRIPTION = 'shrink embedded information by removing duplication'
 
     def setup_parser(self, parser):
-        parser.add_argument(
-            'binary', nargs='+',
-            help='ESSTRA-built binary file to shrink embedded information')
-        parser.add_argument(
-            '-b', '--backup',
-            action='store_true',
-            help='create backup of binary file')
-        parser.add_argument(
-            '-O', '--overwrite-backup',
-            action='store_true',
-            help='overwrite existing backup file')
-        parser.add_argument(
-            '-s', '--backup-suffix',
-            default=self.BACKUP_SUFFIX,
-            help='suffix of backup file')
+        super().setup_parser(binaries=True, backup=True)
 
     def run_command(self, args):
         errors = 0
@@ -499,26 +498,12 @@ class CommandUpdate(CommandBase):
     DESCRIPTION = 'update embedded information with SPDX tag/value file'
 
     def setup_parser(self, parser):
+        super().setup_parser(binaries=True, backup=True)
         parser.add_argument(
             '-i', '--info-file', required=True,
             nargs='+',
             action='extend',
             help='spdx tag/value file containing license information')
-        parser.add_argument(
-            'binary', nargs='+',
-            help='ESSTRA-built binary file to update embedded information')
-        parser.add_argument(
-            '-b', '--backup',
-            action='store_true',
-            help='create backup of binary file')
-        parser.add_argument(
-            '-O', '--overwrite-backup',
-            action='store_true',
-            help='overwrite existing backup file')
-        parser.add_argument(
-            '-s', '--backup-suffix',
-            default=self.BACKUP_SUFFIX,
-            help='suffix of backup file')
 
     def run_command(self, args):
         errors = 0
