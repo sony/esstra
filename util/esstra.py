@@ -560,21 +560,7 @@ class CommandRemove(CommandBase):
     DESCRIPTION = 'remove metadata from binary files built with ESSTRA Core'
 
     def setup_parser(self, parser):
-        parser.add_argument(
-            'binary', nargs='+',
-            help='ESSTRA-built binary file')
-        parser.add_argument(
-            '-b', '--backup',
-            action='store_true',
-            help='create backup of binary file')
-        parser.add_argument(
-            '-O', '--overwrite-backup',
-            action='store_true',
-            help='overwrite existing backup file')
-        parser.add_argument(
-            '-s', '--backup-suffix',
-            default=self.BACKUP_SUFFIX,
-            help='suffix of backup file')
+        super().setup_parser(binaries=True, backup=True)
 
     def run_command(self, args):
         errors = 0
