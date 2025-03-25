@@ -413,7 +413,8 @@ class CommandDispatcher:
             sys.exit(1)
 
         result = (self._command_table[args.name]).run_command(args)
-        if args.ignore_errors:
+        if args.ignore_errors and result:
+            message('errors ignored.')
             return 0
 
         return result
