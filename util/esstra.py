@@ -481,7 +481,7 @@ class CommandShrink(CommandBase):
             if binary.endswith(f'.{args.backup_suffix}'):
                 message(f'skip backup file {binary!r}.')
                 continue
-            message(f'processing {binary!r}...')
+            message(f'shrinking metadata of {binary!r}...')
             try:
                 handler = MetadataHandler(binary)
                 handler.update_metadata(
@@ -528,7 +528,7 @@ class CommandUpdate(CommandBase):
             if binary.endswith(f'.{args.backup_suffix}'):
                 message(f'skip backup file {binary!r}.')
                 continue
-            message(f'processing {binary!r}...')
+            message('updating metadata of {binary!r}...')
 
             try:
                 handler = MetadataHandler(binary)
@@ -576,7 +576,7 @@ class CommandRemove(CommandBase):
             if binary.endswith(f'.{args.backup_suffix}'):
                 message(f'skip backup file {binary!r}.')
                 continue
-            message(f'processing {binary!r}...')
+            message(f'removing metadata from {binary!r}...')
             try:
                 handler = MetadataHandler(binary)
                 handler.remove_metadata(
