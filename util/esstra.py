@@ -432,22 +432,29 @@ class CommandShow(CommandBase):
             '-r', '--raw',
             action='store_true',
             help='display raw data')
+        parser.add_argument(
+            '-n', '--no-comments',
+            action='store_true',
+            help='suppress displaying comment lines')
 
     def run_command(self, args):
         for given_path in args.binary:
-            print('#')
-            print(f'# {self.KEY_BINARY_FILE_NAME}: {given_path}')
+            if not args.no_comments:
+                print('#')
+                print(f'# {self.KEY_BINARY_FILE_NAME}: {given_path}')
             try:
                 path = str(Path(given_path).resolve())
                 handler = MetadataHandler(path)
                 string_to_display = self.__make_string_to_display(args, handler)
             except Exception as ex:
-                print('#')
+                if not args.no_comments:
+                    print('#')
                 print(f'Exeption: {ex!r}')
                 print()
                 continue
-            print(f'# {self.KEY_BINARY_PATH}: {path}')
-            print('#')
+            if not args.no_comments:
+                print(f'# {self.KEY_BINARY_PATH}: {path}')
+                print('#')
             print(string_to_display)
 
     # private
