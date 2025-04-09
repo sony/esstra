@@ -206,7 +206,7 @@ SourceFiles:
 > [!NOTE]
 > We can provide multiple ELF files as arguments to ESSTRA Util script.
 
-The complete output of the ESSTRA scan in YAML format can be found in [yaml-report](./output-examples/esstra_scan_on_openssl_elf.yaml).
+The complete output of the ESSTRA scan in YAML format can be found in [yaml-report](./output-examples/openssl/esstra_scan_on_openssl_elf.yaml).
 
 ## License Analysis Using FOSSology
 
@@ -303,7 +303,7 @@ Downloaded file: /home/FOSSology.REST.shell/SPDX2TV_openssl-3.4.1.tar.gz.spdx
 ======================================
 ```
 
-Below is a portion of the downloaded file [`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/SPDX2TV_openssl-3.4.1.tar.gz.spdx).
+Below is a portion of the downloaded file [`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz.spdx).
 
 ```yaml
 SPDXVersion: SPDX-2.2
@@ -346,7 +346,7 @@ PackageFileName: openssl-3.4.1.tar.gz
 
 To add license information to the metadata in the binary using the ESSTRA Utility
 with the
-[`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/SPDX2TV_openssl-3.4.1.tar.gz.spdx)
+[`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz.spdx)
 file downloaded from FOSSology, execute the following command:
 
 ```sh
@@ -397,10 +397,10 @@ SourceFiles:
     - Apache-2.0
     - OpenSSL
 ```
-The complete output of the ESSTRA scan with license information can be found in [here](./output-examples/esstra_show_openssl_result_with_license_info.yaml).
+The complete output of the ESSTRA scan with license information can be found in [here](./output-examples/openssl/esstra_show_openssl_result_with_license_info.yaml).
 
 Please note that the file
-[`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/SPDX2TV_openssl-3.4.1.tar.gz.spdx)
+[`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz.spdx)
 generated previously by FOSSology only contains license information
 for the files present in the
 [OpenSSL repository](https://github.com/openssl/openssl).
