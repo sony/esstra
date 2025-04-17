@@ -14,6 +14,11 @@ resulting binary files at compile time with GCC.
 The metadata contains information about the source and header files from which
 the binary file is generated.
 
+For detailed usage and applications, please refer to the
+[Samples](./samples/) that help you understand ESSTRA using simple
+source code, as well as the [Case Study documentations](./doc/case-study) on
+using ESSTRA for open-source software and Linux distributions.
+
 ## Status of This Version
 
 ESSTRA is being developed on Ubuntu 22.04 with GCC 11.4.0 and Python
@@ -234,7 +239,7 @@ $ gcc hello.c -o hello
 
 generates a binary file with metadata embedded by ESSTRA Core.
 
-This is a very useful feature when you compile some open source (or closed or
+This is a very useful feature when you compile some open-source (or closed or
 whatever) projects and also want information ESSTRA generates for them.
 
 For more details about installing/uninstalling the spec file,
