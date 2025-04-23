@@ -111,6 +111,14 @@ $ sudo make uninstall-specs
 
 to remove the spec file.
 
+## Known Issues
+
+Here is the list of known issues in the current version:
+
+* LTO option prevents metadata generation
+  - **Description**: When using the LTO option (`-flto`) with `gcc`/`g++`, the generated binaries do not contain the expected metadata.
+  - **Workaround**: Remove the LTO option.
+
 ## License
 
 See the [LICENSE](../LICENSE) file.
