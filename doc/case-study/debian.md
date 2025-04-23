@@ -374,8 +374,8 @@ with `+` should be added:
 
 There is a known issue with the current ESSTRA Core:
 
-* When the LTO (Link Time Optimization) option of GCC and GNU Linker is enabled, the ESSTRA's
-  metadata is not embedded as expected in the generated binaries.
+* When the GCC's LTO (Link Time Optimization) option is enabled, the ESSTRA's metadata is not
+  embedded as expected in the generated binaries.
 
 Since the Debian packaging system enables the LTO option by default, the known issue prevents
 the expected results.
