@@ -70,7 +70,7 @@ $ g++ -fplugin=/usr/local/share/esstra/esstracore.so hello.cpp -o hello
 
 The generated binary file `hello` has metadata embedded by the ESSTRA Core.
 
-Use the [ESSTRA Utility](../util) to access metadata embedded in binary
+Use the [ESSTRA Utility](/util/README.md) to access metadata embedded in binary
 files.
 
 Note that this does not affect the behavior of the binary file itself.

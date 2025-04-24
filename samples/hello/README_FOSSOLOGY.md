@@ -11,7 +11,7 @@ with FOSSology, resulting in the generation of an SPDX 2.3 tag-value format file
 [`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx).
 
 By providing this file to the
-[ESSTRA Utility](../../util/README.md),
+[ESSTRA Utility](/util/README.md),
 you can associate license information with each file's information in the
 metadata embedded in the binary.
 

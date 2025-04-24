@@ -73,23 +73,22 @@ This declaration indicates that this file is available under the
 ## Compiling with ESSTRA Core
 
 Use the following command line to compile [`hello.c`](./hello.c) and generate
-the binary `hello`. By involving the [ESSTRA Core](../../core/README.md)
+the binary `hello`. By involving the [ESSTRA Core](/core/README.md)
 during compilation, metadata will be embedded into `hello`.
 
 ```sh
 $ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello.c -o hello
 ```
 
-If you have already [installed the Spec File](../../README.md),
-the ESSTRA Core will intervene in
-the compilation without needing the `-fplugin=` option, yielding the same
-result as above:
+If you have already [installed the Spec File](/README.md#installing-spec-file),
+the ESSTRA Core will intervene in the compilation without needing the
+`-fplugin=` option, yielding the same result as above:
 
 ```sh
 $ gcc hello.c -o hello
 ```
 
-Note that the [ESSTRA Core](../../core/README.md) does not affect the behavior
+Note that the [ESSTRA Core](/core/README.md) does not affect the behavior
 of the binary. When you run the generated binary `hello`, you will get the
 following result:
 
@@ -167,7 +166,8 @@ information about all source files involved in the compilation:
 * Absolute path of the source file in the compilation environment
 * SHA-1 checksum of the source file
 
-The structure of the output YAML data is as follows, with the information for each file grouped by directory:
+The structure of the output YAML data is as follows, with the information for
+each file grouped by directory:
 
 ```yaml
 #
@@ -257,7 +257,7 @@ license information with those files.
 ## Summary
 
 In this sample, we first compiled the source file [`hello.c`](./hello.c) using
-the [ESSTRA Core](../../core/README.md) to generate the binary `hello`, and
+the [ESSTRA Core](/core/README.md) to generate the binary `hello`, and
 confirmed that the metadata in `hello` contains information about all files
 involved in the compilation.
 

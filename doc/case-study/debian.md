@@ -65,7 +65,7 @@ $ sudo apt install -y debhelper devscripts
 ```
 
 If you have already installed the Spec File as described in Section [Installing a Spec
-File](/README.md#installing-a-spec-file) in the top directory's README.md,
+File](/README.md#installing-spec-file) in the top directory's README.md,
 **uninstall it before proceeding**:
 
 ```shell

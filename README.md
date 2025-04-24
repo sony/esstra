@@ -215,7 +215,7 @@ SourceFiles:
 
 For more details, refer to the file [./util/README.md](./util/README.md).
 
-### Installing a Spec File
+### Installing Spec File
 
 It can be quite annoying to specify `-fplugin=....` for every `gcc`/`g++`
 invocation.
