@@ -65,8 +65,8 @@ Then, install the necessary packages for building and managing Debian packages:
 $ sudo apt install -y debhelper devscripts
 ```
 
-If you have already installed the Spec File as described in Section [Installing a Spec
-File](/README.md#installing-spec-file) in the top directory's README.md,
+If you have already installed the Spec File as described in Section
+[Installing Spec File](/README.md#installing-spec-file) in the top directory's README.md,
 **uninstall it before proceeding**:
 
 ```shell
