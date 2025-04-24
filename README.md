@@ -1,8 +1,8 @@
 # Project ESSTRA
 
-The Project "ESSTRA", a software suite for
+Project "ESSTRA", a software suite for
 **E**nhancing **S**oftware **S**upply Chain **Tra**nsparency,
-aims to improve transparency of software supply chains as the name suggests.
+aims to improve the transparency of software supply chains as the name suggests.
 
 More specifically, the goal of this project is to provide a set of tools to
 help illuminate and unveil the "dark" areas in software supply chains where
@@ -16,57 +16,58 @@ the binary file is generated.
 
 For detailed usage and applications, please refer to the
 [Samples](./samples/) that help you understand ESSTRA using simple
-source code, as well as the [Case Study documentations](./doc/case-study) on
+source code, as well as the [Case Study documentation](./doc/case-study) on
 using ESSTRA for open-source software and Linux distributions.
 
 ## Status of This Version
 
 ESSTRA is being developed on Ubuntu 22.04 with GCC 11.4.0 and Python
 3.10.12 installed on an x86\_64 PC.
-And we have also confirmed that ESSTRA can build and run on an Aarch64 (arm64) Docker
-container virtualized with QEMU on an x86\_64 PC.
+We have also confirmed that ESSTRA can be built and run on an Aarch64 (arm64)
+Docker container virtualized with QEMU on an x86\_64 PC.
 
-This is a preliminary version. The data format and content of metadata, and the
-specifications and functionality of the tools are tentative and subject to
-change.
+This is a preliminary version. The data format and content of the metadata,
+as well as the specifications and functionality of the tools are tentative
+and subject to change.
 
 ## ESSTRA's Components
 
-The current version of ESSTRA consists of the two tools:
+The current version of ESSTRA consists of two tools:
 
 * [ESSTRA Core](./core)
 * [ESSTRA Utility](./util)
 
-ESSTRA Core (`esstracore.so`) is a
-[GCC plugin](https://gcc.gnu.org/wiki/plugins) that intervenes in compilation of
-GCC and embeds metadata into the resulting binary file.
+The ESSTRA Core (`esstracore.so`) is a
+[GCC plugin](https://gcc.gnu.org/wiki/plugins) that intervenes in compilation
+process of GCC and embeds metadata into the resulting binary file.
 In this version, a list of the absolute paths of all source and header
 files involved in compilation is embedded in the binary file as metadata.
 
-ESSTRA Utility (`esstra.py`) is a Python script for accessing metadata in
-binary files embedded by ESSTRA Core.
+The ESSTRA Utility (`ess tra.py`) is a Python script for accessing metadata in
+binary files embedded by the ESSTRA Core.
 
 In this version, you can output metadata in YAML format, shrink metadata by
 removing duplication, and attach license information to metadata by specifying
-files in [SPDX 2.3 tag-value format](https://spdx.github.io/spdx-spec/v2.3/)
+files in the
+[SPDX 2.3 tag-value format](https://spdx.github.io/spdx-spec/v2.3/)
 which contain license information.
 
 ## Technical Overview
 
-ESSTRA Core creates a section in the resulting ELF file to store metadata
+The ESSTRA Core creates a section in the resulting ELF file to store metadata
 during compilation.
 
-ESSTRA Utility allows users to access the metadata. For example, you may update
-the metadata using license information detected from the source files, delete
-some or all of the metadata, output the metadata to the console or pass it to
-some other SCA (Software Composition Analysis) tools.
+The ESSTRA Utility allows users to access the metadata. For example, you can
+update the metadata using license information detected from the source files,
+delete some or all of the metadata, output the metadata to the console, or
+pass it to other SCA (Software Composition Analysis) tools.
 
 ![Technical Overview](./assets/tech-overview.png)
 
 ## How to Build and Install
 
-Before you build the GCC plugin, you have to install a package on your system.
-For Debian/Ubuntu, check the version of GCC first:
+Before building the GCC plugin, you need to install a package on your system.
+For Debian/Ubuntu, first check the version of GCC:
 
 ```sh
 $ gcc --version
@@ -81,8 +82,8 @@ In this case, the major version is 11, so install the package named
 $ sudo apt install gcc-11-plugin-dev
 ```
 
-Since [ESSTRA Utility](./util) uses the [PyYAML](https://pyyaml.org/)
-module to handle YAML data, you may need to install it by, for example, typing:
+Since the [ESSTRA Utility](./util) uses the [PyYAML](https://pyyaml.org/)
+module to handle YAML data, you may need to install it by typing:
 
 ```sh
 $ pip install pyyaml
@@ -96,40 +97,41 @@ After that, run `make` in the top directory:
 $ make
 ```
 
-If no errors, the build is complete.
+If there are no errors, the build is complete.
 
-To install ESSTRA Core and ESSTRA Utility on your system, run the following command:
+To install the ESSTRA Core and the ESSTRA Utility on your system, run the
+following command:
 
 ```sh
 $ sudo make install
 ```
 
-Then `esstracore.so` and `esstra.py` are installed in `/usr/local/share/esstra/`
-and `/usr/local/bin/`, respectively.
+Then the files `esstracore.so` and `esstra.py` will be installed in the
+directory `/usr/local/share/esstra/` and `/usr/local/bin/`, respectively.
 
 ## How to Use
 
 The workflow using ESSTRA is as follows:
 
-1. Compile source files with GCC using ESSTRA Core
-2. Use ESSTRA Utility to access metadata embedded in the binary files
+1. Compile source files with GCC using the ESSTRA Core
+2. Use the ESSTRA Utility to access metadata embedded in the binary files
 
 The example below compiles a source file
 `hello.c` with `gcc` and generates a binary file `hello`.
 (See also [./samples/hello/](./samples/hello/))
 
 First, compile the source file `hello.c` by passing the path of
-`esstracore.so` to the compiler with the option `-fplugin`:
+`esstracore.so` to the compiler with the `-fplugin` option:
 
 ```sh
 $ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello.c -o hello
 ```
 
-Then the intervention of `esstracore.so` embeds metadata in the resulting
+The intervention of `esstracore.so` embeds metadata in the resulting
 binary file `hello`. Note that this does not affect the behavior of the
 binary file itself.
 
-To access the embedded metadata, use the script `esstra.py`.  The first argument
+To access the embedded metadata, use the script `esstra.py`. The first argument
 of this script is a *command*, and the second or subsequent arguments are the
 arguments of the *command*.
 
@@ -215,35 +217,35 @@ For more details, refer to the file [./util/README.md](./util/README.md).
 
 ### Installing a Spec File
 
-It will surely be annoying that you have to specify `-fplugin=....` for every
-gcc/g++ invocation.
-To avoid such a tedious job, just type:
+It can be quite annoying to specify `-fplugin=....` for every `gcc`/`g++`
+invocation.
+To avoid this tedious task, simply type:
 
 ```sh
 $ sudo make install-specs
 ```
 
-This command installs a [GCC spec
-file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html) on your system which
-enables the option:
+This command installs a
+[GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
+on your system which enables the option:
 
 * `-fplugin=/usr/local/share/esstra/esstracore.so`
 
-as default.
+by default.
 
-After that, every compiling something with GCC as usual:
+After that, compiling anything with GCC as usual:
 
 ```sh
 $ gcc hello.c -o hello
 ```
 
-generates a binary file with metadata embedded by ESSTRA Core.
+will generate a binary file with metadata embedded by the ESSTRA Core.
 
-This is a very useful feature when you compile some open-source (or closed or
-whatever) projects and also want information ESSTRA generates for them.
+This is a very useful feature when you compile open-source or closed-source
+projects and want the information the ESSTRA Core generates for them.
 
 For more details about installing/uninstalling the spec file,
-refer to the file [./core/README.md](./core/README.md).
+refer to the file [core/README.md](./core/README.md).
 
 ## License
 
