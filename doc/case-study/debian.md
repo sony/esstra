@@ -1,6 +1,7 @@
 # Demo of Adding Provenance Information to Debug Packages
 
-Debian, one of the most popular Linux distributions, distributes its software components as
+[Debian](https://www.debian.org/),
+one of the most popular Linux distributions, distributes its software components as
 precompiled "binary packages." Since binary packages have debugging information removed, they
 also distribute "debug packages" that include such information for debugging purposes.
 
