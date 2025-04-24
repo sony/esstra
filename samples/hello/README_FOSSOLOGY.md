@@ -174,7 +174,7 @@ information of the file `hello.c` includes a line `LicenseInfoInFile: MIT`.
 This document has demonstrated how to analyze the entire repository using the
 license analysis tool
 [FOSSOlogy](https://github.com/fossology/fossology)
-and generating a file in the SPDX 2.3 tag-value format as a result, named
+and generate a file in the SPDX 2.3 tag-value format as a result, named
 [`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx).
 
 In the [Sample "hello"](./README.md) and the [Sample
