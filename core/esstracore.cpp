@@ -274,7 +274,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     fprintf(asm_out_file, "\t.pushsection %s\n", section_name);
     fprintf(asm_out_file, "\t.balign 4\n");
     for (const auto& item : strings_to_embed) {
-        fprintf(asm_out_file, "\t.asciz \"%s\"\n", item.c_str());
+        fprintf(asm_out_file, "\t.ascii \"%s\\n\"\n", item.c_str());
     }
     if (padding > 0) {
         fprintf(asm_out_file, "\t.dcb %d\n", padding);
