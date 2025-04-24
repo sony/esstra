@@ -5,14 +5,14 @@ document is structured as a step-by-step guide, allowing you to easily
 understand the basic operations of ESSTRA by following each step in sequence.
 
 First, in this sample, we will compile [`hello.c`](./hello.c), which is
-provided in this directory, using the [ESSTRA Core](../../core/README.md) to
+provided in this directory, using the [ESSTRA Core](/core/README.md) to
 generate the binary file `hello`. This binary has metadata embedded that
 contains information about all source files involved in the compilation, such
 as absolute paths and checksums. We will verify this using the
-[ESSTRA Utility](../../util/README.md).
+[ESSTRA Utility](/util/README.md).
 
 Next, we will demonstrate how to use the
-[ESSTRA Utility](../../util/README.md)'s feature that adds
+[ESSTRA Utility](/util/README.md)'s feature that adds
 license information of source files to the metadata.
 In this sample, we will use a prepared license information file
 [`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx).
@@ -41,13 +41,13 @@ If there are no errors, the build is complete. Then, enter:
 $ sudo make install
 ```
 
-This will install [ESSTRA Core](../../core/README.md) and
-[ESSTRA Utility](../../util/README.md) on your system.
+This will install the [ESSTRA Core](/core/README.md) and the
+[ESSTRA Utility](/util/README.md) on your system.
 
 ## Source Code to Compile
 
 In this sample, we will compile the source code [`hello.c`](./hello.c) using
-ESSTRA Core. The content of the code is as follows, and it is a very simple
+the ESSTRA Core. The content of the code is as follows, and it is a very simple
 program that just prints `Hello, world!` to the standard output:
 
 ```c
@@ -61,7 +61,7 @@ int main(void)
 ```
 
 Additionally, at the beginning of the source code, we explicitly state the
-license so that FOSSology can scan it in a later step:
+license so that FOSSology can scan it:
 
 ```c
 // SPDX-License-Identifier: MIT
@@ -73,15 +73,15 @@ This declaration indicates that this file is available under the
 ## Compiling with ESSTRA Core
 
 Use the following command line to compile [`hello.c`](./hello.c) and generate
-the binary `hello`. By involving [ESSTRA Core](../../core/README.md) during compilation, metadata will
-be embedded into `hello`.
+the binary `hello`. By involving the [ESSTRA Core](../../core/README.md)
+during compilation, metadata will be embedded into `hello`.
 
 ```sh
 $ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello.c -o hello
 ```
 
 If you have already [installed the Spec File](../../README.md),
-ESSTRA Core will intervene in
+the ESSTRA Core will intervene in
 the compilation without needing the `-fplugin=` option, yielding the same
 result as above:
 
@@ -89,8 +89,9 @@ result as above:
 $ gcc hello.c -o hello
 ```
 
-Note that [ESSTRA Core](../../core/README.md) does not affect the behavior of the binary. When you
-run the generated binary `hello`, you will get the following result:
+Note that the [ESSTRA Core](../../core/README.md) does not affect the behavior
+of the binary. When you run the generated binary `hello`, you will get the
+following result:
 
 ```sh
 $ ./hello
@@ -203,7 +204,7 @@ license information file that has already been prepared,
 generated using the open-source license analysis tool
 [FOSSology](https://github.com/fossology/fossology).
 To associate the license information with the metadata in the binary using the
-[ESSTRA Utility](../../util/README.md), execute the following command:
+[ESSTRA Utility](/util/README.md), execute the following command:
 
 ```sh
 $ esstra.py update hello -i SPDX2TV_esstra.spdx
@@ -250,7 +251,7 @@ files other than [`hello.c`](./hello.c).
 
 You can also prepare an SPDX 2.3 tag-value format file for files other than
 [`hello.c`](./hello.c) and provide it to the
-[ESSTRA Utility](../../util/README.md) to associate
+[ESSTRA Utility](/util/README.md) to associate
 license information with those files.
 
 ## Summary
@@ -261,5 +262,5 @@ confirmed that the metadata in `hello` contains information about all files
 involved in the compilation.
 
 Then, using a file in SPDX 2.3 tag-value format, we updated the metadata in the
-binary `hello` with the [ESSTRA Utility](../../util/README.md)'s feature to
+binary `hello` with the [ESSTRA Utility](/util/README.md)'s feature to
 associate license information with the metadata.
