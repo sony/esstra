@@ -165,7 +165,7 @@ class MetadataHandler:
                 f'with output {result.stderr!r}')
 
         with open(temp.name, 'rb') as fp:
-            raw_data = fp.read()
+            raw_data = fp.read().replace(b'\x00', b'')
 
         Path(temp.name).unlink()
 
@@ -173,7 +173,7 @@ class MetadataHandler:
 
     @staticmethod
     def __decode_metadata(raw_data):
-        yaml_lines = raw_data.replace(b'\0', b'\n').decode(encoding='utf-8')
+        yaml_lines = raw_data.decode(encoding='utf-8')
         yaml_docs = list(yaml.safe_load_all(yaml_lines))
         return yaml_docs
 
@@ -181,7 +181,6 @@ class MetadataHandler:
     def __encode_metadata(data):
         raw_data = bytes(
             yaml.safe_dump(data, sort_keys=False)
-            .replace('\n', '\0')
             .encode(encoding='utf-8'))
         return raw_data
 
@@ -462,7 +461,6 @@ class CommandShow(CommandBase):
         if args.raw:
             return (handler.get_raw_data()
                     .decode(encoding='utf-8')
-                    .replace('\0', '\n')
                     .rstrip())
 
         return yaml.safe_dump(handler.get_shrunk_data()).rstrip()
