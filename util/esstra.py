@@ -31,8 +31,9 @@ import re
 import tempfile
 import yaml
 
-
 DEBUG = False
+
+TOOL_VERSION = 'v0.1.0'
 
 
 def set_debug_flag(flag):
@@ -55,6 +56,8 @@ def error(msg):
 
 class MetadataHandler:
     SECTION_NAME = 'esstra_info'
+    KEY_HEADRS = 'Headers'
+    KEY_INPUT_FILE_NAMES = 'InputFileNames'
     KEY_SOURCE_FILES = 'SourceFiles'
     KEY_FILE = 'File'
     KEY_LICENSE_INFO = 'LicenseInfo'
@@ -185,13 +188,29 @@ class MetadataHandler:
         return raw_data
 
     def __shrink_parsed_data(self, parsed_data):
-        shrunk = {}
+        headers = {}
+        sourcefiles = {}
+
         path_found = set()
         for doc in parsed_data:
+            # Headers
+            assert self.KEY_HEADRS in doc
+            for key, value in doc[self.KEY_HEADRS].items():
+                if key == self.KEY_INPUT_FILE_NAMES:
+                    if key not in headers:
+                        headers[key] = []
+                    headers[key].append(value)
+                else:
+                    if key not in headers:
+                        headers[key] = value
+                    else:
+                        assert headers[key] == value, f'header value mismatch: {key} {value}'
+
+            # SourceFiles
             assert self.KEY_SOURCE_FILES in doc
             for directory, fileinfo_list in doc[self.KEY_SOURCE_FILES].items():
-                if directory not in shrunk:
-                    shrunk[directory] = []
+                if directory not in sourcefiles:
+                    sourcefiles[directory] = []
                 for fileinfo in fileinfo_list:
                     assert self.KEY_FILE in fileinfo, fileinfo
                     assert self.HASH_ALGORITHM in fileinfo
@@ -199,16 +218,17 @@ class MetadataHandler:
                     path = Path(directory) / filename
                     if path not in path_found:
                         path_found.add(path)
-                        shrunk[directory].append(fileinfo)
+                        sourcefiles[directory].append(fileinfo)
 
-        for directory in shrunk:
-            shrunk[directory] = sorted(
-                shrunk[directory], key=lambda x: x[self.KEY_FILE])
+        for directory in sourcefiles:
+            sourcefiles[directory] = sorted(
+                sourcefiles[directory], key=lambda x: x[self.KEY_FILE])
 
         shrunk_data = {
+            self.KEY_HEADRS: headers,
             self.KEY_SOURCE_FILES: {
-                directory: shrunk[directory]
-                for directory in sorted(shrunk.keys())
+                directory: sourcefiles[directory]
+                for directory in sorted(sourcefiles.keys())
             }
         }
 

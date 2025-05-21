@@ -47,6 +47,11 @@ using std::string_literals::operator""s;
 int plugin_is_GPL_compatible;
 
 
+// version numbers
+static constexpr char tool_name[] = "ESSTRA Core";
+static constexpr char tool_version[] = "v0.1.0";
+static constexpr char schema_version[] = "v0.0.0";
+
 // section name
 static constexpr char section_name[] = "esstra_info";
 
@@ -71,7 +76,11 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 #define YAML_SEPARATOR "---"s
 
 // keys
-#define KEY_INPUT_FILENAME "InputFileName"s
+#define KEY_HEADERS "Headers"s
+#define KEY_TOOL_NAME "ToolName"s
+#define KEY_TOOL_VERSION "ToolVersion"s
+#define KEY_SCHEMA_VERSION "SchemaVersion"s
+#define KEY_INPUT_FILENAMES "InputFileNames"s
 #define KEY_SOURCE_FILES "SourceFiles"s
 #define KEY_FILE "File"s
 #define KEY_MD5 "MD5"s
@@ -232,10 +241,15 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 
     // construct metadata in yaml format
     strings_to_embed.push_back(YAML_SEPARATOR);
-    if (flag_input_file_name) {
-        strings_to_embed.push_back(KEY_INPUT_FILENAME + ": " + main_input_filename);
-    }
 
+    // headers
+    strings_to_embed.push_back(KEY_HEADERS + ":");
+    strings_to_embed.push_back(YAML_INDENT + KEY_TOOL_NAME + ": " + tool_name);
+    strings_to_embed.push_back(YAML_INDENT + KEY_TOOL_VERSION + ": " + tool_version);
+    strings_to_embed.push_back(YAML_INDENT + KEY_SCHEMA_VERSION + ": " + schema_version);
+    strings_to_embed.push_back(YAML_INDENT + KEY_INPUT_FILENAMES + ": " + main_input_filename);
+
+    // source files
     string current_directory = "";
 
     if (allpaths.size() == 0) {
