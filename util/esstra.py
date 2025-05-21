@@ -56,7 +56,7 @@ def error(msg):
 
 
 class MetadataHandler:
-    SECTION_NAME = 'esstra_info'
+    SECTION_NAME = '.esstra'
     KEY_HEADRS = 'Headers'
     KEY_INPUT_FILE_NAME = 'InputFileName'
     KEY_INPUT_FILE_NAMES = 'InputFileNames'
@@ -148,7 +148,7 @@ class MetadataHandler:
 
     def __exists_metadata(self, bianry_path):
         result = self.__run_command(
-            f'readelf -SW {bianry_path} | grep {self.SECTION_NAME}')
+            f'readelf -SW {bianry_path} | fgrep {self.SECTION_NAME}')
 
         if result.returncode:
             return False

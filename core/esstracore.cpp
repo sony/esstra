@@ -53,7 +53,7 @@ static constexpr char tool_version[] = "0.1.1-develop";
 static constexpr char data_format_version[] = "0.1.0-develop";
 
 // section name
-static constexpr char section_name[] = "esstra_info";
+static constexpr char section_name[] = ".esstra";
 
 // metadata
 static vector<string> allpaths;
