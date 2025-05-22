@@ -34,7 +34,7 @@ import yaml
 DEBUG = False
 
 TOOL_NAME = 'ESSTRA Utility'
-TOOL_VERSION = '0.1.0-develop'
+TOOL_VERSION = '0.1.1-develop'
 
 
 def set_debug_flag(flag):
