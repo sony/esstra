@@ -33,7 +33,8 @@ import yaml
 
 DEBUG = False
 
-TOOL_VERSION = 'v0.1.0'
+TOOL_NAME = 'ESSTRA Utility'
+TOOL_VERSION = '0.1.0-develop'
 
 
 def set_debug_flag(flag):
@@ -57,6 +58,7 @@ def error(msg):
 class MetadataHandler:
     SECTION_NAME = 'esstra_info'
     KEY_HEADRS = 'Headers'
+    KEY_INPUT_FILE_NAME = 'InputFileName'
     KEY_INPUT_FILE_NAMES = 'InputFileNames'
     KEY_SOURCE_FILES = 'SourceFiles'
     KEY_FILE = 'File'
@@ -196,10 +198,10 @@ class MetadataHandler:
             # Headers
             assert self.KEY_HEADRS in doc
             for key, value in doc[self.KEY_HEADRS].items():
-                if key == self.KEY_INPUT_FILE_NAMES:
-                    if key not in headers:
-                        headers[key] = []
-                    headers[key].append(value)
+                if key == self.KEY_INPUT_FILE_NAME:
+                    if self.KEY_INPUT_FILE_NAMES not in headers:
+                        headers[self.KEY_INPUT_FILE_NAMES] = []
+                    headers[self.KEY_INPUT_FILE_NAMES].append(value)
                 else:
                     if key not in headers:
                         headers[key] = value
@@ -402,6 +404,10 @@ class CommandDispatcher:
             default=False,
             action='store_true',
             help='enable debug logs')
+        self._parser.add_argument(
+            '-V', '--version',
+            action='store_true',
+            help='show the version')
 
         subparsers = self._parser.add_subparsers()
 
@@ -424,6 +430,10 @@ class CommandDispatcher:
 
     def run_command(self):
         args = self._parser.parse_args()
+
+        if args.version:
+            print(f'{TOOL_NAME} {TOOL_VERSION}')
+            return 0
 
         set_debug_flag(args.debug)
 
