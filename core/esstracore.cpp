@@ -89,7 +89,6 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 
 // flags
 static bool flag_debug = false;
-static bool flag_input_file_name = false;
 
 
 /*
@@ -316,11 +315,6 @@ plugin_init(struct plugin_name_args* plugin_info,
             flag_debug = (atoi(argv->value) != 0);
             if (flag_debug) {
                 debug_log("debug mode enabled\n");
-            }
-        } else if (strcmp(argv->key, "input-file-name") == 0) {
-            flag_input_file_name = (atoi(argv->value) != 0);
-            if (flag_debug) {
-                debug_log("input_file_name enabled\n");
             }
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug_log("arg-checksum: %s\n", argv->value);
