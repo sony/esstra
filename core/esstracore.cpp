@@ -49,8 +49,8 @@ int plugin_is_GPL_compatible;
 
 // version numbers
 static constexpr char tool_name[] = "ESSTRA Core";
-static constexpr char tool_version[] = "v0.1.0";
-static constexpr char schema_version[] = "v0.0.0";
+static constexpr char tool_version[] = "0.1.1-develop";
+static constexpr char data_format_version[] = "0.1.0-develop";
 
 // section name
 static constexpr char section_name[] = "esstra_info";
@@ -79,8 +79,8 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 #define KEY_HEADERS "Headers"s
 #define KEY_TOOL_NAME "ToolName"s
 #define KEY_TOOL_VERSION "ToolVersion"s
-#define KEY_SCHEMA_VERSION "SchemaVersion"s
-#define KEY_INPUT_FILENAMES "InputFileNames"s
+#define KEY_DATA_FORMAT_VERSION "DataFormatVersion"s
+#define KEY_INPUT_FILENAME "InputFileName"s
 #define KEY_SOURCE_FILES "SourceFiles"s
 #define KEY_FILE "File"s
 #define KEY_MD5 "MD5"s
@@ -246,8 +246,8 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     strings_to_embed.push_back(KEY_HEADERS + ":");
     strings_to_embed.push_back(YAML_INDENT + KEY_TOOL_NAME + ": " + tool_name);
     strings_to_embed.push_back(YAML_INDENT + KEY_TOOL_VERSION + ": " + tool_version);
-    strings_to_embed.push_back(YAML_INDENT + KEY_SCHEMA_VERSION + ": " + schema_version);
-    strings_to_embed.push_back(YAML_INDENT + KEY_INPUT_FILENAMES + ": " + main_input_filename);
+    strings_to_embed.push_back(YAML_INDENT + KEY_DATA_FORMAT_VERSION + ": " + data_format_version);
+    strings_to_embed.push_back(YAML_INDENT + KEY_INPUT_FILENAME + ": " + main_input_filename);
 
     // source files
     string current_directory = "";
