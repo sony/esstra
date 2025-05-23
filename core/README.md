@@ -9,7 +9,7 @@ the resulting binary file.
 The ESSTRA Core is currently being developed on Ubuntu 22.04 with GCC 11.4.0
 installed on a x86\_64 PC.
 
-In this version, the ESSTRA Core creates an ELF section named `esstra_info` in
+In this version, the ESSTRA Core creates an ELF section named `.esstra` in
 the resulting binary file compiled with GCC. This section contains information
 about all files involved in the compilation, including their full paths and
 SHA-1 hashes.

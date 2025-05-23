@@ -225,7 +225,7 @@ $ esstra.py show hello
 #
 # BinaryFileName: hello
 #
-Exception: RuntimeError("section not found: 'esstra_info'")
+Exception: RuntimeError("section not found: .'esstra")
 ```
 
 ## License
