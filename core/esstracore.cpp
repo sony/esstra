@@ -48,7 +48,7 @@ int plugin_is_GPL_compatible;
 
 
 // section name
-static constexpr char section_name[] = "esstra_info";
+static constexpr char section_name[] = ".esstra";
 
 // metadata
 static vector<string> allpaths;

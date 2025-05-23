@@ -31,6 +31,7 @@ import re
 import tempfile
 import yaml
 
+SECTION_NAME = '.esstra'
 
 DEBUG = False
 
@@ -54,7 +55,6 @@ def error(msg):
 
 
 class MetadataHandler:
-    SECTION_NAME = 'esstra_info'
     KEY_SOURCE_FILES = 'SourceFiles'
     KEY_FILE = 'File'
     KEY_LICENSE_INFO = 'LicenseInfo'
@@ -103,7 +103,7 @@ class MetadataHandler:
 
             result = self.__run_command(
                 f'objcopy {binary_path} '
-                f'--update-section {self.SECTION_NAME}={fp.name}')
+                f'--update-section {SECTION_NAME}={fp.name}')
 
             if result.returncode:
                 raise RuntimeError(
@@ -123,7 +123,7 @@ class MetadataHandler:
                 binary_path, backup_suffix, overwrite_backup)
 
         result = self.__run_command(
-            f'objcopy -R{self.SECTION_NAME} {binary_path}')
+            f'objcopy -R{SECTION_NAME} {binary_path}')
 
         if result.returncode:
             raise RuntimeError(
@@ -143,7 +143,7 @@ class MetadataHandler:
 
     def __exists_metadata(self, bianry_path):
         result = self.__run_command(
-            f'readelf -SW {bianry_path} | grep {self.SECTION_NAME}')
+            f'readelf -SW {bianry_path} | fgrep {SECTION_NAME}')
 
         if result.returncode:
             return False
@@ -152,12 +152,12 @@ class MetadataHandler:
 
     def __extract_metadata(self, binary_path):
         if not self.__exists_metadata(binary_path):
-            raise RuntimeError(f'section not found: {self.SECTION_NAME!r}')
+            raise RuntimeError(f'section not found: {SECTION_NAME!r}')
 
         with tempfile.NamedTemporaryFile('wb', delete=False) as temp:
             result = self.__run_command(
                 f'objcopy --dump-section '
-                f'{self.SECTION_NAME}={temp.name} {binary_path}')
+                f'{SECTION_NAME}={temp.name} {binary_path}')
 
         if result.returncode:
             raise RuntimeError(
