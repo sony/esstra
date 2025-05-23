@@ -31,10 +31,9 @@ import re
 import tempfile
 import yaml
 
-SECTION_NAME = '.esstra'
-
 TOOL_NAME = 'ESSTRA Utility'
 TOOL_VERSION = '0.1.1-develop'
+SECTION_NAME = '.esstra'
 
 DEBUG = False
 
@@ -58,7 +57,7 @@ def error(msg):
 
 
 class MetadataHandler:
-    KEY_HEADRS = 'Headers'
+    KEY_HEADERS = 'Headers'
     KEY_INPUT_FILE_NAME = 'InputFileName'
     KEY_INPUT_FILE_NAMES = 'InputFileNames'
     KEY_SOURCE_FILES = 'SourceFiles'
@@ -197,8 +196,8 @@ class MetadataHandler:
         path_found = set()
         for doc in parsed_data:
             # Headers
-            assert self.KEY_HEADRS in doc
-            for key, value in doc[self.KEY_HEADRS].items():
+            assert self.KEY_HEADERS in doc
+            for key, value in doc[self.KEY_HEADERS].items():
                 if key == self.KEY_INPUT_FILE_NAME:
                     if self.KEY_INPUT_FILE_NAMES not in headers:
                         headers[self.KEY_INPUT_FILE_NAMES] = []
@@ -228,7 +227,7 @@ class MetadataHandler:
                 sourcefiles[directory], key=lambda x: x[self.KEY_FILE])
 
         shrunk_data = {
-            self.KEY_HEADRS: headers,
+            self.KEY_HEADERS: headers,
             self.KEY_SOURCE_FILES: {
                 directory: sourcefiles[directory]
                 for directory in sorted(sourcefiles.keys())
@@ -494,7 +493,8 @@ class CommandShow(CommandBase):
                     .decode(encoding='utf-8')
                     .rstrip())
 
-        return yaml.safe_dump(handler.get_shrunk_data()).rstrip()
+        return yaml.safe_dump(
+            handler.get_shrunk_data(), sort_keys=False).rstrip()
 
 
 class CommandShrink(CommandBase):
