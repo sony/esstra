@@ -47,6 +47,11 @@ using std::string_literals::operator""s;
 int plugin_is_GPL_compatible;
 
 
+// version numbers
+static constexpr char tool_name[] = "ESSTRA Core";
+static constexpr char tool_version[] = "0.1.1-develop";
+static constexpr char data_format_version[] = "0.1.0-develop";
+
 // section name
 static constexpr char section_name[] = ".esstra";
 
@@ -71,6 +76,10 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 #define YAML_SEPARATOR "---"s
 
 // keys
+#define KEY_HEADERS "Headers"s
+#define KEY_TOOL_NAME "ToolName"s
+#define KEY_TOOL_VERSION "ToolVersion"s
+#define KEY_DATA_FORMAT_VERSION "DataFormatVersion"s
 #define KEY_INPUT_FILENAME "InputFileName"s
 #define KEY_SOURCE_FILES "SourceFiles"s
 #define KEY_FILE "File"s
@@ -80,7 +89,6 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 
 // flags
 static bool flag_debug = false;
-static bool flag_input_file_name = false;
 
 
 /*
@@ -232,10 +240,15 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 
     // construct metadata in yaml format
     strings_to_embed.push_back(YAML_SEPARATOR);
-    if (flag_input_file_name) {
-        strings_to_embed.push_back(KEY_INPUT_FILENAME + ": " + main_input_filename);
-    }
 
+    // headers
+    strings_to_embed.push_back(KEY_HEADERS + ":");
+    strings_to_embed.push_back(YAML_INDENT + KEY_TOOL_NAME + ": " + tool_name);
+    strings_to_embed.push_back(YAML_INDENT + KEY_TOOL_VERSION + ": " + tool_version);
+    strings_to_embed.push_back(YAML_INDENT + KEY_DATA_FORMAT_VERSION + ": " + data_format_version);
+    strings_to_embed.push_back(YAML_INDENT + KEY_INPUT_FILENAME + ": " + main_input_filename);
+
+    // source files
     string current_directory = "";
 
     if (allpaths.size() == 0) {
@@ -302,11 +315,6 @@ plugin_init(struct plugin_name_args* plugin_info,
             flag_debug = (atoi(argv->value) != 0);
             if (flag_debug) {
                 debug_log("debug mode enabled\n");
-            }
-        } else if (strcmp(argv->key, "input-file-name") == 0) {
-            flag_input_file_name = (atoi(argv->value) != 0);
-            if (flag_debug) {
-                debug_log("input_file_name enabled\n");
             }
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug_log("arg-checksum: %s\n", argv->value);
