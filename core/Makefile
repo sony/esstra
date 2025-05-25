@@ -20,7 +20,7 @@ ESSTRACORE_SOURCES += $(WJCRYPTLIB_FILES)
 CXXFLAGS += -I $(WJCRYPTLIB_DIR)
 
 PREFIX ?= /usr/local
-INSTALLDIR := $(PREFIX)/share/esstra
+INSTALLDIR := $(DESTDIR)/$(PREFIX)/share/esstra
 
 SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 
