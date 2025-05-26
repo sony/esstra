@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 PREFIX ?= /usr/local
-INSTALLDIR := $(PREFIX)/bin
+INSTALLDIR := $(DESTDIR)/$(PREFIX)/bin
 ESSTRAUTIL := esstra.py
 
 .PHONY: all clean install
