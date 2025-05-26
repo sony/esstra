@@ -5,6 +5,8 @@ CXX := g++
 PLUGIN_INCLUDE_DIR := $(shell $(CXX) -print-file-name=plugin)
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++14
+GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
+GCC_ARCH := $(shell $(CXX) -dumpmachine)
 
 ESSTRACORE_SOURCES := esstracore.cpp
 ESSTRACORE := $(ESSTRACORE_SOURCES:.cpp=.so)
@@ -20,7 +22,7 @@ ESSTRACORE_SOURCES += $(WJCRYPTLIB_FILES)
 CXXFLAGS += -I $(WJCRYPTLIB_DIR)
 
 PREFIX ?= /usr/local
-INSTALLDIR := $(DESTDIR)/$(PREFIX)/share/esstra
+INSTALLDIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin/
 
 SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 
