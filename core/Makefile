@@ -9,7 +9,10 @@ GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
 GCC_ARCH := $(shell $(CXX) -dumpmachine)
 
 ESSTRACORE_SOURCES := esstracore.cpp
-ESSTRACORE := $(ESSTRACORE_SOURCES:.cpp=.so)
+ESSTRACORE := esstracore.so
+
+ESSTRALINK_SOURCES := esstralink.cpp
+ESSTRALINK := esstralink.so
 
 # hash functions
 THIRD_PARTY_DIR = ../third-party
@@ -29,7 +32,7 @@ SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 
 .PHONY: all clean install install-specs uninstall-specs
 
-all: $(ESSTRACORE)
+all: $(ESSTRACORE) $(ESSTRALINK)
 
 $(WJCRYPTLIB_FILES):
 	(cd $(THIRD_PARTY_DIR) && git submodule init && git submodule update)
@@ -37,17 +40,23 @@ $(WJCRYPTLIB_FILES):
 $(ESSTRACORE): $(ESSTRACORE_SOURCES)
 	$(CXX) -shared $(CXXFLAGS) $^ -o $@
 
+$(ESSTRALINK): $(ESSTRALINK_SOURCES)
+	$(CXX) -shared $(CXXFLAGS) $^ -o $@
+
 install: $(ESSTRACORE)
 	install -m 755 -d $(INSTALLDIR)
-	install -m 755 $(ESSTRACORE) $(INSTALLDIR)
+	install -m 755 $(ESSTRACORE) $(ESSTRALINK) $(INSTALLDIR)
 
 clean:
 	rm -f *.so
 
-install-specs: $(INSTALLDIR)/$(ESSTRACORE)
+install-specs: $(INSTALLDIR)/$(ESSTRACORE) $(INSTALLDIR)/$(ESSTRALINK)
 	gcc -dumpspecs | \
-	sed -E "N;s|\*cc1:\n(.+)$$|*cc1:\n\1 %{!fplugin:-fplugin=$(INSTALLDIR)/$(ESSTRACORE)}|" \
+	sed -E "N;s|\*cc1:\n(.+)$$|*cc1:\n\1 %{!fplugin:-fplugin=$(INSTALLDIR)/$(ESSTRACORE)}|" | \
+	sed -E "N;s|\*linker_plugin_file:\n(.*)$$|*linker_plugin_file:\n$(INSTALLDIR)/$(ESSTRALINK) \1|" \
 	> $(SPECFILE)
+
+# -Wl,-plugin=$(INSTALLDIR)/$(ESSTRALINK)
 
 uninstall-specs: $(SPECFILE)
 	rm -f $(SPECFILE)
