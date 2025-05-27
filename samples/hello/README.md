@@ -103,7 +103,7 @@ Hello, world!
 To display metadata embedded in the binary file `hello`, type:
 
 ```sh
-$ esstar.py show hello
+$ esstra.py show hello
 ```
 
 You can see a list of directories and files as well as SHA-1 hashes in YAML
