@@ -557,7 +557,7 @@ class CommandUpdate(CommandBase):
             if binary.endswith(f'.{args.backup_suffix}'):
                 message(f'skip backup file {binary!r}.')
                 continue
-            message('updating metadata of {binary!r}...')
+            message(f'updating metadata of {binary!r}...')
 
             try:
                 handler = MetadataHandler(binary)
