@@ -206,13 +206,15 @@ information within the binaries.
 
 The `debian/rules` file defines the variable `CFLAGS` that are passed to GCC.
 
-By adding the option `-fplugin=/usr/local/share/esstra/esstracore.so`,
-the ESSTRA Core will intervene in the compiler during the package build process:
+By adding the option
+`-fplugin=/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/esstracore.so`, the
+ESSTRA Core will intervene in the compiler during the package build process.
+Since we are using GCC version 11 on an x86\_64 PC, make the following modifications:
 
 ```diff
  #!/usr/bin/make -f
 
-+ESSTRA_CORE := -fplugin=/usr/local/share/esstra/esstracore.so
++ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
 
  export DEB_BUILD_MAINT_OPTIONS=hardening=-format
 
@@ -295,7 +297,7 @@ all the ELF files that are to be included in the binary package:
 ```diff
  #!/usr/bin/make -f
 
-+ESSTRA_CORE := -fplugin=/usr/local/share/esstra/esstracore.so
++ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
 +ESSTRA_UTIL := /usr/local/bin/esstra.py
     :
   (snip)
@@ -343,7 +345,7 @@ with `+` should be added:
 ```diff
  #!/usr/bin/make -f
 
-+ESSTRA_CORE := -fplugin=/usr/local/share/esstra/esstracore.so
++ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
 +ESSTRA_UTIL := /usr/local/bin/esstra.py
 
  export DEB_BUILD_MAINT_OPTIONS=hardening=-format
@@ -584,7 +586,7 @@ for each package, so the ways of defining variables and rules may vary.
    CC=gcc
  endif
 
-+ESSTRA_CORE := -fplugin=/usr/local/share/esstra/esstracore.so
++ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
 +ESSTRA_UTIL := /usr/local/bin/esstra.py
 
  DEB_BUILD_MAINT_OPTIONS := hardening=+all
@@ -621,7 +623,7 @@ for each package, so the ways of defining variables and rules may vary.
  include /usr/share/dpkg/architecture.mk
  include /usr/share/dpkg/pkg-info.mk
 
-+ESSTRA_CORE := -fplugin=/usr/local/share/esstra/esstracore.so
++ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
 +ESSTRA_UTIL := /usr/local/bin/esstra.py
 
  export DEB_BUILD_MAINT_OPTIONS = hardening=+all future=+lfs

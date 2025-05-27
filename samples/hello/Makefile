@@ -2,12 +2,18 @@
 # SPDX-License-Identifier: MIT
 
 CC := gcc
-PLUGIN_INCLUDE_DIR := $(shell $(CC) -print-file-name=plugin)/include
+GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
+GCC_ARCH := $(shell $(CXX) -dumpmachine)
 
 PREFIX ?= /usr/local
-ESSTRACORE ?= $(PREFIX)/share/esstra/esstracore.so
+GCC_PLUGIN_DIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin/
+ESSTRACORE ?= $(GCC_PLUGIN_DIR)/esstracore.so
 
-CFLAGS += -fplugin=$(ESSTRACORE) -fplugin-arg-esstracore-debug=$(DEBUG) -O2 -Wall
+ifdef DEBUG
+DEBUGFLAG := -fplugin-arg-esstracore-debug=$(DEBUG)
+endif
+
+CFLAGS += -fplugin=$(ESSTRACORE) $(DEBUGFLAG) -O2 -Wall
 
 .PHONY: all clean
 

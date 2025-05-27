@@ -7,7 +7,7 @@ the resulting binary file.
 ## Status of This Version
 
 The ESSTRA Core is currently being developed on Ubuntu 22.04 with GCC 11.4.0
-installed on a x86\_64 PC.
+installed on an x86\_64 PC.
 
 In this version, the ESSTRA Core creates an ELF section named `.esstra` in
 the resulting binary file compiled with GCC. This section contains information
@@ -52,7 +52,8 @@ To install the ESSTRA Core on your system, run the following command:
 $ sudo make install
 ```
 
-The `esstracore.so` file will then be installed in `/usr/local/share/esstra/`.
+The `esstracore.so` file will then be installed in
+`/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/`.
 
 ## How to Use
 
@@ -63,9 +64,9 @@ For example, if you compile a source file `hello.c` or `hello.cpp`
 with `gcc` or `g++` to generate a binary file `hello`, type:
 
 ```sh
-$ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello.c -o hello
+$ gcc -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so hello.c -o hello
 or
-$ g++ -fplugin=/usr/local/share/esstra/esstracore.so hello.cpp -o hello
+$ g++ -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so hello.cpp -o hello
 ```
 
 The generated binary file `hello` has metadata embedded by the ESSTRA Core.
@@ -88,7 +89,7 @@ $ sudo make install-specs
 This command installs a
 [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
 on your system, which enables the option
-`-fplugin=/usr/local/share/esstra/esstracore.so`
+`-fplugin=/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/esstracore.so`
 by default. Therefore, compiling anything with GCC as usual:
 
 ```sh
