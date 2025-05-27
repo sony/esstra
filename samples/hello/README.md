@@ -75,9 +75,10 @@ This declaration indicates that this file is available under the
 Use the following command line to compile [`hello.c`](./hello.c) and generate
 the binary `hello`. By involving the [ESSTRA Core](/core/README.md)
 during compilation, metadata will be embedded into `hello`.
+Since we are using GCC version 11, the command line would be as follows:
 
 ```sh
-$ gcc -fplugin=/usr/local/share/esstra/esstracore.so hello.c -o hello
+$ gcc -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so hello.c -o hello
 ```
 
 If you have already [installed the Spec File](/README.md#installing-spec-file),
