@@ -118,6 +118,13 @@ And you will get a result as follows:
 # BinaryFileName: hello2
 # BinaryPath: /home/snagao/esstra/samples/hello2/hello2
 #
+Headers:
+  ToolName: ESSTRA Core
+  ToolVersion: 0.1.1-develop
+  DataFormatVersion: 0.1.0-develop
+  InputFileNames:
+  - hello_main.c
+  - hello_sub.c
 SourceFiles:
   /home/snagao/snagao/esstra/samples/hello2:
   - File: hello_main.c
@@ -204,6 +211,13 @@ You will get the result shown below:
 # BinaryFileName: hello2
 # BinaryPath: /home/snagao/esstra/samples/hello2/hello2
 #
+Headers:
+  ToolName: ESSTRA Core
+  ToolVersion: 0.1.1-develop
+  DataFormatVersion: 0.1.0-develop
+  InputFileNames:
+  - hello_main.c
+  - hello_sub.c
 SourceFiles:
   /home/snagao/esstra/samples/hello2:
   - File: hello_main.c

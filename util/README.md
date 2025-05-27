@@ -75,7 +75,12 @@ would give you an output as follows:
 # BinaryFileName: hello
 # BinaryPath: /home/snagao/esstra/samples/hello/hello
 #
----
+Headers:
+  ToolName: ESSTRA Core
+  ToolVersion: 0.1.1-develop
+  DataFormatVersion: 0.1.0-develop
+  InputFileNames:
+  - hello.c
 SourceFiles:
   /home/snagao/esstra/samples/hello:
   - File: hello.c
@@ -102,6 +107,14 @@ Below is an example of how to use the command
 ```sh
 $ esstra.py show hello | yq -oj
 {
+  "Headers": {
+    "ToolName": "ESSTRA Core",
+    "ToolVersion": "0.1.1-develop",
+    "DataFormatVersion": "0.1.0-develop",
+    "InputFileNames": [
+      "hello.c"
+    ]
+  },
   "SourceFiles": {
     "/home/snagao/esstra/samples/hello": [
       {

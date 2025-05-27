@@ -149,13 +149,18 @@ would generate an output as follows:
 ```yaml
 #
 # BinaryFileName: hello
-# BinaryPath: /home/snagao/esstra-test/hello
+# BinaryPath: /home/snagao/esstra/samples/hello/hello
 #
----
+Headers:
+  ToolName: ESSTRA Core
+  ToolVersion: 0.1.1-develop
+  DataFormatVersion: 0.1.0-develop
+  InputFileNames:
+  - hello.c
 SourceFiles:
-  /home/snagao/esstra-test:
+  /home/snagao/esstra/samples/hello:
   - File: hello.c
-    SHA1: 8a4090e4471481310808c664efc73b5b2ae6112c
+    SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
   /usr/include:
   - File: features-time64.h
     SHA1: 57c3c8093c3af70e5851f6d498600e2f6e24fdeb
@@ -166,22 +171,10 @@ SourceFiles:
   - File: stdio.h
     SHA1: c7181b48c4194cd122024971527aab4056baf600
   /usr/include/x86_64-linux-gnu/bits:
-  - File: floatn-common.h
-    SHA1: 3f37104123a2e6180621331c1da87125808e47bd
-  - File: floatn.h
-    SHA1: 806b759ab6894a09a3b3a422eec5f2414ba7dab7
-  - File: libc-header-start.h
-    SHA1: e0a400c194cd3962a342a6504a441920163b799c
-  - File: long-double.h
-    SHA1: 4e3f5928e816ad29079d1c7d75f3a510a0939ffb
-  - File: stdio_lim.h
-    SHA1: 6210c8ae410ee0f39a6096b0adb9fa86febd3517
-  - File: time64.h
-    SHA1: ab2017da21608498b58eea37b2aa6a3387ee978c
-  - File: timesize.h
-    SHA1: f1dd8d62a4d75288654626933edfc82ccf2394a7
-  - File: types.h
-    SHA1: e5893a9c4c523615c73a51feb9680279608027c6
+  - File: typesizes.h
+    SHA1: ee94b5a60d007c23bdda9e5c46c8ba40f4eb402c
+  - File: wordsize.h
+    SHA1: 281ddd3c93f1e8653e809a45b606574c9b691092
   /usr/include/x86_64-linux-gnu/bits/types:
   - File: FILE.h
     SHA1: 497924e329d53517631713ae52acb73e870d7d65
@@ -195,11 +188,6 @@ SourceFiles:
     SHA1: e3a4f2ee55e635520db0b4610d2b361e9ce41de7
   - File: struct_FILE.h
     SHA1: 1dbf8bac589cb09e09aa4c1d36913e549a57bcf0
-  /usr/include/x86_64-linux-gnu/bits:
-  - File: typesizes.h
-    SHA1: ee94b5a60d007c23bdda9e5c46c8ba40f4eb402c
-  - File: wordsize.h
-    SHA1: 281ddd3c93f1e8653e809a45b606574c9b691092
   /usr/include/x86_64-linux-gnu/gnu:
   - File: stubs-64.h
     SHA1: f7603fa3908b56e9d1b33c91590db3252e13a799
