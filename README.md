@@ -43,7 +43,7 @@ process of GCC and embeds metadata into the resulting binary file.
 In this version, a list of the absolute paths of all source and header
 files involved in compilation is embedded in the binary file as metadata.
 
-The ESSTRA Utility (`ess tra.py`) is a Python script for accessing metadata in
+The ESSTRA Utility (`esstra.py`) is a Python script for accessing metadata in
 binary files embedded by the ESSTRA Core.
 
 In this version, you can output metadata in YAML format, shrink metadata by
