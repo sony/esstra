@@ -207,9 +207,9 @@ information within the binaries.
 The `debian/rules` file defines the variable `CFLAGS` that are passed to GCC.
 
 By adding the option
-`-fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/<gcc-major-version>/plugin/esstracore.so`, the
+`-fplugin=/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/esstracore.so`, the
 ESSTRA Core will intervene in the compiler during the package build process.
-In this case, since we are using GCC version 11, make the following modifications:
+Since we are using GCC version 11 on an x86\_64 PC, make the following modifications:
 
 ```diff
  #!/usr/bin/make -f

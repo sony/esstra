@@ -80,7 +80,8 @@ We will compile the source files shown above to generate the binary
 `hello2`. By using the
 [ESSTRA Core](/core/README.md) during compilation,
 metadata is embedded into `hello2`.
-Since we are using GCC version 11, the command line would be as follows:
+Since we are using GCC version 11 on an x86\_64 PC, the command line would be as follows:
+>>>>>>> ed5e557 (update docs to reflect new path for esstracore.so)
 
 ```sh
 $ gcc -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so hello_main.c hello_sub.c -o hello2

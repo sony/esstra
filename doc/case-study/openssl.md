@@ -54,7 +54,7 @@ If there are no errors, the build is complete. Then, run:
 $ sudo make install
 ```
 
-and `esstracore.so` will be installed in `/usr/local/lib/gcc/x86_64-linux-gnu/<gcc-major-version>/plugin/`.
+and `esstracore.so` will be installed in `/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/`.
 
 ### Install a Spec File
 
@@ -66,7 +66,7 @@ This command installs a
 [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
 on your system which enables the option:
 
-* `-fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/<gcc-major-version>/plugin/esstracore.so`
+* `-fplugin=/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/esstracore.so`
 
 by default.
 

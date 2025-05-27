@@ -107,7 +107,7 @@ $ sudo make install
 ```
 
 Then the files `esstracore.so` and `esstra.py` will be installed in the directory
-`/usr/local/lib/gcc/x86_64-linux-gnu/<gcc-major-version>/plugin/` and `/usr/local/bin/`,
+`/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/` and `/usr/local/bin/`,
 respectively.
 
 ## How to Use
@@ -123,7 +123,7 @@ The example below compiles a source file
 
 First, compile the source file `hello.c` by passing the path of
 `esstracore.so` to the compiler with the `-fplugin` option.
-Since we are using GCC version 11, the command line would be as follows:
+Since we are using GCC version 11 on an x86\_64 PC, the command line would be as follows:
 
 ```sh
 $ gcc -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so hello.c -o hello
@@ -231,7 +231,7 @@ This command installs a
 [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
 on your system which enables the option:
 
-* `-fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/<gcc-major-version>/plugin/esstracore.so`
+* `-fplugin=/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/esstracore.so`
 
 by default.
 

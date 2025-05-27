@@ -7,7 +7,7 @@ the resulting binary file.
 ## Status of This Version
 
 The ESSTRA Core is currently being developed on Ubuntu 22.04 with GCC 11.4.0
-installed on a x86\_64 PC.
+installed on an x86\_64 PC.
 
 In this version, the ESSTRA Core creates an ELF section named `.esstra` in
 the resulting binary file compiled with GCC. This section contains information
@@ -53,7 +53,7 @@ $ sudo make install
 ```
 
 The `esstracore.so` file will then be installed in
-`/usr/local/lib/gcc/x86_64-linux-gnu/<gcc-major-version>/plugin/`.
+`/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/`.
 
 ## How to Use
 
@@ -89,7 +89,7 @@ $ sudo make install-specs
 This command installs a
 [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
 on your system, which enables the option
-`-fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/<gcc-major-version>/plugin/esstracore.so`
+`-fplugin=/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/esstracore.so`
 by default. Therefore, compiling anything with GCC as usual:
 
 ```sh
