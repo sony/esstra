@@ -8,10 +8,9 @@ CXXFLAGS += -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++17
 GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
 GCC_ARCH := $(shell $(CXX) -dumpmachine)
 
-ESSTRACORE_SOURCES := esstracore.cpp
+ESSTRACORE_SRC := esstracore.cpp
 ESSTRACORE := esstracore.so
-
-ESSTRALINK_SOURCES := esstralink.cpp
+ESSTRALINK_SRC := esstralink.cpp
 ESSTRALINK := esstralink.so
 
 # hash functions
@@ -21,7 +20,7 @@ WJCRYPTLIB_FILES := \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Md5.c \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Sha1.c \
 	$(WJCRYPTLIB_DIR)/WjCryptLib_Sha256.c
-ESSTRACORE_SOURCES += $(WJCRYPTLIB_FILES)
+ESSTRACORE_SRC += $(WJCRYPTLIB_FILES)
 CXXFLAGS += -I $(WJCRYPTLIB_DIR)
 
 PREFIX ?= /usr/local
@@ -37,10 +36,10 @@ all: $(ESSTRACORE) $(ESSTRALINK)
 $(WJCRYPTLIB_FILES):
 	(cd $(THIRD_PARTY_DIR) && git submodule init && git submodule update)
 
-$(ESSTRACORE): $(ESSTRACORE_SOURCES)
+$(ESSTRACORE): $(ESSTRACORE_SRC)
 	$(CXX) -shared $(CXXFLAGS) $^ -o $@
 
-$(ESSTRALINK): $(ESSTRALINK_SOURCES)
+$(ESSTRALINK): $(ESSTRALINK_SRC)
 	$(CXX) -shared $(CXXFLAGS) $^ -o $@
 
 install: $(ESSTRACORE)
@@ -52,11 +51,8 @@ clean:
 
 install-specs: $(INSTALLDIR)/$(ESSTRACORE) $(INSTALLDIR)/$(ESSTRALINK)
 	gcc -dumpspecs | \
-	sed -E "N;s|\*cc1:\n(.+)$$|*cc1:\n\1 %{!fplugin:-fplugin=$(INSTALLDIR)/$(ESSTRACORE)}|" | \
-	sed -E "N;s|\*linker_plugin_file:\n(.*)$$|*linker_plugin_file:\n$(INSTALLDIR)/$(ESSTRALINK) \1|" \
-	> $(SPECFILE)
-
-# -Wl,-plugin=$(INSTALLDIR)/$(ESSTRALINK)
+	CORE=$(INSTALLDIR)/$(ESSTRACORE) LINK=$(INSTALLDIR)/$(ESSTRALINK) \
+	./modify_specs.py > $(SPECFILE)
 
 uninstall-specs: $(SPECFILE)
 	rm -f $(SPECFILE)
