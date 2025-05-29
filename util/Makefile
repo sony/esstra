@@ -3,13 +3,13 @@
 
 PREFIX ?= /usr/local
 INSTALLDIR := $(DESTDIR)/$(PREFIX)/bin
-ESSTRAUTIL := esstra.py
+ESSTRAUTIL := esstra
 
 .PHONY: all clean install
 
 all clean:
 	@echo do nothing for target: "$@"
 
-install: $(ESSTRAUTIL)
+install: $(ESSTRAUTIL).py
 	install -m 755 -d $(INSTALLDIR)
-	install -m 755 $(ESSTRAUTIL) $(INSTALLDIR)
+	install -m 755 $(ESSTRAUTIL).py $(INSTALLDIR)/$(ESSTRAUTIL)
