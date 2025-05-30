@@ -99,6 +99,9 @@ SourceFiles:
           :
 ```
 
+Please note that the `show` command always displays [**shrunk**](#command-shrink) data even if
+the binary file's metadata itself is not shrunk.
+
 As the output of this command is in YAML format, you can parse it with any YAML
 processors.
 Below is an example of how to use the command
