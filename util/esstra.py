@@ -170,7 +170,7 @@ class MetadataHandler:
                 f'with output {result.stderr!r}')
 
         with open(temp.name, 'rb') as fp:
-            raw_data = fp.read().replace(b'\x00', b'')
+            raw_data = fp.read()
 
         Path(temp.name).unlink()
 

@@ -290,7 +290,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
         fprintf(asm_out_file, "\t.ascii \"%s\\n\"\n", item.c_str());
     }
     if (padding > 0) {
-        fprintf(asm_out_file, "\t.dcb %d\n", padding);
+        fprintf(asm_out_file, "\t.dcb.b %d,0x0a\n", padding);
     }
     fprintf(asm_out_file, "\t.popsection\n");
 }
