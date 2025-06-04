@@ -22,7 +22,8 @@ ESSTRACORE_SOURCES += $(WJCRYPTLIB_FILES)
 CXXFLAGS += -I $(WJCRYPTLIB_DIR)
 
 PREFIX ?= /usr/local
-INSTALLDIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin/
+INSTALLDIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin
+INSTALLDIR := $(subst //,/,$(INSTALLDIR))
 
 SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 
