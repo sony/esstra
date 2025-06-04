@@ -8,6 +8,7 @@ GCC_ARCH := $(shell $(CXX) -dumpmachine)
 PREFIX ?= /usr/local
 GCC_PLUGIN_DIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin/
 ESSTRACORE ?= $(GCC_PLUGIN_DIR)/esstracore.so
+ESSTRACORE := $(subst //,/,$(ESSTRACORE))
 
 ifdef DEBUG
 DEBUGFLAG := -fplugin-arg-esstracore-debug=$(DEBUG)
