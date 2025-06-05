@@ -33,9 +33,7 @@
 #include "output.h"
 #include "plugin-version.h"
 
-#include "WjCryptLib_Md5.h"
 #include "WjCryptLib_Sha1.h"
-#include "WjCryptLib_Sha256.h"
 
 
 using std::vector;
@@ -60,16 +58,6 @@ static vector<string> allpaths;
 using FileInfo = map<string, string>;
 static std::map<string, FileInfo> infomap;
 
-// hash algorithms
-static const vector<string> supported_algos = {
-    "md5",
-    "sha1",
-    "sha256",
-};
-static vector<string> specified_algos = { // embeds sha1 sum by default
-    "sha1",
-};
-
 // yaml
 #define YAML_ITEM "- "s
 #define YAML_INDENT "  "s
@@ -83,9 +71,7 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 #define KEY_INPUT_FILENAME "InputFileName"s
 #define KEY_SOURCE_FILES "SourceFiles"s
 #define KEY_FILE "File"s
-#define KEY_MD5 "MD5"s
 #define KEY_SHA1 "SHA1"s
-#define KEY_SHA256 "SHA256"s
 
 // flags
 static bool flag_debug = false;
@@ -119,24 +105,6 @@ bytes_to_string(uint8_t* bytes, unsigned size) {
 }
 
 /*
- * check if specified algorithm is supported
- */
-static bool
-is_algo_supported(const string& algo) {
-    return std::find(supported_algos.begin(), supported_algos.end(), algo) != supported_algos.end();
-}
-
-/*
- * calculate md5sum
- */
-static const string
-calc_md5(uint8_t *buffer, uint32_t size) {
-    MD5_HASH hash;
-    Md5Calculate(buffer, size, &hash);
-    return bytes_to_string(hash.bytes, MD5_HASH_SIZE);
-}
-
-/*
  * calculate sha1sum
  */
 static const string
@@ -145,17 +113,6 @@ calc_sha1(uint8_t *buffer, uint32_t size) {
     Sha1Calculate(buffer, size, &hash);
     return bytes_to_string(hash.bytes, SHA1_HASH_SIZE);
 }
-
-/*
- * calculate sha256sum
- */
-static const string
-calc_sha256(uint8_t *buffer, uint32_t size) {
-    SHA256_HASH hash;
-    Sha256Calculate(buffer, size, &hash);
-    return bytes_to_string(hash.bytes, SHA256_HASH_SIZE);
-}
-
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
@@ -207,21 +164,11 @@ collect_paths(void* gcc_data, void* /* user_data */) {
         return;
     }
 
-    // calculate hashes with specified algorithms
+    // calculate checksum
     FileInfo finfo;
 
-    for (const auto &algo: specified_algos) {
-        debug_log("calculate '%s' hash\n", algo.c_str());
-        if (algo == "md5") {
-            finfo[KEY_MD5] = calc_md5(buffer, size);
-        } else if (algo == "sha1") {
-            finfo[KEY_SHA1] = calc_sha1(buffer, size);
-        } else if (algo == "sha256") {
-            finfo[KEY_SHA256] = calc_sha256(buffer, size);
-        } else {
-            fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
-        }
-    }
+    debug_log("calculate SHA1 hash\n");
+    finfo[KEY_SHA1] = calc_sha1(buffer, size);
 
     infomap[resolved] = finfo;
 
@@ -315,33 +262,6 @@ plugin_init(struct plugin_name_args* plugin_info,
             flag_debug = (atoi(argv->value) != 0);
             if (flag_debug) {
                 debug_log("debug mode enabled\n");
-            }
-        } else if (strcmp(argv->key, "checksum") == 0) {
-            debug_log("arg-checksum: %s\n", argv->value);
-            auto value = reinterpret_cast<const char*>(argv->value);
-            string algo;
-            specified_algos.clear(); // delete default algo
-            while (*value) {
-                if (*value == ',') {
-                    if (algo.length() > 0) {
-                        specified_algos.push_back(algo);
-                    }
-                    algo = "";
-                } else {
-                    algo += string(value, 1);
-                }
-                value++;
-            }
-            if (algo.length() > 0) {
-                specified_algos.push_back(algo);
-            }
-            // check if specified algos are supported
-            for (const auto& algo: specified_algos) {
-                if (!is_algo_supported(algo)) {
-                    fprintf(stderr, "algorithm '%s' not supported\n", algo.c_str());
-                    error = true;
-                }
-                debug_log("algo: '%s'\n", algo.c_str());
             }
         }
         argv++;
