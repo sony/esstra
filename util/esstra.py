@@ -102,7 +102,7 @@ class MetadataHandler:
                 binary_path, backup_suffix, overwrite_backup)
 
         with tempfile.NamedTemporaryFile('wb') as fp:
-            raw_data = self.__encode_metadata(self._shrunk_data)
+            raw_data = self.dump_shrunk_data().encode(encoding='utf-8')
             fp.write(raw_data)
             fp.flush()
 
@@ -140,6 +140,12 @@ class MetadataHandler:
                 f'objcopy returned with output: {result.stderr!r}')
 
         return True
+
+    def dump_shrunk_data(self):
+        return yaml.safe_dump(self._shrunk_data, sort_keys=False).rstrip()
+
+    def dump_raw_data(self):
+        return self._raw_data.decode(encoding='utf-8')
 
     # private
     def __run_command(self, command_line):
@@ -181,13 +187,6 @@ class MetadataHandler:
         yaml_lines = raw_data.decode(encoding='utf-8')
         yaml_docs = list(yaml.safe_load_all(yaml_lines))
         return yaml_docs
-
-    @staticmethod
-    def __encode_metadata(data):
-        raw_data = bytes(
-            yaml.safe_dump(data, sort_keys=False)
-            .encode(encoding='utf-8'))
-        return raw_data
 
     def __shrink_parsed_data(self, parsed_data):
         headers = {}
@@ -489,12 +488,9 @@ class CommandShow(CommandBase):
     # private
     def __make_string_to_display(self, args, handler):
         if args.raw:
-            return (handler.get_raw_data()
-                    .decode(encoding='utf-8')
-                    .rstrip())
-
-        return yaml.safe_dump(
-            handler.get_shrunk_data(), sort_keys=False).rstrip()
+            return handler.dump_raw_data()
+        else:
+            return handler.dump_shrunk_data()
 
 
 class CommandShrink(CommandBase):
