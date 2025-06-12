@@ -213,11 +213,11 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     for (const auto &algo: specified_algos) {
         debug_log("calculate '%s' hash\n", algo.c_str());
         if (algo == "md5") {
-            finfo[KEY_MD5] = calc_md5(buffer, size);
+            finfo[KEY_MD5] = "'" + calc_md5(buffer, size) + "'";
         } else if (algo == "sha1") {
-            finfo[KEY_SHA1] = calc_sha1(buffer, size);
+            finfo[KEY_SHA1] = "'" + calc_sha1(buffer, size) + "'";
         } else if (algo == "sha256") {
-            finfo[KEY_SHA256] = calc_sha256(buffer, size);
+            finfo[KEY_SHA256] = "'" + calc_sha256(buffer, size) + "'";
         } else {
             fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
         }
