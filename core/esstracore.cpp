@@ -82,6 +82,8 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 #define KEY_DATA_FORMAT_VERSION "DataFormatVersion"s
 #define KEY_INPUT_FILENAME "InputFileName"s
 #define KEY_SOURCE_FILES "SourceFiles"s
+#define KEY_DIRECTORY "Directory"s
+#define KEY_FILES "Files"s
 #define KEY_FILE "File"s
 #define KEY_MD5 "MD5"s
 #define KEY_SHA1 "SHA1"s
@@ -261,12 +263,13 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
             debug_log("dir: %s\n", directory.c_str());
             if (current_directory != directory) {
                 current_directory = directory;
-                strings_to_embed.push_back(YAML_INDENT + directory + ":");
+                strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_DIRECTORY + ": " + directory);
+                strings_to_embed.push_back(YAML_INDENT + YAML_INDENT + KEY_FILES + ":");
             }
-            strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
+            strings_to_embed.push_back(YAML_INDENT + YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
             for (const auto& elem : infomap[path]) {
                 strings_to_embed.push_back(
-                    YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
+                    YAML_INDENT + YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
             }
         }
     }

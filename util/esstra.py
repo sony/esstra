@@ -61,6 +61,8 @@ class MetadataHandler:
     KEY_INPUT_FILE_NAME = 'InputFileName'
     KEY_INPUT_FILE_NAMES = 'InputFileNames'
     KEY_SOURCE_FILES = 'SourceFiles'
+    KEY_DIRECTORY = 'Directory'
+    KEY_FILES = 'Files'
     KEY_FILE = 'File'
     KEY_LICENSE_INFO = 'LicenseInfo'
     HASH_ALGORITHM = 'SHA1'
@@ -209,28 +211,34 @@ class MetadataHandler:
 
             # SourceFiles
             assert self.KEY_SOURCE_FILES in doc
-            for directory, fileinfo_list in doc[self.KEY_SOURCE_FILES].items():
-                if directory not in sourcefiles:
-                    sourcefiles[directory] = []
-                for fileinfo in fileinfo_list:
+            for directory in doc[self.KEY_SOURCE_FILES]:
+                path = directory[self.KEY_DIRECTORY]
+                if path not in sourcefiles:
+                    sourcefiles[path] = []
+                assert self.KEY_FILES in directory
+                for fileinfo in directory[self.KEY_FILES]:
                     assert self.KEY_FILE in fileinfo, fileinfo
                     assert self.HASH_ALGORITHM in fileinfo
                     filename = fileinfo[self.KEY_FILE]
-                    path = Path(directory) / filename
-                    if path not in path_found:
-                        path_found.add(path)
-                        sourcefiles[directory].append(fileinfo)
+                    filepath = Path(path) / filename
+                    if filepath not in path_found:
+                        path_found.add(filepath)
+                        sourcefiles[path].append(fileinfo)
+                        # TODO: need to compare hashes of two files
 
-        for directory in sourcefiles:
-            sourcefiles[directory] = sorted(
-                sourcefiles[directory], key=lambda x: x[self.KEY_FILE])
+        for path in sourcefiles:
+            sourcefiles[path] = sorted(
+                sourcefiles[path], key=lambda x: x[self.KEY_FILE])
 
         shrunk_data = {
             self.KEY_HEADERS: headers,
-            self.KEY_SOURCE_FILES: {
-                directory: sourcefiles[directory]
-                for directory in sorted(sourcefiles.keys())
-            }
+            self.KEY_SOURCE_FILES: [
+                {
+                    self.KEY_DIRECTORY: path,
+                    self.KEY_FILES: sourcefiles[path]
+                }
+                for path in sorted(sourcefiles.keys())
+            ]
         }
 
         return shrunk_data
