@@ -4,7 +4,7 @@
 CXX := g++
 PLUGIN_INCLUDE_DIR := $(shell $(CXX) -print-file-name=plugin)
 CXXFLAGS += -Wall -Wextra
-CXXFLAGS += -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++14
+CXXFLAGS += -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++17
 GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
 GCC_ARCH := $(shell $(CXX) -dumpmachine)
 
