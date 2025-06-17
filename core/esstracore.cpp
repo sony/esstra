@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
@@ -41,6 +42,7 @@
 using std::vector;
 using std::string;
 using std::map;
+using std::set;
 using std::stringstream;
 using std::string_literals::operator""s;
 
@@ -235,9 +237,6 @@ static void
 create_section(void* /* gcc_data */, void* /* user_data */) {
     vector<string> strings_to_embed;
 
-    // sort allpaths
-    std::sort(allpaths.begin(), allpaths.end());
-
     // construct metadata in yaml format
     strings_to_embed.push_back(YAML_SEPARATOR);
 
@@ -249,24 +248,32 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     strings_to_embed.push_back(YAML_INDENT + KEY_INPUT_FILENAME + ": " + main_input_filename);
 
     // source files
-    string current_directory = "";
-
     if (allpaths.size() == 0) {
         strings_to_embed.push_back(KEY_SOURCE_FILES + ": {}");
     } else {
         strings_to_embed.push_back(KEY_SOURCE_FILES + ":");
+
+        // sort directories using std::set
+        set<string> sorted_dirs;
+        map<string, vector<string>> dir_to_files;
         for (const auto& path : allpaths) {
             string directory = dirname(const_cast<char*>(string(path).c_str()));
             string filename = basename(const_cast<char*>(string(path).c_str()));
-            debug_log("dir: %s\n", directory.c_str());
-            if (current_directory != directory) {
-                current_directory = directory;
-                strings_to_embed.push_back(YAML_INDENT + directory + ":");
-            }
-            strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
-            for (const auto& elem : infomap[path]) {
-                strings_to_embed.push_back(
-                    YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
+            sorted_dirs.insert(directory);
+            dir_to_files[directory].push_back(filename);
+        }
+
+        // enumerate all directories and files
+        for (const auto& directory : sorted_dirs) {
+            strings_to_embed.push_back(YAML_INDENT + directory + ":");
+            for (const auto& filename : dir_to_files[directory]) {
+                debug_log("dir: %s\n", directory.c_str());
+                strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
+                string path = directory + "/" + filename;
+                for (const auto& elem : infomap[path]) {
+                    strings_to_embed.push_back(
+                        YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
+                }
             }
         }
     }
