@@ -267,15 +267,15 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 
         // enumerate all directories and files
         for (const auto& directory : sorted_dirs) {
-            strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_DIRECTORY + ": " + directory);
-            strings_to_embed.push_back(YAML_INDENT + YAML_INDENT + KEY_FILES + ":");
+            strings_to_embed.push_back(YAML_ITEM + KEY_DIRECTORY + ": " + directory);
+            strings_to_embed.push_back(YAML_INDENT + KEY_FILES + ":");
             for (const auto& filename : dir_to_files[directory]) {
                 debug_log("dir: %s\n", directory.c_str());
-                strings_to_embed.push_back(YAML_INDENT + YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
+                strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
                 string path = directory + "/" + filename;
                 for (const auto& elem : infomap[path]) {
                     strings_to_embed.push_back(
-                        YAML_INDENT + YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
+                        YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
                 }
             }
         }
