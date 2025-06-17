@@ -89,13 +89,19 @@ class MetadataHandler:
         return self._shrunk_data
 
     def enumerate_files(self):
-        assert self.KEY_SOURCE_FILES in self._shrunk_data
-        source_files = self._shrunk_data[self.KEY_SOURCE_FILES]
-        for directory, files in source_files.items():
-            for fileinfo in files:
-                abs_path = str(Path(directory) / fileinfo[self.KEY_FILE])
+        if self.KEY_SOURCE_FILES not in self._shrunk_data:
+            raise RuntimeError('wrong data format: {self.KEY_SOURCE_FILES} not found')
+        sourcefiles = self._shrunk_data[self.KEY_SOURCE_FILES]
+        for directory in sourcefiles:
+            path = directory[self.KEY_DIRECTORY]
+            if self.KEY_FILES not in directory:
+                raise RuntimeError('wrong data format: {self.KEY_FILES} not found')
+            for fileinfo in directory[self.KEY_FILES]:
+                assert self.KEY_FILE in fileinfo, fileinfo
+                assert self.HASH_ALGORITHM in fileinfo
+                filepath = str(Path(path) / fileinfo[self.KEY_FILE])
                 checksum = fileinfo[self.HASH_ALGORITHM]
-                yield abs_path, checksum, fileinfo
+                yield filepath, checksum, fileinfo
 
     def update_metadata(self, binary_path,
                         create_backup, backup_suffix, overwrite_backup):
