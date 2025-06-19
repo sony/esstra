@@ -44,18 +44,17 @@ using std::string;
 using std::map;
 using std::set;
 using std::stringstream;
-using std::string_literals::operator""s;
 
 int plugin_is_GPL_compatible;
 
 
 // version numbers
-static constexpr char tool_name[] = "ESSTRA Core";
-static constexpr char tool_version[] = "0.1.1-develop";
-static constexpr char data_format_version[] = "0.1.0";
+static const string tool_name = "ESSTRA Core";
+static const string tool_version = "0.1.1-develop";
+static const string data_format_version = "0.1.0";
 
 // section name
-static constexpr char section_name[] = ".esstra";
+static const string section_name = ".esstra";
 
 // metadata
 static vector<string> allpaths;
@@ -73,23 +72,23 @@ static vector<string> specified_algos = { // embeds sha1 sum by default
 };
 
 // yaml
-#define YAML_ITEM "- "s
-#define YAML_INDENT "  "s
-#define YAML_SEPARATOR "---"s
+static const string yaml_item = "- ";
+static const string yaml_indent = "  ";
+static const string yaml_separator = "---";
 
 // keys
-#define KEY_HEADERS "Headers"s
-#define KEY_TOOL_NAME "ToolName"s
-#define KEY_TOOL_VERSION "ToolVersion"s
-#define KEY_DATA_FORMAT_VERSION "DataFormatVersion"s
-#define KEY_INPUT_FILENAME "InputFileName"s
-#define KEY_SOURCE_FILES "SourceFiles"s
-#define KEY_DIRECTORY "Directory"s
-#define KEY_FILES "Files"s
-#define KEY_FILE "File"s
-#define KEY_MD5 "MD5"s
-#define KEY_SHA1 "SHA1"s
-#define KEY_SHA256 "SHA256"s
+static const string key_headers = "Headers";
+static const string key_tool_name = "ToolName";
+static const string key_tool_version = "ToolVersion";
+static const string key_data_format_version = "DataFormatVersion";
+static const string key_input_filename = "InputFileName";
+static const string key_source_files = "SourceFiles";
+static const string key_directory = "Directory";
+static const string key_files = "Files";
+static const string key_file = "File";
+static const string key_md5 = "MD5";
+static const string key_sha1 = "SHA1";
+static const string key_sha256 = "SHA256";
 
 // flags
 static bool flag_debug = false;
@@ -217,11 +216,11 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     for (const auto &algo: specified_algos) {
         debug_log("calculate '%s' hash\n", algo.c_str());
         if (algo == "md5") {
-            finfo[KEY_MD5] = "'" + calc_md5(buffer, size) + "'";
+            finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
         } else if (algo == "sha1") {
-            finfo[KEY_SHA1] = "'" + calc_sha1(buffer, size) + "'";
+            finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
         } else if (algo == "sha256") {
-            finfo[KEY_SHA256] = "'" + calc_sha256(buffer, size) + "'";
+            finfo[key_sha256] = "'" + calc_sha256(buffer, size) + "'";
         } else {
             fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
         }
@@ -240,20 +239,20 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     vector<string> strings_to_embed;
 
     // construct metadata in yaml format
-    strings_to_embed.push_back(YAML_SEPARATOR);
+    strings_to_embed.push_back(yaml_separator);
 
     // headers
-    strings_to_embed.push_back(KEY_HEADERS + ":");
-    strings_to_embed.push_back(YAML_INDENT + KEY_TOOL_NAME + ": " + tool_name);
-    strings_to_embed.push_back(YAML_INDENT + KEY_TOOL_VERSION + ": " + tool_version);
-    strings_to_embed.push_back(YAML_INDENT + KEY_DATA_FORMAT_VERSION + ": " + data_format_version);
-    strings_to_embed.push_back(YAML_INDENT + KEY_INPUT_FILENAME + ": " + main_input_filename);
+    strings_to_embed.push_back(key_headers + ":");
+    strings_to_embed.push_back(yaml_indent + key_tool_name + ": " + tool_name);
+    strings_to_embed.push_back(yaml_indent + key_tool_version + ": " + tool_version);
+    strings_to_embed.push_back(yaml_indent + key_data_format_version + ": " + data_format_version);
+    strings_to_embed.push_back(yaml_indent + key_input_filename + ": " + main_input_filename);
 
     // source files
     if (allpaths.size() == 0) {
-        strings_to_embed.push_back(KEY_SOURCE_FILES + ": {}");
+        strings_to_embed.push_back(key_source_files + ": {}");
     } else {
-        strings_to_embed.push_back(KEY_SOURCE_FILES + ":");
+        strings_to_embed.push_back(key_source_files + ":");
 
         // sort directories using std::set
         set<string> sorted_dirs;
@@ -267,15 +266,15 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 
         // enumerate all directories and files
         for (const auto& directory : sorted_dirs) {
-            strings_to_embed.push_back(YAML_ITEM + KEY_DIRECTORY + ": " + directory);
-            strings_to_embed.push_back(YAML_INDENT + KEY_FILES + ":");
+            strings_to_embed.push_back(yaml_item + key_directory + ": " + directory);
+            strings_to_embed.push_back(yaml_indent + key_files + ":");
             for (const auto& filename : dir_to_files[directory]) {
                 debug_log("dir: %s\n", directory.c_str());
-                strings_to_embed.push_back(YAML_INDENT + YAML_ITEM + KEY_FILE + ": " + filename);
+                strings_to_embed.push_back(yaml_indent + yaml_item + key_file + ": " + filename);
                 string path = directory + "/" + filename;
                 for (const auto& elem : infomap[path]) {
                     strings_to_embed.push_back(
-                        YAML_INDENT + YAML_INDENT + elem.first + ": " + elem.second);
+                        yaml_indent + yaml_indent + elem.first + ": " + elem.second);
                 }
             }
         }
@@ -294,7 +293,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     debug_log("padding=%d\n", padding);
 
     // add assembly code
-    fprintf(asm_out_file, "\t.pushsection %s\n", section_name);
+    fprintf(asm_out_file, "\t.pushsection %s\n", section_name.c_str());
     fprintf(asm_out_file, "\t.balign 4\n");
     for (const auto& item : strings_to_embed) {
         fprintf(asm_out_file, "\t.ascii \"%s\\n\"\n", item.c_str());
