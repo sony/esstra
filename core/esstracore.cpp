@@ -52,7 +52,7 @@ int plugin_is_GPL_compatible;
 // version numbers
 static constexpr char tool_name[] = "ESSTRA Core";
 static constexpr char tool_version[] = "0.1.1-develop";
-static constexpr char data_format_version[] = "0.1.0-develop";
+static constexpr char data_format_version[] = "0.1.0";
 
 // section name
 static constexpr char section_name[] = ".esstra";

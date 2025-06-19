@@ -34,6 +34,10 @@ import yaml
 TOOL_NAME = 'ESSTRA Utility'
 TOOL_VERSION = '0.1.1-develop'
 SECTION_NAME = '.esstra'
+DATA_FORMAT_VERSION = '0.1.0'
+ACCEPTABLE_DATA_FORMAT_VERSION = (
+    DATA_FORMAT_VERSION,
+)
 
 DEBUG = False
 
@@ -58,6 +62,7 @@ def error(msg):
 
 class MetadataHandler:
     KEY_HEADERS = 'Headers'
+    KEY_DATA_FORMAT_VERSION = 'DataFormatVersion'
     KEY_INPUT_FILE_NAME = 'InputFileName'
     KEY_INPUT_FILE_NAMES = 'InputFileNames'
     KEY_SOURCE_FILES = 'SourceFiles'
@@ -205,6 +210,7 @@ class MetadataHandler:
         headers = {}
         sourcefiles = {}
 
+        errors = 0
         path_and_sum_found = set()
         for doc in docs:
             # Headers
@@ -214,9 +220,22 @@ class MetadataHandler:
                     headers.setdefault(cls.KEY_INPUT_FILE_NAMES, [])
                     headers[cls.KEY_INPUT_FILE_NAMES].append(value)
                 elif headers.setdefault(key, value) != value:
+                    errors += 1
                     error(f'header value mismatch: {key!r}:{value!r} '
                           f'(current:{headers[key]!r})')
                     # TODO: need to decide how to handle values of each header
+
+                # version check
+                if key == cls.KEY_DATA_FORMAT_VERSION and \
+                   value not in ACCEPTABLE_DATA_FORMAT_VERSION:
+                    errors += 1
+                    error('cannot accept DataFormatVersion: '
+                          f'{headers[cls.KEY_DATA_FORMAT_VERSION]!r}')
+
+            if errors:
+                raise RuntimeError('some errors occur when parsing headers')
+
+            headers[cls.KEY_DATA_FORMAT_VERSION] = DATA_FORMAT_VERSION
 
             # SourceFiles
             for dirname, filepath, checksum, fileinfo in cls.__enumerate_files(doc):
