@@ -78,14 +78,16 @@ would give you an output as follows:
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.1.1-develop
-  DataFormatVersion: 0.1.0-develop
+  DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
 SourceFiles:
-  /home/snagao/esstra/samples/hello:
+- Directory: /home/snagao/esstra/samples/hello
+  Files:
   - File: hello.c
     SHA1: 62592ce351eab2dfb75deb8c01101e07d6fe3c67
-  /usr/include:
+- Directory: /usr/include
+  Files:
   - File: features-time64.h
     SHA1: 57c3c8093c3af70e5851f6d498600e2f6e24fdeb
   - File: features.h
@@ -113,34 +115,37 @@ $ esstra.py show hello | yq -oj
   "Headers": {
     "ToolName": "ESSTRA Core",
     "ToolVersion": "0.1.1-develop",
-    "DataFormatVersion": "0.1.0-develop",
+    "DataFormatVersion": "0.1.0",
     "InputFileNames": [
       "hello.c"
     ]
   },
-  "SourceFiles": {
-    "/home/snagao/esstra/samples/hello": [
-      {
-        "File": "hello.c",
-        "SHA1": "62592ce351eab2dfb75deb8c01101e07d6fe3c67"
-      }
-    ],
-    "/usr/include": [
-      {
-        "File": "features-time64.h",
-        "SHA1": "57c3c8093c3af70e5851f6d498600e2f6e24fdeb"
-      },
-      {
-        "File": "features.h",
-        "SHA1": "d8725bb98129d6d70ddcbf010021c2841db783f7"
-      },
-      {
-        "File": "stdc-predef.h",
-        "SHA1": "2fef05d80514ca0be77efec90bda051cf87d771f"
-      },
-          :
-        (snip)
-          :
+  "SourceFiles": [
+    {
+      "Directory": "/home/snagao/esstra/samples/hello",
+      "Files": [
+        {
+          "File": "hello.c",
+          "SHA1": "62592ce351eab2dfb75deb8c01101e07d6fe3c67"
+        }
+      ],
+      "Directory": "/usr/include",
+      "Files": [
+        {
+          "File": "features-time64.h",
+          "SHA1": "57c3c8093c3af70e5851f6d498600e2f6e24fdeb"
+        },
+        {
+          "File": "features.h",
+          "SHA1": "d8725bb98129d6d70ddcbf010021c2841db783f7"
+        },
+        {
+          "File": "stdc-predef.h",
+          "SHA1": "2fef05d80514ca0be77efec90bda051cf87d771f"
+        },
+            :
+          (snip)
+            :
 ```
 
 ## Command "shrink"

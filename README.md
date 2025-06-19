@@ -154,14 +154,16 @@ would generate an output as follows:
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.1.1-develop
-  DataFormatVersion: 0.1.0-develop
+  DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
 SourceFiles:
-  /home/snagao/esstra/samples/hello:
+- Directory: /home/snagao/esstra/samples/hello
+  Files:
   - File: hello.c
     SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
-  /usr/include:
+- Directory: /usr/include
+  Files:
   - File: features-time64.h
     SHA1: 57c3c8093c3af70e5851f6d498600e2f6e24fdeb
   - File: features.h
@@ -170,12 +172,14 @@ SourceFiles:
     SHA1: 2fef05d80514ca0be77efec90bda051cf87d771f
   - File: stdio.h
     SHA1: c7181b48c4194cd122024971527aab4056baf600
-  /usr/include/x86_64-linux-gnu/bits:
+- Directory: /usr/include/x86_64-linux-gnu/bits
+  Files:
   - File: typesizes.h
     SHA1: ee94b5a60d007c23bdda9e5c46c8ba40f4eb402c
   - File: wordsize.h
     SHA1: 281ddd3c93f1e8653e809a45b606574c9b691092
-  /usr/include/x86_64-linux-gnu/bits/types:
+- Directory: /usr/include/x86_64-linux-gnu/bits/types
+  Files:
   - File: FILE.h
     SHA1: 497924e329d53517631713ae52acb73e870d7d65
   - File: __FILE.h
@@ -188,15 +192,18 @@ SourceFiles:
     SHA1: e3a4f2ee55e635520db0b4610d2b361e9ce41de7
   - File: struct_FILE.h
     SHA1: 1dbf8bac589cb09e09aa4c1d36913e549a57bcf0
-  /usr/include/x86_64-linux-gnu/gnu:
+- Directory: /usr/include/x86_64-linux-gnu/gnu
+  Files:
   - File: stubs-64.h
     SHA1: f7603fa3908b56e9d1b33c91590db3252e13a799
   - File: stubs.h
     SHA1: be168037b7503a82b1cf694cdbac8c063bb6e476
-  /usr/include/x86_64-linux-gnu/sys:
+- Directory: /usr/include/x86_64-linux-gnu/sys
+  Files:
   - File: cdefs.h
     SHA1: a419a6372029d89ba38ada0811d34f51df8d09b7
-  /usr/lib/gcc/x86_64-linux-gnu/11/include:
+- Directory: /usr/lib/gcc/x86_64-linux-gnu/11/include
+  Files:
   - File: stdarg.h
     SHA1: fa23f49da8a0a5068b781dff7182f1a1c363dc30
   - File: stddef.h

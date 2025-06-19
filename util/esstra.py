@@ -34,6 +34,10 @@ import yaml
 TOOL_NAME = 'ESSTRA Utility'
 TOOL_VERSION = '0.1.1-develop'
 SECTION_NAME = '.esstra'
+DATA_FORMAT_VERSION = '0.1.0'
+ACCEPTABLE_DATA_FORMAT_VERSION = (
+    DATA_FORMAT_VERSION,
+)
 
 DEBUG = False
 
@@ -58,9 +62,12 @@ def error(msg):
 
 class MetadataHandler:
     KEY_HEADERS = 'Headers'
+    KEY_DATA_FORMAT_VERSION = 'DataFormatVersion'
     KEY_INPUT_FILE_NAME = 'InputFileName'
     KEY_INPUT_FILE_NAMES = 'InputFileNames'
     KEY_SOURCE_FILES = 'SourceFiles'
+    KEY_DIRECTORY = 'Directory'
+    KEY_FILES = 'Files'
     KEY_FILE = 'File'
     KEY_LICENSE_INFO = 'LicenseInfo'
     HASH_ALGORITHM = 'SHA1'
@@ -87,13 +94,7 @@ class MetadataHandler:
         return self._shrunk_data
 
     def enumerate_files(self):
-        assert self.KEY_SOURCE_FILES in self._shrunk_data
-        source_files = self._shrunk_data[self.KEY_SOURCE_FILES]
-        for directory, files in source_files.items():
-            for fileinfo in files:
-                abs_path = str(Path(directory) / fileinfo[self.KEY_FILE])
-                checksum = fileinfo[self.HASH_ALGORITHM]
-                yield abs_path, checksum, fileinfo
+        return self.__enumerate_files(self._shrunk_data)
 
     def update_metadata(self, binary_path,
                         create_backup, backup_suffix, overwrite_backup):
@@ -182,55 +183,81 @@ class MetadataHandler:
 
         return raw_data
 
+    @classmethod
+    def __enumerate_files(cls, adoc):
+        assert cls.KEY_SOURCE_FILES in adoc, \
+            '__enumerate_file(): {cls.KEY_SOURCE_FILES} not found'
+        sourcefiles = adoc[cls.KEY_SOURCE_FILES]
+        for directory in sourcefiles:
+            dirname = directory[cls.KEY_DIRECTORY]
+            assert cls.KEY_FILES in directory, \
+                '__enumerate_file(): {cls.KEY_FILES} not found'
+            for fileinfo in directory[cls.KEY_FILES]:
+                assert cls.KEY_FILE in fileinfo, fileinfo
+                assert cls.HASH_ALGORITHM in fileinfo
+                filepath = str(Path(dirname) / fileinfo[cls.KEY_FILE])
+                checksum = fileinfo[cls.HASH_ALGORITHM]
+                yield dirname, filepath, checksum, fileinfo
+
     @staticmethod
     def __decode_metadata(raw_data):
         yaml_lines = raw_data.decode(encoding='utf-8')
         yaml_docs = list(yaml.safe_load_all(yaml_lines))
         return yaml_docs
 
-    def __shrink_parsed_data(self, parsed_data):
+    @classmethod
+    def __shrink_parsed_data(cls, docs):
         headers = {}
         sourcefiles = {}
 
-        path_found = set()
-        for doc in parsed_data:
+        errors = 0
+        path_and_sum_found = set()
+        for doc in docs:
             # Headers
-            assert self.KEY_HEADERS in doc
-            for key, value in doc[self.KEY_HEADERS].items():
-                if key == self.KEY_INPUT_FILE_NAME:
-                    if self.KEY_INPUT_FILE_NAMES not in headers:
-                        headers[self.KEY_INPUT_FILE_NAMES] = []
-                    headers[self.KEY_INPUT_FILE_NAMES].append(value)
-                else:
-                    if key not in headers:
-                        headers[key] = value
-                    else:
-                        assert headers[key] == value, f'header value mismatch: {key} {value}'
+            assert cls.KEY_HEADERS in doc
+            for key, value in doc[cls.KEY_HEADERS].items():
+                if key == cls.KEY_INPUT_FILE_NAME:
+                    headers.setdefault(cls.KEY_INPUT_FILE_NAMES, [])
+                    headers[cls.KEY_INPUT_FILE_NAMES].append(value)
+                elif headers.setdefault(key, value) != value:
+                    errors += 1
+                    error(f'header value mismatch: {key!r}:{value!r} '
+                          f'(current:{headers[key]!r})')
+                    # TODO: need to decide how to handle values of each header
+
+                # version check
+                if key == cls.KEY_DATA_FORMAT_VERSION and \
+                   value not in ACCEPTABLE_DATA_FORMAT_VERSION:
+                    errors += 1
+                    error('cannot accept DataFormatVersion: '
+                          f'{headers[cls.KEY_DATA_FORMAT_VERSION]!r}')
+
+            if errors:
+                raise RuntimeError('some errors occur when parsing headers')
+
+            headers[cls.KEY_DATA_FORMAT_VERSION] = DATA_FORMAT_VERSION
 
             # SourceFiles
-            assert self.KEY_SOURCE_FILES in doc
-            for directory, fileinfo_list in doc[self.KEY_SOURCE_FILES].items():
-                if directory not in sourcefiles:
-                    sourcefiles[directory] = []
-                for fileinfo in fileinfo_list:
-                    assert self.KEY_FILE in fileinfo, fileinfo
-                    assert self.HASH_ALGORITHM in fileinfo
-                    filename = fileinfo[self.KEY_FILE]
-                    path = Path(directory) / filename
-                    if path not in path_found:
-                        path_found.add(path)
-                        sourcefiles[directory].append(fileinfo)
+            for dirname, filepath, checksum, fileinfo in cls.__enumerate_files(doc):
+                identifier = (filepath, checksum)
+                if identifier not in path_and_sum_found:
+                    path_and_sum_found.add(identifier)
+                    sourcefiles.setdefault(dirname, [])
+                    sourcefiles[dirname].append(fileinfo)
 
-        for directory in sourcefiles:
-            sourcefiles[directory] = sorted(
-                sourcefiles[directory], key=lambda x: x[self.KEY_FILE])
+        for path in sourcefiles:
+            sourcefiles[path] = sorted(
+                sourcefiles[path], key=lambda x: x[cls.KEY_FILE])
 
         shrunk_data = {
-            self.KEY_HEADERS: headers,
-            self.KEY_SOURCE_FILES: {
-                directory: sourcefiles[directory]
-                for directory in sorted(sourcefiles.keys())
-            }
+            cls.KEY_HEADERS: headers,
+            cls.KEY_SOURCE_FILES: [
+                {
+                    cls.KEY_DIRECTORY: path,
+                    cls.KEY_FILES: sourcefiles[path]
+                }
+                for path in sorted(sourcefiles.keys())
+            ]
         }
 
         return shrunk_data
@@ -562,8 +589,8 @@ class CommandUpdate(CommandBase):
                 errors += 1
                 continue
 
-            for path, checksum, fileinfo in handler.enumerate_files():
-                spdx_fileinfo = spdx_info.get_fileinfo(path, checksum)
+            for _, filepath, checksum, fileinfo in handler.enumerate_files():
+                spdx_fileinfo = spdx_info.get_fileinfo(filepath, checksum)
                 if not spdx_fileinfo:
                     continue
                 license_info = spdx_fileinfo[

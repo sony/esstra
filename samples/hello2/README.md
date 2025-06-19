@@ -121,19 +121,21 @@ And you will get a result as follows:
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.1.1-develop
-  DataFormatVersion: 0.1.0-develop
+  DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
   - hello_sub.c
 SourceFiles:
-  /home/snagao/snagao/esstra/samples/hello2:
+- Directory: /home/snagao/esstra/samples/hello2
+  Files:
   - File: hello_main.c
     SHA1: f7f5c447d68fd9685594a31cb10c8d8b1dd5ebd6
   - File: hello_sub.c
     SHA1: cfb72998ae0242237fa42c8bcf61ee5887137392
   - File: hello_sub.h
-    SHA1: ae424fc2fd0c4bdaead89092a56e52ee2152710d
-  /usr/include:
+    SHA1: 3e5b3ed1aed966c0e0c183eac8fe6ea02dfa62a0
+- Directory: /usr/include
+  Files:
   - File: features-time64.h
     SHA1: 57c3c8093c3af70e5851f6d498600e2f6e24fdeb
   - File: features.h
@@ -142,12 +144,34 @@ SourceFiles:
     SHA1: 2fef05d80514ca0be77efec90bda051cf87d771f
   - File: stdio.h
     SHA1: c7181b48c4194cd122024971527aab4056baf600
-  /usr/include/x86_64-linux-gnu/bits:
+- Directory: /usr/include/x86_64-linux-gnu/bits
+  Files:
+  - File: floatn-common.h
+    SHA1: 3f37104123a2e6180621331c1da87125808e47bd
+  - File: floatn.h
+    SHA1: 806b759ab6894a09a3b3a422eec5f2414ba7dab7
+  - File: libc-header-start.h
+    SHA1: e0a400c194cd3962a342a6504a441920163b799c
+  - File: long-double.h
+    SHA1: 4e3f5928e816ad29079d1c7d75f3a510a0939ffb
+  - File: stdio.h
+    SHA1: 521d7cd0f6572f70122386784120cc55d84899bc
+  - File: stdio2.h
+    SHA1: 6c3ee923db9679a79941a688de72e114a794fc54
+  - File: stdio_lim.h
+    SHA1: 6210c8ae410ee0f39a6096b0adb9fa86febd3517
+  - File: time64.h
+    SHA1: ab2017da21608498b58eea37b2aa6a3387ee978c
+  - File: timesize.h
+    SHA1: f1dd8d62a4d75288654626933edfc82ccf2394a7
+  - File: types.h
+    SHA1: e5893a9c4c523615c73a51feb9680279608027c6
   - File: typesizes.h
     SHA1: ee94b5a60d007c23bdda9e5c46c8ba40f4eb402c
   - File: wordsize.h
     SHA1: 281ddd3c93f1e8653e809a45b606574c9b691092
-  /usr/include/x86_64-linux-gnu/bits/types:
+- Directory: /usr/include/x86_64-linux-gnu/bits/types
+  Files:
   - File: FILE.h
     SHA1: 497924e329d53517631713ae52acb73e870d7d65
   - File: __FILE.h
@@ -160,15 +184,18 @@ SourceFiles:
     SHA1: e3a4f2ee55e635520db0b4610d2b361e9ce41de7
   - File: struct_FILE.h
     SHA1: 1dbf8bac589cb09e09aa4c1d36913e549a57bcf0
-  /usr/include/x86_64-linux-gnu/gnu:
+- Directory: /usr/include/x86_64-linux-gnu/gnu
+  Files:
   - File: stubs-64.h
     SHA1: f7603fa3908b56e9d1b33c91590db3252e13a799
   - File: stubs.h
     SHA1: be168037b7503a82b1cf694cdbac8c063bb6e476
-  /usr/include/x86_64-linux-gnu/sys:
+- Directory: /usr/include/x86_64-linux-gnu/sys
+  Files:
   - File: cdefs.h
     SHA1: a419a6372029d89ba38ada0811d34f51df8d09b7
-  /usr/lib/gcc/x86_64-linux-gnu/11/include:
+- Directory: /usr/lib/gcc/x86_64-linux-gnu/11/include
+  Files:
   - File: stdarg.h
     SHA1: fa23f49da8a0a5068b781dff7182f1a1c363dc30
   - File: stddef.h
@@ -214,26 +241,29 @@ You will get the result shown below:
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.1.1-develop
-  DataFormatVersion: 0.1.0-develop
+  DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
   - hello_sub.c
 SourceFiles:
-  /home/snagao/esstra/samples/hello2:
+- Directory: /home/snagao/esstra/samples/hello2
+  Files:
   - File: hello_main.c
+    SHA1: f7f5c447d68fd9685594a31cb10c8d8b1dd5ebd6
     LicenseInfo:
     - MIT
-    SHA1: f7f5c447d68fd9685594a31cb10c8d8b1dd5ebd6
   - File: hello_sub.c
+    SHA1: cfb72998ae0242237fa42c8bcf61ee5887137392
     LicenseInfo:
     - BSD-3-Clause
-    SHA1: cfb72998ae0242237fa42c8bcf61ee5887137392
   - File: hello_sub.h
+    SHA1: 3e5b3ed1aed966c0e0c183eac8fe6ea02dfa62a0
     LicenseInfo:
     - LGPL-2.1-or-later
-    SHA1: ae424fc2fd0c4bdaead89092a56e52ee2152710d
-  /usr/include:
+- Directory: /usr/include
+  Files:
   - File: features-time64.h
+    SHA1: 57c3c8093c3af70e5851f6d498600e2f6e24fdeb
 
        :
 
