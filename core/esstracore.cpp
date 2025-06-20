@@ -64,12 +64,9 @@ static std::map<string, FileInfo> infomap;
 // hash algorithms
 static const vector<string> supported_algos = {
     "md5",
-    "sha1",
     "sha256",
 };
-static vector<string> specified_algos = { // embeds sha1 sum by default
-    "sha1",
-};
+static vector<string> specified_algos;
 
 // yaml
 static const string yaml_item = "- ";
@@ -212,13 +209,13 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     // calculate hashes with specified algorithms
     FileInfo finfo;
+    finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
 
+    // just for demonstration
     for (const auto &algo: specified_algos) {
         debug_log("calculate '%s' hash\n", algo.c_str());
         if (algo == "md5") {
             finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
-        } else if (algo == "sha1") {
-            finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
         } else if (algo == "sha256") {
             finfo[key_sha256] = "'" + calc_sha256(buffer, size) + "'";
         } else {
