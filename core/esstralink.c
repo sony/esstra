@@ -34,7 +34,7 @@ static ld_plugin_register_cleanup register_cleanup;
 
 
 /*
- * CLEANUP HOOK - shrinks metadata
+ * CLEANUP HOOK - aggregates metadata
  */
 static enum ld_plugin_status
 oncleanup(void)
@@ -53,12 +53,7 @@ oncleanup(void)
         // child process
         char filename[PATH_MAX];
         strncpy(filename, link_output_name, PATH_MAX - 1);
-        char* const args[] = {
-            (char *)"esstra.py",
-            (char *)"shrink",
-            filename,
-            NULL,
-        };
+        char *args[] = {"esstra.py", "shrink", filename, NULL};
         message(LDPL_INFO, "[%s] invoking: '%s %s %s'...", tool_name, args[0], args[1], args[2]);
         execvp("esstra.py", args);
         // below runs only on error
@@ -68,7 +63,7 @@ oncleanup(void)
         // just wait until child process finishes
         wait(NULL);
     }
-    message(LDPL_INFO, "[%s] '%s' successfully updated", tool_name, link_output_name);
+    message(LDPL_INFO, "[%s] metadata in '%s' successfully updated", tool_name, link_output_name);
 
     return LDPS_OK;
 }
