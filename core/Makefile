@@ -55,5 +55,5 @@ install-specs: $(INSTALLDIR)/$(ESSTRACORE) $(INSTALLDIR)/$(ESSTRALINK)
 	CORE=$(INSTALLDIR)/$(ESSTRACORE) LINK=$(INSTALLDIR)/$(ESSTRALINK) \
 	./modify_specs.py > $(SPECFILE)
 
-uninstall-specs: $(SPECFILE)
+uninstall-specs:
 	rm -f $(SPECFILE)
