@@ -2,15 +2,16 @@
 # SPDX-License-Identifier: MIT
 
 CXX := g++
+CC := gcc
 PLUGIN_INCLUDE_DIR := $(shell $(CXX) -print-file-name=plugin)
-CXXFLAGS += -Wall -Wextra
-CXXFLAGS += -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++17
+CXXFLAGS += -Wall -Wextra -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++17
+CFLAGS += -Wall -Wextra -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -O2
 GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
 GCC_ARCH := $(shell $(CXX) -dumpmachine)
 
 ESSTRACORE_SRC := esstracore.cpp
 ESSTRACORE := esstracore.so
-ESSTRALINK_SRC := esstralink.cpp
+ESSTRALINK_SRC := esstralink.c
 ESSTRALINK := esstralink.so
 
 # hash functions
@@ -40,7 +41,7 @@ $(ESSTRACORE): $(ESSTRACORE_SRC)
 	$(CXX) -shared $(CXXFLAGS) $^ -o $@
 
 $(ESSTRALINK): $(ESSTRALINK_SRC)
-	$(CXX) -shared $(CXXFLAGS) $^ -o $@
+	$(CC) -shared $(CFLAGS) $^ -o $@
 
 install: $(ESSTRACORE)
 	install -m 755 -d $(INSTALLDIR)
