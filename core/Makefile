@@ -2,17 +2,13 @@
 # SPDX-License-Identifier: MIT
 
 CXX := g++
-CC := gcc
 PLUGIN_INCLUDE_DIR := $(shell $(CXX) -print-file-name=plugin)
 CXXFLAGS += -Wall -Wextra -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -fno-rtti -O2 -std=c++17
-CFLAGS += -Wall -Wextra -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -O2
 GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
 GCC_ARCH := $(shell $(CXX) -dumpmachine)
 
 ESSTRACORE_SRC := esstracore.cpp
 ESSTRACORE := esstracore.so
-ESSTRALINK_SRC := esstralink.c
-ESSTRALINK := esstralink.so
 
 # hash functions
 THIRD_PARTY_DIR = ../third-party
@@ -32,7 +28,7 @@ SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 
 .PHONY: all clean install install-specs uninstall-specs
 
-all: $(ESSTRACORE) $(ESSTRALINK)
+all: $(ESSTRACORE)
 
 $(WJCRYPTLIB_FILES):
 	(cd $(THIRD_PARTY_DIR) && git submodule init && git submodule update)
@@ -40,20 +36,25 @@ $(WJCRYPTLIB_FILES):
 $(ESSTRACORE): $(ESSTRACORE_SRC)
 	$(CXX) -shared $(CXXFLAGS) $^ -o $@
 
-$(ESSTRALINK): $(ESSTRALINK_SRC)
-	$(CC) -shared $(CFLAGS) $^ -o $@
-
 install: $(ESSTRACORE)
 	install -m 755 -d $(INSTALLDIR)
-	install -m 755 $(ESSTRACORE) $(ESSTRALINK) $(INSTALLDIR)
+	install -m 755 $(ESSTRACORE) $(INSTALLDIR)
 
 clean:
 	rm -f *.so
 
-install-specs: $(INSTALLDIR)/$(ESSTRACORE) $(INSTALLDIR)/$(ESSTRALINK)
-	gcc -dumpspecs | \
-	CORE=$(INSTALLDIR)/$(ESSTRACORE) LINK=$(INSTALLDIR)/$(ESSTRALINK) \
-	./modify_specs.py > $(SPECFILE)
+install-specs: $(INSTALLDIR)/$(ESSTRACORE)
+	TMPFILE=`mktemp` ; \
+	([ -e $(SPECFILE) ] && \
+	perl -pe 's@-fplugin=(.*)$(ESSTRACORE)\s*@@' $(SPECFILE) || gcc -dumpspecs) > $$TMPFILE ; \
+	perl -pe 's@^(\*cc1:\n)@\1-fplugin=$(INSTALLDIR)/$(ESSTRACORE) \3@' $$TMPFILE > $(SPECFILE) ; \
+	rm -f $$TMPFILE
 
 uninstall-specs:
-	rm -f $(SPECFILE)
+	[ -e $(SPECFILE) ] && \
+	( TEMPFILE=`mktemp` ; \
+	perl -pe 's@-fplugin=(.*)$(ESSTRACORE)\s*@@' $(SPECFILE) > $$TEMPFILE ; \
+	gcc -dumpspecs | diff $$TEMPFILE - > /dev/null && \
+	rm -f $(SPECFILE) || \
+	cp $$TEMPFILE $(SPECFILE) ; \
+	rm -f $$TEMPFILE ) || :
