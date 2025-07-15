@@ -161,7 +161,7 @@ of ELF files by eliminating duplication in the embedded information as below:
 esstra$ du -sh ../openssl-3.4.1/apps/openssl
 2.6M    ../openssl-3.4.1/apps/openssl
 
-esstra$ esstra.py shrink ../openssl-3.4.1/apps/openssl
+esstra$ esstra shrink ../openssl-3.4.1/apps/openssl
 * processing '../openssl-3.4.1/apps/openssl'...
 * done.
 
@@ -172,7 +172,7 @@ esstra$ du -sh ../openssl-3.4.1/apps/openssl
 Next, display the information embedded by ESSTRA:
 
 ```sh
-esstra$ esstra.py show ../openssl-3.4.1/apps/openssl
+esstra$ esstra show ../openssl-3.4.1/apps/openssl
 ```
 
 This will give an output as follows:
@@ -368,7 +368,7 @@ with the
 file downloaded from FOSSology, run the following command:
 
 ```sh
-esstra$ esstra.py update ../openssl-3.4.1/apps/openssl -i SPDX2TV_openssl-3.4.1.tar.gz.spdx
+esstra$ esstra update ../openssl-3.4.1/apps/openssl -i SPDX2TV_openssl-3.4.1.tar.gz.spdx
 * processing '../openssl-3.4.1/apps/openssl'...
 * done.
 ```
@@ -377,7 +377,7 @@ If no errors occur, the process is successful. To display the metadata content
 of the ELF `openssl-3.4.1/apps/openssl`, run:
 
 ```sh
-esstra$ esstra.py show ../openssl-3.4.1/apps/openssl
+esstra$ esstra show ../openssl-3.4.1/apps/openssl
 ```
 
 The result will be as follows:
@@ -449,7 +449,7 @@ openssl-3.4.1$ find ./ -type f | wc -l
 Run the ESSTRA Utility on all the generated ELF files and redirect output to a file.
 
 ```sh
-openssl-3.4.1$ esstra.py show $(find ./ -type f -exec sh -c "file '{}' | grep -q 'BuildID'" \; -print) >../esstra_scan_result.yaml
+openssl-3.4.1$ esstra show $(find ./ -type f -exec sh -c "file '{}' | grep -q 'BuildID'" \; -print) >../esstra_scan_result.yaml
 ```
 
 The generated output above contains the details of all the source files used during the build,

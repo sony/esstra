@@ -103,7 +103,7 @@ Hello, world!
 To display metadata embedded in the binary file `hello`, type:
 
 ```sh
-$ esstra.py show hello
+$ esstra show hello
 ```
 
 You can see a list of directories and files as well as SHA-1 hashes in YAML
@@ -250,7 +250,7 @@ To associate the license information with the metadata in the binary using the
 [ESSTRA Utility](/util/README.md), execute the following command:
 
 ```sh
-$ esstra.py update hello -i SPDX2TV_esstra.spdx
+$ esstra update hello -i SPDX2TV_esstra.spdx
 * processing 'hello'...
 * done.
 ```
@@ -259,7 +259,7 @@ If no errors occur, the process is successful. To display the metadata content
 of the binary `hello`, execute the command:
 
 ```sh
-$ esstra.py show hello
+$ esstra show hello
 ```
 
 The result will be as follows:

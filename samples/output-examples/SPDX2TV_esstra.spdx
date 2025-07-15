@@ -82,7 +82,7 @@ FileCopyrightText: NOASSERTION
 
 ##File
 
-FileName: esstra/util/esstra.py
+FileName: esstra/util/esstra
 SPDXID: SPDXRef-item58
 FileChecksum: SHA1: 3b961609173040e7d2765c1a92ff17e0cefb4108
 FileChecksum: SHA256: b8d93a0ea5a2fa2a000d4a853d4635fc831cefdb9d61113a33222b857fd45898

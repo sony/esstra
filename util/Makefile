@@ -4,7 +4,7 @@
 PREFIX ?= /usr/local
 INSTALLDIR := $(DESTDIR)/$(PREFIX)/bin
 INSTALLDIR := $(subst //,/,$(INSTALLDIR))
-ESSTRAUTIL := esstra.py
+ESSTRAUTIL := esstra
 
 .PHONY: all clean install
 

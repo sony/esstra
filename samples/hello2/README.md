@@ -107,7 +107,7 @@ Use the `show` command of the [ESSTRA utility](/util/README.md) to verify
 the metadata within `hello2`:
 
 ```sh
-$ esstra.py show hello2
+$ esstra show hello2
 ```
 
 And you will get a result as follows:
@@ -219,7 +219,7 @@ Next, you can add license information to the metadata in the binary
 `hello2` using the following command:
 
 ```sh
-$ esstra.py update hello2 -i SPDX2TV_esstra.spdx
+$ esstra update hello2 -i SPDX2TV_esstra.spdx
 * processing 'hello2'...
 * done.
 ```
@@ -227,7 +227,7 @@ $ esstra.py update hello2 -i SPDX2TV_esstra.spdx
 To display the metadata content of the binary `hello2`, use the following command:
 
 ```sh
-$ esstra.py show hello2
+$ esstra show hello2
 ```
 
 You will get the result shown below:
