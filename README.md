@@ -244,6 +244,15 @@ projects and want the information the ESSTRA Core generates for them.
 For more details about installing/uninstalling the spec file,
 refer to the file [core/README.md](./core/README.md).
 
+## How to uninstall
+
+To uninstall the ESSTRA Core, the ESSTRA Utility, and spec file from your system, run the
+following command in the top directory :
+
+```sh
+$ sudo make uninstall
+```
+
 ## License
 
 See the [LICENSE](./LICENSE) file.

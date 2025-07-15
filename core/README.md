@@ -114,6 +114,15 @@ $ sudo make uninstall-specs
 
 to remove the spec file.
 
+## How to uninstall
+
+To uninstall the ESSTRA Core and spec file from your system, run the
+following command:
+
+```sh
+$ sudo make uninstall
+```
+
 ## Known Issues
 
 Here is the list of known issues in the current version:
