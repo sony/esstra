@@ -6,7 +6,7 @@ INSTALLDIR := $(DESTDIR)/$(PREFIX)/bin
 INSTALLDIR := $(subst //,/,$(INSTALLDIR))
 ESSTRAUTIL := esstra.py
 
-.PHONY: all clean install
+.PHONY: all clean install uninstall
 
 all clean:
 	@echo do nothing for target: "$@"
@@ -14,3 +14,6 @@ all clean:
 install: $(ESSTRAUTIL)
 	install -m 755 -d $(INSTALLDIR)
 	install -m 755 $(ESSTRAUTIL) $(INSTALLDIR)
+
+uninstall:
+	rm -f $(INSTALLDIR)/$(ESSTRAUTIL)

@@ -27,7 +27,7 @@ INSTALLDIR := $(subst //,/,$(INSTALLDIR))
 
 SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 
-.PHONY: all clean install install-specs uninstall-specs
+.PHONY: all clean install install-specs uninstall-specs uninstall-core uninstall
 
 all: $(ESSTRACORE)
 
@@ -51,3 +51,8 @@ install-specs: $(INSTALLDIR)/$(ESSTRACORE)
 
 uninstall-specs: $(SPECFILE)
 	rm -f $(SPECFILE)
+
+uninstall-core:
+	rm -f $(INSTALLDIR)/$(ESSTRACORE)
+
+uninstall: uninstall-core uninstall-specs
