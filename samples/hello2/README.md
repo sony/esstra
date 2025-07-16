@@ -81,7 +81,6 @@ We will compile the source files shown above to generate the binary
 [ESSTRA Core](/core/README.md) during compilation,
 metadata is embedded into `hello2`.
 Since we are using GCC version 11 on an x86\_64 PC, the command line would be as follows:
->>>>>>> ed5e557 (update docs to reflect new path for esstracore.so)
 
 ```sh
 $ gcc -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so hello_main.c hello_sub.c -o hello2
@@ -120,7 +119,7 @@ And you will get a result as follows:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.1.1-develop
+  ToolVersion: 0.2.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
@@ -240,7 +239,7 @@ You will get the result shown below:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.1.1-develop
+  ToolVersion: 0.2.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c

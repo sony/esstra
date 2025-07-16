@@ -32,7 +32,7 @@ import tempfile
 import yaml
 
 TOOL_NAME = 'ESSTRA Utility'
-TOOL_VERSION = '0.1.1-develop'
+TOOL_VERSION = '0.2.0'
 SECTION_NAME = '.esstra'
 DATA_FORMAT_VERSION = '0.1.0'
 ACCEPTABLE_DATA_FORMAT_VERSION = (
@@ -143,7 +143,7 @@ class MetadataHandler:
         return True
 
     def dump_shrunk_data(self):
-        return yaml.safe_dump(self._shrunk_data, sort_keys=False).rstrip()
+        return yaml.safe_dump(self._shrunk_data, sort_keys=False)
 
     def dump_raw_data(self):
         return self._raw_data.decode(encoding='utf-8')
@@ -510,7 +510,7 @@ class CommandShow(CommandBase):
             if not args.no_comments:
                 print(f'# {self.KEY_BINARY_PATH}: {path}')
                 print('#')
-            print(string_to_display)
+            print(string_to_display.rstrip())
 
     # private
     def __make_string_to_display(self, args, handler):

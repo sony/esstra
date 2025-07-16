@@ -6,7 +6,8 @@ GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
 GCC_ARCH := $(shell $(CXX) -dumpmachine)
 
 PREFIX ?= /usr/local
-GCC_PLUGIN_DIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin/
+GCC_PLUGIN_DIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin
+GCC_PLUGIN_DIR := $(subst //,/,$(GCC_PLUGIN_DIR))
 ESSTRACORE ?= $(GCC_PLUGIN_DIR)/esstracore.so
 
 ifdef DEBUG

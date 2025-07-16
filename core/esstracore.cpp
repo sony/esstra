@@ -50,7 +50,7 @@ int plugin_is_GPL_compatible;
 
 // version numbers
 static const string tool_name = "ESSTRA Core";
-static const string tool_version = "0.1.1-develop";
+static const string tool_version = "0.2.0";
 static const string data_format_version = "0.1.0";
 
 // section name
@@ -282,21 +282,12 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     for (const auto& item : strings_to_embed) {
         datasize += item.size() + 1;  // plus 1 for null-character temination
     }
-    int padding = 0;
-    if (datasize % 4) {
-        padding = 4 - datasize % 4;   // padding for 4-byte alignment
-    }
     debug_log("size=%d\n", datasize);
-    debug_log("padding=%d\n", padding);
 
     // add assembly code
     fprintf(asm_out_file, "\t.pushsection %s\n", section_name.c_str());
-    fprintf(asm_out_file, "\t.balign 4\n");
     for (const auto& item : strings_to_embed) {
         fprintf(asm_out_file, "\t.ascii \"%s\\n\"\n", item.c_str());
-    }
-    if (padding > 0) {
-        fprintf(asm_out_file, "\t.dcb.b %d,0x0a\n", padding);
     }
     fprintf(asm_out_file, "\t.popsection\n");
 }
