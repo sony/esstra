@@ -78,6 +78,8 @@ onload(struct ld_plugin_tv *tv)
     struct ld_plugin_tv *p;
     enum ld_plugin_status status;
 
+    fprintf(stderr, "[%s] loaded: v%s\n", tool_name, tool_version);
+
     p = tv;
 
     while (p->tv_tag) {

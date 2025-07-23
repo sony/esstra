@@ -315,7 +315,10 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 int
 plugin_init(struct plugin_name_args* plugin_info,
             struct plugin_gcc_version* version) {
+    message("loaded: v%s", tool_version.c_str());
+
     if (!plugin_default_version_check(version, &gcc_version)) {
+        message("initialization failed: version mismatch");
         return 1;
     }
 
