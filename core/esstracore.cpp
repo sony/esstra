@@ -33,6 +33,7 @@
 #include "gcc-plugin.h"
 #include "output.h"
 #include "plugin-version.h"
+#include "opts.h"
 
 #include "WjCryptLib_Md5.h"
 #include "WjCryptLib_Sha1.h"
@@ -95,14 +96,28 @@ static bool flag_debug = false;
  * debug print
  */
 static void
-debug_log(const char* format, ...) {
+debug(const char* format, ...) {
     if (flag_debug) {
         va_list args;
         va_start(args, format);
-        printf("[DEBUG] ");
-        vprintf(format, args);
+        fputs("[DEBUG] ", stderr);
+        vfprintf(stderr, format, args);
+        fputs("\n", stderr);
         va_end(args);
     }
+}
+
+/*
+ * message
+ */
+static void
+message(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    fprintf(stderr, "[%s] ", tool_name.c_str());
+    vfprintf(stderr, format, args);
+    fputs("\n", stderr);
+    va_end(args);
 }
 
 /*
@@ -165,7 +180,7 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     string path(reinterpret_cast<const char*>(gcc_data));
 
     if (path[0] == '<') {
-        debug_log("skip '%s': pseudo file name\n", path.c_str());
+        debug("skip '%s': pseudo file name", path.c_str());
         return;
     }
 
@@ -179,7 +194,7 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     string resolved_path(resolved);
     if (find(allpaths.begin(), allpaths.end(), resolved_path) != allpaths.end()) {
-        debug_log("skip '%s': already registered\n", resolved_path.c_str());
+        debug("skip '%s': already registered", resolved_path.c_str());
         return;
     }
 
@@ -213,7 +228,7 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     // just for demonstration
     for (const auto &algo: specified_algos) {
-        debug_log("calculate '%s' hash\n", algo.c_str());
+        debug("calculate '%s' hash", algo.c_str());
         if (algo == "md5") {
             finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
         } else if (algo == "sha256") {
@@ -266,7 +281,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
             strings_to_embed.push_back(yaml_item + key_directory + ": " + directory);
             strings_to_embed.push_back(yaml_indent + key_files + ":");
             for (const auto& filename : dir_to_files[directory]) {
-                debug_log("dir: %s\n", directory.c_str());
+                debug("dir: %s", directory.c_str());
                 strings_to_embed.push_back(yaml_indent + yaml_item + key_file + ": " + filename);
                 string path = directory + "/" + filename;
                 for (const auto& elem : infomap[path]) {
@@ -282,23 +297,16 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     for (const auto& item : strings_to_embed) {
         datasize += item.size() + 1;  // plus 1 for null-character temination
     }
-    int padding = 0;
-    if (datasize % 4) {
-        padding = 4 - datasize % 4;   // padding for 4-byte alignment
-    }
-    debug_log("size=%d\n", datasize);
-    debug_log("padding=%d\n", padding);
+    debug("size=%d", datasize);
 
     // add assembly code
     fprintf(asm_out_file, "\t.pushsection %s\n", section_name.c_str());
-    fprintf(asm_out_file, "\t.balign 4\n");
     for (const auto& item : strings_to_embed) {
         fprintf(asm_out_file, "\t.ascii \"%s\\n\"\n", item.c_str());
     }
-    if (padding > 0) {
-        fprintf(asm_out_file, "\t.dcb.b %d,0x0a\n", padding);
-    }
     fprintf(asm_out_file, "\t.popsection\n");
+
+    message("addded metadata to assembly output of '%s'", in_fnames[0]);
 }
 
 /*
@@ -311,6 +319,8 @@ plugin_init(struct plugin_name_args* plugin_info,
         return 1;
     }
 
+    message("initializing plugin for '%s'...", in_fnames[0]);
+
     bool error = false;
 
     const struct plugin_argument *argv = plugin_info->argv;
@@ -320,10 +330,10 @@ plugin_init(struct plugin_name_args* plugin_info,
         if (strcmp(argv->key, "debug") == 0) {
             flag_debug = (atoi(argv->value) != 0);
             if (flag_debug) {
-                debug_log("debug mode enabled\n");
+                debug("debug mode enabled");
             }
         } else if (strcmp(argv->key, "checksum") == 0) {
-            debug_log("arg-checksum: %s\n", argv->value);
+            debug("arg-checksum: %s", argv->value);
             auto value = reinterpret_cast<const char*>(argv->value);
             string algo;
             specified_algos.clear(); // delete default algo
@@ -347,13 +357,13 @@ plugin_init(struct plugin_name_args* plugin_info,
                     fprintf(stderr, "algorithm '%s' not supported\n", algo.c_str());
                     error = true;
                 }
-                debug_log("algo: '%s'\n", algo.c_str());
+                debug("algo: '%s'", algo.c_str());
             }
         }
         argv++;
     }
 
-    debug_log("main_input_filename: %s\n", main_input_filename);
+    debug("main_input_filename: %s", main_input_filename);
 
     if (error) {
         fprintf(stderr, "error occurred.");

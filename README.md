@@ -201,7 +201,7 @@ would generate an output as follows:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.1.1-develop
+  ToolVersion: 0.2.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - main.c
@@ -323,6 +323,15 @@ To uninstall the spec file, run:
 
 ```sh
 $ sudo make uninstall-specs
+```
+
+## How to uninstall
+
+To uninstall the ESSTRA Core, the ESSTRA Utility, and spec file from your system, run the
+following command in the top directory :
+
+```sh
+$ sudo make uninstall
 ```
 
 ## License

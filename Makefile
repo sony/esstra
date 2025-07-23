@@ -17,7 +17,7 @@ INSTALLDIR_PLUGIN := $(subst //,/,$(INSTALLDIR_PLUGIN))
 
 SPECFILE := $(shell dirname `gcc -print-libgcc-file-name`)/specs
 
-.PHONY: all clean install install-specs uninstall-specs
+.PHONY: all clean install install-specs uninstall-specs uninstall-core uninstall
 
 all clean:
 	$(MAKE) -C core PREFIX=$(PREFIX) $@

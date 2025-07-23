@@ -77,7 +77,7 @@ would give you an output as follows:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.1.1-develop
+  ToolVersion: 0.2.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
@@ -114,7 +114,7 @@ $ esstra.py show hello | yq -oj
 {
   "Headers": {
     "ToolName": "ESSTRA Core",
-    "ToolVersion": "0.1.1-develop",
+    "ToolVersion": "0.2.0",
     "DataFormatVersion": "0.1.0",
     "InputFileNames": [
       "hello.c"
@@ -247,6 +247,15 @@ $ esstra.py show hello
 # BinaryFileName: hello
 #
 Exception: RuntimeError("section not found: .'esstra")
+```
+
+## How to uninstall
+
+To uninstall the ESSTRA Utility from your system, run the
+following command:
+
+```sh
+$ sudo make uninstall
 ```
 
 ## License

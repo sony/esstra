@@ -119,7 +119,7 @@ And you will get a result as follows:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.1.1-develop
+  ToolVersion: 0.2.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
@@ -239,7 +239,7 @@ You will get the result shown below:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.1.1-develop
+  ToolVersion: 0.2.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
