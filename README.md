@@ -286,7 +286,7 @@ SourceFiles:
 For more details on **ESSTRA Utility** and the structure of the metadata, please refer to
 [util/README.md](/util/README.md).
 
-## Installing the GCC Spec File
+## Installing GCC Spec File
 
 Specifying `-fplugin=...` and `-Wl,-plugin=...` every time you run `gcc` or `g++` can be
 tedious. To simplify this process, run the following command:
@@ -319,13 +319,20 @@ compiling any kind of project -- whether it's open-source or closed-source.
 > will involve **ESSTRA Core** and **ESSTRA Link**.
 > Please install the spec file with caution to avoid unintended interference.
 
+> [!WARNING]
+> If a spec file already exists on your system, this installation will overwrite it
+> **without creating a backup**.
+
 To uninstall the spec file, run:
 
 ```sh
 $ sudo make uninstall-specs
 ```
 
-## How to uninstall
+> [!WARNING]
+> This command simply deletes the spec file, **regardless of whether it's your own**.
+
+## How to Uninstall
 
 To uninstall the ESSTRA Core, the ESSTRA Utility, and spec file from your system, run the
 following command in the top directory :
