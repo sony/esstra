@@ -33,6 +33,7 @@
 #include "gcc-plugin.h"
 #include "output.h"
 #include "plugin-version.h"
+#include "opts.h"
 
 #include "WjCryptLib_Md5.h"
 #include "WjCryptLib_Sha1.h"
@@ -104,6 +105,19 @@ debug(const char* format, ...) {
         fputs("\n", stderr);
         va_end(args);
     }
+}
+
+/*
+ * message
+ */
+static void
+message(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    fprintf(stderr, "[%s] ", tool_name.c_str());
+    vfprintf(stderr, format, args);
+    fputs("\n", stderr);
+    va_end(args);
 }
 
 /*
@@ -291,6 +305,8 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
         fprintf(asm_out_file, "\t.ascii \"%s\\n\"\n", item.c_str());
     }
     fprintf(asm_out_file, "\t.popsection\n");
+
+    message("addded metadata to assembly output of '%s'", in_fnames[0]);
 }
 
 /*
@@ -302,6 +318,8 @@ plugin_init(struct plugin_name_args* plugin_info,
     if (!plugin_default_version_check(version, &gcc_version)) {
         return 1;
     }
+
+    message("initializing plugin for '%s'...", in_fnames[0]);
 
     bool error = false;
 
