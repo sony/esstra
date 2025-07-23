@@ -2,18 +2,10 @@
 
 ## Installation
 
-Before using these tests, you need to install pytest. This can be done in either of the following ways:
-
-### Option 1: Using pip
+Before using these tests, you need to install pytest. This can be done in the following way:
 
 ```sh
 $ pip install pytest
-```
-
-### Option 2: Using apt (Debian/Ubuntu)
-
-```sh
-$ apt install python3-pytest
 ```
 
 ## Usage
@@ -26,8 +18,10 @@ $ apt install python3-pytest
 
 ### Run the tests
 
+Run the tests from the top directory as below:
+
 ```sh
-$ pytest -v tests
+esstra$ pytest -v tests
 ```
 
 ## Example Output

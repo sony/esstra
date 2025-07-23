@@ -3,6 +3,7 @@
 
 import subprocess
 import pytest
+import shutil
 
 from pathlib import Path
 
@@ -111,12 +112,8 @@ def generate_test_files():
     # Yield to allow tests to run
     yield
 
-    # Clean up test files after tests
-    files_to_remove = [simple_c, helper_c, binary_with_metadata,
-                       another_binary, binary_without_metadata]
-    for file in files_to_remove:
-        if file.exists():
-            file.unlink()
+    # Clean up the above created test directory after tests
+    shutil.rmtree(test_dir)
 
 
 @pytest.fixture
