@@ -33,6 +33,10 @@ install-specs: $(ESSTRACORE) $(ESSTRALINK)
 	perl -pe 's@^(\*link:\n)@\1-plugin=$(INSTALLDIR_PLUGIN)/$(ESSTRALINK) \3@' > $(SPECFILE)
 	@echo "* spec file installed successfully: '$(SPECFILE)'" ; \
 
+uninstall: uninstall-specs
+	rm -f $(INSTALLDIR_PLUGIN)/$(ESSTRACORE) $(INSTALLDIR_PLUGIN)/$(ESSTRALINK)
+	rm -f $(INSTALLDIR_BIN)/$(ESSTRAUTIL)
+
 uninstall-specs:
 	@[ -e $(SPECFILE) ] && \
 	(rm -f $(SPECFILE) && echo "* spec file removed successfully: '$(SPECFILE)'") || \
