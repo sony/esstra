@@ -319,10 +319,6 @@ compiling any kind of project -- whether it's open-source or closed-source.
 > will involve **ESSTRA Core** and **ESSTRA Link**.
 > Please install the spec file with caution to avoid unintended interference.
 
-> [!WARNING]
-> If a spec file already exists on your system, this installation will overwrite it
-> **without creating a backup**.
-
 To uninstall the spec file, run:
 
 ```sh
@@ -330,7 +326,10 @@ $ sudo make uninstall-specs
 ```
 
 > [!WARNING]
-> This command simply deletes the spec file, **regardless of whether it's your own**.
+> `make install-specs` and `make uninstall-specs` commands will overwrite or delete a spec file
+> **regardless of whether you already have your own spec file**.
+> So, if you have your own spec file, please refrain from using these commands and edit the
+> spec file manually instead.
 
 ## How to Uninstall
 
