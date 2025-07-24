@@ -249,6 +249,15 @@ $ esstra show hello
 Exception: RuntimeError("section not found: .'esstra")
 ```
 
+## How to uninstall
+
+To uninstall the ESSTRA Utility from your system, run the
+following command:
+
+```sh
+$ sudo make uninstall
+```
+
 ## License
 
 See the [LICENSE](../LICENSE) file.

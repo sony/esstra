@@ -9,12 +9,15 @@ PREFIX ?= /usr/local
 GCC_PLUGIN_DIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin
 GCC_PLUGIN_DIR := $(subst //,/,$(GCC_PLUGIN_DIR))
 ESSTRACORE ?= $(GCC_PLUGIN_DIR)/esstracore.so
+ESSTRALINK ?= $(GCC_PLUGIN_DIR)/esstralink.so
 
 ifdef DEBUG
 DEBUGFLAG := -fplugin-arg-esstracore-debug=$(DEBUG)
 endif
 
-CFLAGS += -fplugin=$(ESSTRACORE) $(DEBUGFLAG) -O2 -Wall
+CFLAGS += -O2 -Wall
+CFLAGS += -fplugin=$(ESSTRACORE) $(DEBUGFLAG)
+CFLAGS += -Wl,-plugin=$(ESSTRALINK)
 
 SOURCES := hello_main.c hello_sub.c
 TARGET := hello2

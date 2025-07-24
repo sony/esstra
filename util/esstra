@@ -32,7 +32,7 @@ import tempfile
 import yaml
 
 TOOL_NAME = 'ESSTRA Utility'
-TOOL_VERSION = '0.2.0'
+TOOL_VERSION = '0.3.0-develop'
 SECTION_NAME = '.esstra'
 DATA_FORMAT_VERSION = '0.1.0'
 ACCEPTABLE_DATA_FORMAT_VERSION = (
