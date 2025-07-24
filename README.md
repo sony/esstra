@@ -51,7 +51,7 @@ in the resulting binary file.
 Specifically, it removes redundant entries from the metadata originating from multiple object
 files, ensuring the uniqueness of the information.
 
-**ESSTRA Utility** (`esstra.py`) is a Python script that provides access to the metadata embedded
+**ESSTRA Utility** (`esstra`) is a Python script that provides access to the metadata embedded
 in binary files by **ESSTRA Core** and **ESSTRA Link**.
 It offers functionality such as displaying metadata contents, attaching related information,
 and removing metadata from binary files.
@@ -114,7 +114,7 @@ $ sudo make install
 
 Then, `esstracore.so` and `esstralink.so` are installed to
 `/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/`,
-and `esstra.py` is installed to `/usr/local/bin/` by default.
+and the script `esstra` is installed to `/usr/local/bin/` by default.
 Please make sure that `/usr/local/bin` is included in your system's PATH.
 
 Here, `<gcc-arch>` refers to a string like `x86_64-linux-gnu`, which can be obtained using the
@@ -180,8 +180,9 @@ $ gcc -fplugin=/usr/local/.../esstracore.so \
 
 ### Accessing the Metadata
 
-To access the embedded metadata, use the script `esstra.py`.  The
+To access the embedded metadata, use the script `esstra`.  The
 first argument of this script is a *command*, and the second or subsequent arguments are the
+arguments of the *command*.
 
 The command `show` outputs metadata in binary files in YAML format to the standard output.
 A command line:

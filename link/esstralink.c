@@ -54,9 +54,9 @@ oncleanup(void)
         // child process
         char filename[PATH_MAX];
         strncpy(filename, link_output_name, PATH_MAX - 1);
-        char *args[] = {"esstra.py", "shrink", filename, NULL};
+        char *args[] = {"esstra", "shrink", filename, NULL};
         message(LDPL_INFO, "[%s] invoking: '%s %s %s'...", tool_name, args[0], args[1], args[2]);
-        execvp("esstra.py", args);
+        execvp("esstra", args);
         // below runs only on error
         message(LDPL_FATAL, "[%s] execvp failed: %s", tool_name, strerror_r(errno, buf, sizeof(buf)));
         return LDPS_ERR;

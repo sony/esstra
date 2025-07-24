@@ -5,7 +5,7 @@ PREFIX ?= /usr/local
 
 ESSTRACORE := esstracore.so
 ESSTRALINK := esstralink.so
-ESSTRAUTIL := esstra.py
+ESSTRAUTIL := esstra
 
 SUBDIRS := core link util
 
