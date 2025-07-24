@@ -294,7 +294,7 @@ tedious. To simplify this process, run the following command:
 $ sudo make install-specs
 ```
 
-This installs the [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
+This installs a [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
 that configures your system to automatically apply the following options:
 
 * `-fplugin=/usr/local/.../esstracore.so` (for `gcc/g++`)
