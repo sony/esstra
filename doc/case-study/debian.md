@@ -363,10 +363,10 @@ with `+` should be added:
  override_dh_strip:
          dh_strip
          cd debian/unzip/usr/bin && rm -f zipinfo && ln unzip zipinfo
-+        $(ESSTRAUTIL) rm --ignore-errors `find debian/unzip/ -type f -executable`
++        $(ESSTRA_UTIL) rm --ignore-errors `find debian/unzip/ -type f -executable`
 +        for debug in `find debian/.debhelper/unzip/dbgsym-root/ -name "*.debug"` ; do \
 +                yaml=$${debug%.debug}.yaml ; \
-+                ($(ESSTRA_UTIL) show --no-comments $$debug > $$yaml && $(ESSTRAUTIL) rm $$debug) || rm -f $$yaml ; \
++                ($(ESSTRA_UTIL) show --no-comments $$debug > $$yaml && $(ESSTRA_UTIL) rm $$debug) || rm -f $$yaml ; \
 +        done
 
  override_dh_compress:
