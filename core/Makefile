@@ -35,7 +35,7 @@ $(WJCRYPTLIB_FILES):
 	(cd $(THIRD_PARTY_DIR) && git submodule init && git submodule update)
 
 $(ESSTRACORE): $(ESSTRACORE_SOURCES)
-	$(CXX) -shared $(CXXFLAGS) $^ -o $@
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $@
 
 install: $(ESSTRACORE)
 	install -m 755 -d $(INSTALLDIR)
