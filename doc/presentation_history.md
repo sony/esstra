@@ -2,7 +2,7 @@
 
 ## 2025.08.25 Open Source Summit Europe 2025
 - Description: https://sched.co/25VpB
-- Slide: https://static.sched.com/hosted_files/osseu2025/64/20250825_OSSEU2025_ESSTRA.pdf?_gl=1*1g3hvb9*_gcl_au*MTk1Nzg5NjE0Ni4xNzUzMjUzMDk5*FPAU*MTk1Nzg5NjE0Ni4xNzUzMjUzMDk5
+- Slide: https://static.sched.com/hosted_files/osseu2025/64/20250825_OSSEU2025_ESSTRA.pdf
 - Video: (TBD)
 
 ## 2025.07.18 DebConf25
