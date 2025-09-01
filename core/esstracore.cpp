@@ -50,7 +50,7 @@ int plugin_is_GPL_compatible;
 
 // version numbers
 static const string tool_name = "ESSTRA Core";
-static const string tool_version = "0.2.0";
+static const string tool_version = "0.3.0";
 static const string data_format_version = "0.1.0";
 
 // section name
