@@ -24,6 +24,11 @@ on using **ESSTRA** for open-source software and Linux distributions.
 > The metadata format and content, as well as the specifications and functionality of each
 > tool, are provisional and subject to change.
 
+For a detailed overview of ESSTRA, please refer to [the presentation delivered at Open Source Summit Europe 2025](https://static.sched.com/hosted_files/osseu2025/64/20250825_OSSEU2025_ESSTRA.pdf).
+
+## Status of This Version
+>>>>>>> main
+
 ## Development Environment
 
 **ESSTRA** is developed and tested on a PC (x86_64 architecture) running Ubuntu 24.04, using

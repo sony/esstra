@@ -186,6 +186,14 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     // get absolute path
 
+    /*
+     * Some OSes (e.g. Hurd) explicitly need to specify PATH_MAX
+     * "4096" is specified in Linux, see /usr/include/linux/limits.h
+     */
+    #ifndef PATH_MAX
+    #define PATH_MAX 4096
+    #endif
+
     char resolved[PATH_MAX];
     if (!realpath(path.c_str(), resolved)) {
         perror((path + ": realpath() failed").c_str());
