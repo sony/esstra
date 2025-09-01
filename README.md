@@ -45,7 +45,7 @@ process of GCC and embeds metadata into the resulting binary file.
 In this version, a list of the absolute paths of all source and header
 files involved in compilation is embedded in the binary file as metadata.
 
-The ESSTRA Utility (`esstra.py`) is a Python script for accessing metadata in
+The ESSTRA Utility (`esstra`) is a Python script for accessing metadata in
 binary files embedded by the ESSTRA Core.
 
 In this version, you can output metadata in YAML format, shrink metadata by
@@ -108,7 +108,7 @@ following command:
 $ sudo make install
 ```
 
-Then the files `esstracore.so` and `esstra.py` will be installed in the directory
+Then the files `esstracore.so` and `esstra` will be installed in the directory
 `/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/` and `/usr/local/bin/`,
 respectively.
 
@@ -135,7 +135,7 @@ The intervention of `esstracore.so` embeds metadata in the resulting
 binary file `hello`. Note that this does not affect the behavior of the
 binary file itself.
 
-To access the embedded metadata, use the script `esstra.py`. The first argument
+To access the embedded metadata, use the script `esstra`. The first argument
 of this script is a *command*, and the second or subsequent arguments are the
 arguments of the *command*.
 
@@ -143,7 +143,7 @@ The command `show` displays metadata in binary files in YAML format.
 A command line:
 
 ```sh
-$ esstra.py show hello
+$ esstra show hello
 ```
 
 would generate an output as follows:
@@ -155,7 +155,7 @@ would generate an output as follows:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.2.0
+  ToolVersion: 0.3.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c

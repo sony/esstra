@@ -298,7 +298,7 @@ all the ELF files that are to be included in the binary package:
  #!/usr/bin/make -f
 
 +ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
-+ESSTRA_UTIL := /usr/local/bin/esstra.py
++ESSTRA_UTIL := /usr/local/bin/esstra
     :
   (snip)
     :
@@ -346,7 +346,7 @@ with `+` should be added:
  #!/usr/bin/make -f
 
 +ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
-+ESSTRA_UTIL := /usr/local/bin/esstra.py
++ESSTRA_UTIL := /usr/local/bin/esstra
 
  export DEB_BUILD_MAINT_OPTIONS=hardening=-format
 
@@ -587,7 +587,7 @@ for each package, so the ways of defining variables and rules may vary.
  endif
 
 +ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
-+ESSTRA_UTIL := /usr/local/bin/esstra.py
++ESSTRA_UTIL := /usr/local/bin/esstra
 
  DEB_BUILD_MAINT_OPTIONS := hardening=+all
  DEB_CFLAGS_MAINT_APPEND := -Wall -Winline
@@ -624,7 +624,7 @@ for each package, so the ways of defining variables and rules may vary.
  include /usr/share/dpkg/pkg-info.mk
 
 +ESSTRA_CORE := -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so
-+ESSTRA_UTIL := /usr/local/bin/esstra.py
++ESSTRA_UTIL := /usr/local/bin/esstra
 
  export DEB_BUILD_MAINT_OPTIONS = hardening=+all future=+lfs
 -export DEB_CFLAGS_MAINT_APPEND = -DOPENSSL_TLS_SECURITY_LEVEL=2

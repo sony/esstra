@@ -28,7 +28,7 @@ $ sudo apt install python3-yaml
 
 ## How to Install
 
-To install `esstra.py` in `/usr/local/bin/`, type:
+To install `esstra` in `/usr/local/bin/`, type:
 
 ```sh
 $ sudo make install
@@ -38,11 +38,11 @@ Ensure that the environment variable `PATH` includes `/usr/local/bin/`.
 
 ## How to Use
 
-The first argument of `esstra.py` is a *command*, and the second or subsequent
+The first argument of `esstra` is a *command*, and the second or subsequent
 arguments are the arguments for the *command*:
 
 ```sh
-$ esstra.py <command> <arg> [<arg>...]
+$ esstra <command> <arg> [<arg>...]
 ```
 
 Supported commands in this version are as follows:
@@ -57,7 +57,7 @@ Supported commands in this version are as follows:
 A command line:
 
 ```sh
-$ esstra.py show <binary> [<binary>...]
+$ esstra show <binary> [<binary>...]
 ```
 
 outputs metadata embedded in the specified binary files in YAML format.
@@ -65,7 +65,7 @@ For example, passing a binary file `hello` built from `hello.c` as in
 [Sample "hello"](../samples/hello/) to the command:
 
 ```sh
-$ esstra.py show hello
+$ esstra show hello
 ```
 
 would give you an output as follows:
@@ -110,7 +110,7 @@ Below is an example of how to use the command
 [`yq`](https://mikefarah.gitbook.io/yq) with a pipe to convert the output to JSON:
 
 ```sh
-$ esstra.py show hello | yq -oj
+$ esstra show hello | yq -oj
 {
   "Headers": {
     "ToolName": "ESSTRA Core",
@@ -163,7 +163,7 @@ The `shrink` command is meant to be used in such situations. It reduces the
 size of the binary files by removing duplication in the metadata:
 
 ```sh
-$ esstra.py shrink <binary> [<binary> ...]
+$ esstra shrink <binary> [<binary> ...]
 ```
 
 For more details, refer to the case study document
@@ -213,14 +213,14 @@ generate such files.
 A typical usage is:
 
 ```sh
-$ esstra.py update <binary> -i <spdx-tv-file>
+$ esstra update <binary> -i <spdx-tv-file>
 ```
 
 If you want to update two or binary files with two or more license information
 files at once, you can specify them all on the command line:
 
 ```sh
-$ esstra.py update <binary> [<binary> ...] -i <spdx-tv-file> [<spdx-tv-file> ..]
+$ esstra update <binary> [<binary> ...] -i <spdx-tv-file> [<spdx-tv-file> ..]
 ```
 
 For more details on the `update` command, please refer to the document
@@ -232,17 +232,17 @@ The `rm` command completely removes metadata embedded in binary files by
 the ESSTRA Core during compilation:
 
 ```sh
-$ esstra.py rm <binary> [<binary> ...]
+$ esstra rm <binary> [<binary> ...]
 ```
 
 When a binary file with metadata removed is specified for the ESSTRA Utility, an
 error occurs as shown below:
 
 ```sh
-$ esstra.py rm hello
+$ esstra rm hello
 * processing 'hello'...
 * done.
-$ esstra.py show hello
+$ esstra show hello
 #
 # BinaryFileName: hello
 #
