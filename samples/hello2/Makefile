@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: MIT
 
 CC := gcc
-GCC_MAJOR_VERSION := $(shell $(CXX) -dumpversion)
-GCC_ARCH := $(shell $(CXX) -dumpmachine)
+GCC_MAJOR_VERSION := $(shell $(CC) -dumpversion)
+GCC_ARCH := $(shell $(CC) -dumpmachine)
 
 PREFIX ?= /usr/local
 GCC_PLUGIN_DIR := $(DESTDIR)/$(PREFIX)/lib/gcc/$(GCC_ARCH)/$(GCC_MAJOR_VERSION)/plugin

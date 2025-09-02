@@ -26,7 +26,7 @@ $(WJCRYPTLIB_FILES):
 	(cd $(THIRD_PARTY_DIR) && git submodule init && git submodule update)
 
 $(ESSTRACORE): $(ESSTRACORE_SRC)
-	$(CXX) -shared $(CXXFLAGS) $^ -o $@
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $@
 
 clean:
 	rm -f *.so

@@ -51,7 +51,7 @@ int plugin_is_GPL_compatible;
 
 // version numbers
 static const string tool_name = "ESSTRA Core";
-static const string tool_version = "0.3.0-develop";
+static const string tool_version = "0.3.0";
 static const string data_format_version = "0.1.0";
 
 // section name
@@ -185,6 +185,14 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     }
 
     // get absolute path
+
+    /*
+     * Some OSes (e.g. Hurd) explicitly need to specify PATH_MAX
+     * "4096" is specified in Linux, see /usr/include/linux/limits.h
+     */
+    #ifndef PATH_MAX
+    #define PATH_MAX 4096
+    #endif
 
     char resolved[PATH_MAX];
     if (!realpath(path.c_str(), resolved)) {

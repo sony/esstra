@@ -158,21 +158,21 @@ The information embedded by ESSTRA increases the size of the ELF files. We can r
 of ELF files by eliminating duplication in the embedded information as below:
 
 ```sh
-esstra$ du -sh ../openssl-3.4.1/apps/openssl
+$ du -sh ../openssl-3.4.1/apps/openssl
 2.6M    ../openssl-3.4.1/apps/openssl
 
-esstra$ esstra shrink ../openssl-3.4.1/apps/openssl
+$ esstra shrink ../openssl-3.4.1/apps/openssl
 * processing '../openssl-3.4.1/apps/openssl'...
 * done.
 
-esstra$ du -sh ../openssl-3.4.1/apps/openssl
+$ du -sh ../openssl-3.4.1/apps/openssl
 1.3M    ../openssl-3.4.1/apps/openssl
 ```
 
 Next, display the information embedded by ESSTRA:
 
 ```sh
-esstra$ esstra show ../openssl-3.4.1/apps/openssl
+$ esstra show ../openssl-3.4.1/apps/openssl
 ```
 
 This will give an output as follows:
@@ -368,7 +368,7 @@ with the
 file downloaded from FOSSology, run the following command:
 
 ```sh
-esstra$ esstra update ../openssl-3.4.1/apps/openssl -i SPDX2TV_openssl-3.4.1.tar.gz.spdx
+$ esstra update ../openssl-3.4.1/apps/openssl -i SPDX2TV_openssl-3.4.1.tar.gz.spdx
 * processing '../openssl-3.4.1/apps/openssl'...
 * done.
 ```
@@ -377,7 +377,7 @@ If no errors occur, the process is successful. To display the metadata content
 of the ELF `openssl-3.4.1/apps/openssl`, run:
 
 ```sh
-esstra$ esstra show ../openssl-3.4.1/apps/openssl
+$ esstra show ../openssl-3.4.1/apps/openssl
 ```
 
 The result will be as follows:
