@@ -32,6 +32,9 @@ For a detailed overview of ESSTRA, please refer to [the presentation delivered a
 GCC 13.3.0 and Python 3.12.3.
 Compatibility testing has also been conducted on Ubuntu 22.04 with GCC 11.4.0 and Python 3.10.12.
 
+We have also confirmed that ESSTRA can be built and run on an Aarch64 (arm64) Docker container
+virtualized with QEMU on an x86\_64 PC.
+
 ## ESSTRA's Components
 
 The current version of **ESSTRA** consists of the three tools:
@@ -57,6 +60,11 @@ files, ensuring the uniqueness of the information.
 in binary files by **ESSTRA Core** and **ESSTRA Link**.
 It offers functionality such as displaying metadata contents, attaching related information,
 and removing metadata from binary files.
+In this version, you can output metadata in YAML format, shrink metadata by removing
+duplication, and attach license information to metadata by specifying files in the
+[SPDX 2.3 tag-value format](https://spdx.github.io/spdx-spec/v2.3/) which contain license
+information.
+
 
 ## Technical Overview
 
@@ -198,24 +206,19 @@ would generate an output as follows:
 ```yaml
 #
 # BinaryFileName: hello
-# BinaryPath: /home/snagao/work/esstra-test/hello
+# BinaryPath: /home/snagao/esstra/samples/hello/hello
 #
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.3.0
   DataFormatVersion: 0.1.0
   InputFileNames:
-  - main.c
-  - sub.c
+  - hello.c
 SourceFiles:
-- Directory: /home/snagao/work/esstra-test
+- Directory: /home/snagao/esstra/samples/hello
   Files:
-  - File: main.c
-    SHA1: f7f5c447d68fd9685594a31cb10c8d8b1dd5ebd6
-  - File: sub.c
-    SHA1: cfb72998ae0242237fa42c8bcf61ee5887137392
-  - File: sub.h
-    SHA1: 3e5b3ed1aed966c0e0c183eac8fe6ea02dfa62a0
+  - File: hello.c
+    SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
 - Directory: /usr/include
   Files:
   - File: features-time64.h
