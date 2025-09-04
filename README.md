@@ -32,7 +32,7 @@ For a detailed overview of ESSTRA, please refer to [the presentation delivered a
 GCC 13.3.0 and Python 3.12.3.
 Compatibility testing has also been conducted on Ubuntu 22.04 with GCC 11.4.0 and Python 3.10.12.
 
-We have also confirmed that ESSTRA can be built and run on an Aarch64 (arm64) Docker container
+We have also confirmed that **ESSTRA** can be built and run on an Aarch64 (arm64) Docker container
 virtualized with QEMU on an x86\_64 PC.
 
 ## ESSTRA's Components
