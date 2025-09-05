@@ -210,7 +210,7 @@ would generate an output as follows:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.3.0
+  ToolVersion: 0.4.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c

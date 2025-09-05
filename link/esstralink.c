@@ -27,7 +27,7 @@
 #include "plugin-api.h"
 
 static const char *tool_name = "ESSTRA Link";
-static const char *tool_version = "0.3.0-develop";
+static const char *tool_version = "0.4.0";
 
 static ld_plugin_message message;
 static const char *link_output_name = NULL;
