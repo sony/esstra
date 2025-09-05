@@ -78,6 +78,9 @@ class MetadataHandler:
         if not Path(binary_path).is_file():
             raise RuntimeError(f'not a file: {binary_path!r}')
 
+        self._system_header_paths = self.__get_system_header_paths()
+        debug(f'system header paths: {self._system_header_paths!r}')
+
         self._binary_path = binary_path
         self._raw_data = self.__extract_metadata(binary_path)
         self._parsed_data = self.__decode_metadata(self._raw_data)
@@ -152,6 +155,40 @@ class MetadataHandler:
     def __run_command(self, command_line):
         return subprocess.run(
             command_line, capture_output=True, shell=True, encoding='utf-8')
+
+    def __get_system_header_paths(self):
+        def extract_search_paths(lines):
+            START_MARK = '<...> search starts here'
+            END_MARK = 'End of search list'
+            paths = []
+            inside_list = False
+            for line in lines:
+                if START_MARK in line:
+                    inside_list = True
+                    continue
+                if END_MARK in line:
+                    break
+                if inside_list:
+                    paths.append(line.strip())
+            return paths
+
+        result = self.__run_command('gcc -xc -E -v /dev/null')
+        if result.returncode:
+            raise RuntimeError('could not obtain system header paths')
+        c_paths = extract_search_paths(result.stderr.splitlines())
+
+        result = self.__run_command('gcc -xc++ -E -v /dev/null')
+        if result.returncode:
+            raise RuntimeError('could not obtain system header paths')
+        cpp_paths = extract_search_paths(result.stderr.splitlines())
+
+        return sorted(list(set(c_paths + cpp_paths)))
+
+    def __is_system_header_path(self, path):
+        for syspath in self._system_header_paths:
+            if path.startswith(syspath):
+                return True
+        return False
 
     def __exists_metadata(self, bianry_path):
         result = self.__run_command(
