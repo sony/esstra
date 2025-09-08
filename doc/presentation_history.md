@@ -3,7 +3,7 @@
 ## 2025.08.25 Open Source Summit Europe 2025
 - Description: https://sched.co/25VpB
 - Slide: https://static.sched.com/hosted_files/osseu2025/64/20250825_OSSEU2025_ESSTRA.pdf
-- Video: (TBD)
+- Video: https://youtu.be/xCYLJpCDlOE?si=zoP42jOmIMDu8Wo0
 
 ## 2025.07.18 DebConf25
 - Description: https://debconf25.debconf.org/talks/118-project-esstra-a-software-suite-to-enhance-software-transparency-and-traceability-in-the-software-supply-chain
