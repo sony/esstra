@@ -23,12 +23,14 @@
 #
 
 from abc import ABC, abstractmethod
+import os
 import sys
 import argparse
 from pathlib import Path
 import subprocess
 import re
 import tempfile
+from enum import Enum, auto
 import yaml
 
 TOOL_NAME = 'ESSTRA Utility'
@@ -144,6 +146,66 @@ class MetadataHandler:
                 f'objcopy returned with output: {result.stderr!r}')
 
         return True
+
+    def relativize_paths_auto(self, to=None):
+        if to is None:
+            to = '.'
+        else:
+            to = os.path.normpath(to)
+
+        dirs = [
+            directory[self.KEY_DIRECTORY]
+            for directory in self._shrunk_data[self.KEY_SOURCE_FILES]
+            if not any(map(
+                    lambda x: directory[self.KEY_DIRECTORY].startswith(x),
+                    self._system_header_paths))
+        ]
+        common_path = os.path.commonpath(dirs)
+        debug(f'common_path: {common_path!r}')
+        if common_path in ('', to):
+            debug(f'nothing to do: common_path={common_path!r}, to={to!r}')
+            return
+
+        debug('original: ' + '\n'.join(dirs))
+        debug(f'relativize to={to!r}')
+        for directory in self._shrunk_data[self.KEY_SOURCE_FILES]:
+            if any(map(
+                    lambda x: directory[self.KEY_DIRECTORY].startswith(x),
+                    self._system_header_paths)):
+                continue
+            dirname = directory[self.KEY_DIRECTORY]
+            if dirname.startswith(common_path):
+                trimmed = dirname[len(common_path):]
+                if len(trimmed) > 0 and trimmed[0] != '/':
+                    debug(f'not absoulte path: {trimmed!r}')
+                    continue
+                dirname = f'{to}{trimmed}'
+                debug(f'  ==> relative dir={dirname!r}')
+                directory[self.KEY_DIRECTORY] = dirname
+            print(directory[self.KEY_DIRECTORY])
+
+    def relativize_paths_by_rule(self, rule):
+        normalized_rule = {
+            os.path.normpath(path_from): os.path.normpath(path_to)
+            for path_from, path_to in rule.items()
+        }
+        debug(f'rule={rule!r}')
+        debug(f'normalized_rule={normalized_rule!r}')
+
+        sourcefiles = self._shrunk_data[self.KEY_SOURCE_FILES]
+        for directory in sourcefiles:
+            dirname = directory[self.KEY_DIRECTORY]
+            for path_from, path_to in normalized_rule.items():
+                if dirname.startswith(path_from):
+                    break
+            else:
+                debug(f'{dirname!r}: rule not matched')
+                continue
+
+            debug(f'substitute {path_from!r} to {path_to!r} in {dirname!r}')
+            dirname = dirname.replace(path_from, path_to, 1)
+            debug(f'  ==> relative dir={dirname!r}')
+            directory[self.KEY_DIRECTORY] = dirname
 
     def dump_shrunk_data(self):
         return yaml.safe_dump(self._shrunk_data, sort_keys=False)
@@ -561,11 +623,32 @@ class CommandShrink(CommandBase):
     NAME = 'shrink'
     DESCRIPTION = 'shrink embedded information by removing duplication'
 
+    class FilePrefixMap(Enum):
+        AUTO = 'auto'
+        DISABLE = 'disable'
+        RULE = 'rule'
+
     def setup_parser(self, parser):
         super().setup_parser(parser, binaries=True, backup=True)
+        parser.add_argument(
+            '--file-prefix-map',
+            default=self.FilePrefixMap.AUTO,
+            help='specify path substitution rule')
+        parser.add_argument(
+            '--dry-run',
+            action='store_true',
+            help='jusr run the process and do not update metadata in bianry')
 
     def run_command(self, args):
         errors = 0
+
+        # parse path substitution rule
+        mapmode, maparg = self.__parse_file_prefix_map(args.file_prefix_map)
+        debug(f'parsed file-prefix-map: {mapmode!r}, {maparg!r}')
+        if mapmode is None:
+            error(f'invalid value of --file-prefix-map: {args.file_prefix_map!r}')
+            return 1
+
         for binary in args.binary:
             if binary.endswith(f'.{args.backup_suffix}'):
                 message(f'skip backup file {binary!r}.')
@@ -573,14 +656,29 @@ class CommandShrink(CommandBase):
             message(f'shrinking metadata of {binary!r}...')
             try:
                 handler = MetadataHandler(binary)
-                handler.update_metadata(
-                    binary,
-                    args.backup,
-                    args.backup_suffix,
-                    args.overwrite_backup)
+                print(handler)
             except Exception as ex:
                 error(f'failed to update metadata: {ex}')
                 errors += 1
+
+            if mapmode == self.FilePrefixMap.AUTO:
+                handler.relativize_paths_auto(maparg)
+            elif mapmode == self.FilePrefixMap.RULE:
+                handler.relativize_paths_by_rule(maparg)
+
+            # update metadata in binary file
+            if args.dry_run:
+                message('binary not updated (--dry-run)')
+            else:
+                try:
+                    handler.update_metadata(
+                        binary,
+                        args.backup,
+                        args.backup_suffix,
+                        args.overwrite_backup)
+                except Exception as ex:
+                    error(f'failed to update metadata: {ex}')
+                    errors += 1
 
         if errors:
             message(f'done with {errors} error(s).')
@@ -588,6 +686,48 @@ class CommandShrink(CommandBase):
 
         message('done.')
         return 0
+
+    @classmethod
+    def __parse_file_prefix_map(cls, option):
+        # auto
+        if option == cls.FilePrefixMap.AUTO.value:
+            debug('>> auto')
+            return cls.FilePrefixMap.AUTO, None
+        # auto:<path>
+        if option.startswith(cls.FilePrefixMap.AUTO.value + ':'):
+            stride = len(cls.FilePrefixMap.AUTO.value) + 1
+            arg = option[stride:]
+            debug(f'>> auto with arg:{arg!r}')
+            return cls.FilePrefixMap.AUTO, arg
+        # disable
+        if option == cls.FilePrefixMap.DISABLE.value:
+            return cls.FilePrefixMap.DISABLE, None
+        # rule (from=to,from=to,...,from=to)
+        if '=' in option:
+            rule = cls.__parse_file_prefix_map_rule(option)
+            return cls.FilePrefixMap.RULE, rule
+        # parse failed
+        return None, None
+
+    @classmethod
+    def __parse_file_prefix_map_rule(cls, option):
+        # parse 'from=to,from=to,...,from=to' into
+        # a dict {from:to, from:to, ..., from:to}
+        errors = 0
+        rule = {}
+        for elem in option.split(','):
+            # elem should be in the form of 'from=to'
+            if '=' not in elem:
+                error(f'file-prefix-map: invalid expression {elem!r}')
+                errors += 1
+                continue
+            path_from, path_to = elem.split('=', 1)
+            rule[path_from] = path_to
+
+        if errors > 0:
+            return None
+
+        return rule
 
 
 class CommandUpdate(CommandBase):
