@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 CC := gcc
-PLUGIN_INCLUDE_DIR := $(shell $(CXX) -print-file-name=plugin)
+PLUGIN_INCLUDE_DIR := $(shell $(CC) -print-file-name=plugin)
 CFLAGS += -Wall -Wextra -I$(PLUGIN_INCLUDE_DIR)/include -fPIC -O2
 
 ESSTRALINK_SRC := esstralink.c
