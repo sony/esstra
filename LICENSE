@@ -1,5 +1,5 @@
-GCC Plugin file ./core/esstracore.cpp:
-======================================
+File core/esstracore.cpp:
+=========================
 
 SPDX-License-Identifier: GPL-3.0-or-later
 SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
@@ -18,15 +18,35 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 
-Third party modules under ./third-party:
-========================================
+File link/esstralink.cpp:
+=========================
+
+SPDX-License-Identifier: GPL-3.0-or-later
+SPDX-FileCopyrightText: Copyright 2025 Sony Group Corporation
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+
+Files under third-party/:
+=========================
 
 The "third-party" directory contains code from other projects.
 Each directory has its project's license terms and conditions.
 
 
-Other files under ./:
-=====================
+All other files:
+================
 
 SPDX-License-Identifier: MIT
 SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
