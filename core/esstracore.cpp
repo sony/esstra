@@ -318,6 +318,29 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 }
 
 /*
+ * parse comma connected argument
+ */
+static void
+parse_comma_connected_arg(const char *arg, vector<string>& parsed_args)
+{
+    string elem;
+    while (*arg) {
+        if (*arg == ',') {
+            if (elem.length() > 0) {
+                parsed_args.push_back(elem);
+            }
+            elem = "";
+        } else {
+            elem += string(arg, 1);
+        }
+        arg++;
+    }
+    if (elem.length() > 0) {
+        parsed_args.push_back(elem);
+    }
+}
+
+/*
  * initialization
  */
 int
@@ -343,25 +366,19 @@ plugin_init(struct plugin_name_args* plugin_info,
             if (flag_debug) {
                 debug("debug mode enabled");
             }
+        } else if (strcmp(argv->key, "file-prefix-map") == 0) {
+            debug("file-prefix-map: %s", argv->value);
+            vector<string> prefix_maps;
+            parse_comma_connected_arg(argv->value, prefix_maps);
+            if (flag_debug) {
+                for (const auto& prefix_map: prefix_maps) {
+                    debug("prefix_map: '%s'", prefix_map.c_str());
+                }
+            }
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug("arg-checksum: %s", argv->value);
-            auto value = reinterpret_cast<const char*>(argv->value);
-            string algo;
             specified_algos.clear(); // delete default algo
-            while (*value) {
-                if (*value == ',') {
-                    if (algo.length() > 0) {
-                        specified_algos.push_back(algo);
-                    }
-                    algo = "";
-                } else {
-                    algo += string(value, 1);
-                }
-                value++;
-            }
-            if (algo.length() > 0) {
-                specified_algos.push_back(algo);
-            }
+            parse_comma_connected_arg(argv->value, specified_algos);
             // check if specified algos are supported
             for (const auto& algo: specified_algos) {
                 if (!is_algo_supported(algo)) {
@@ -370,6 +387,9 @@ plugin_init(struct plugin_name_args* plugin_info,
                 }
                 debug("algo: '%s'", algo.c_str());
             }
+        } else {
+            message("unknown option: %s", argv->key);
+            error = true;
         }
         argv++;
     }
