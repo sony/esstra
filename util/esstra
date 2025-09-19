@@ -632,7 +632,7 @@ class CommandShrink(CommandBase):
         super().setup_parser(parser, binaries=True, backup=True)
         parser.add_argument(
             '--file-prefix-map',
-            default=self.FilePrefixMap.AUTO,
+            default=self.FilePrefixMap.AUTO.value,
             help='specify path substitution rule')
         parser.add_argument(
             '--dry-run',
