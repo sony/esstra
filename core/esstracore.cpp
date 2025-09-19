@@ -342,7 +342,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     }
     fprintf(asm_out_file, "\t.popsection\n");
 
-    message("addded metadata to assembly output of '%s'", in_fnames[0]);
+    message("added metadata to assembly output of '%s'", in_fnames[0]);
 }
 
 /*
