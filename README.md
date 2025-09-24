@@ -21,7 +21,8 @@ Linux distributions.
 > Please be aware that the metadata format and content, as well as the specifications and
 > functionality of each tool, are provisional and subject to change.
 
-For a detailed overview of ESSTRA, please refer to [doc/project_overview.md](https://github.com/sony/esstra/blob/main/doc/project_overview.md).
+For a detailed overview of ESSTRA, please refer to
+[doc/project_overview.md](https://github.com/sony/esstra/blob/main/doc/project_overview.md).
 
 ## Development Environment
 
@@ -132,9 +133,9 @@ In the case of our development environment mentioned above, the installation pat
 
 The workflow using **ESSTRA** consists of the following steps:
 
-1. Compile source files with GCC using **ESSTRA Core** to generate object files.
-2. Link the object files using **ESSTRA Link** to produce the binary file.
-3. Access the metadata embedded in the binary file using **ESSTRA Utility**.
+1. Compile source files with GCC using **the ESSTRA Core** to generate object files.
+2. Link the object files using **the ESSTRA Link** to produce the binary file.
+3. Access the metadata embedded in the binary file using **the ESSTRA Utility**.
 
 The example below compiles the source file `main.c` and `sub.c` with `gcc` and generates the
 binary file `hello`.
@@ -152,7 +153,7 @@ $ gcc -fplugin=/usr/local/.../esstracore.so -c sub.c -o sub.o
 Then the intervention of `esstracore.so` embeds metadata in the resulting object files
 `main.o` and `sub.o`.
 
-For more details on **ESSTRA Core**, please refer to [core/README.md](/core/README.md).
+For more details on **the ESSTRA Core**, please refer to [core/README.md](/core/README.md).
 
 ### Linking
 
@@ -170,7 +171,7 @@ object files `main.o` and `sub.o`.
 Note that **ESSTRA**'s intervention in the compilation and the linking process does not affect
 the behavior of the resulting binary files.
 
-For more details on **ESSTRA Link**, please refer to [link/README.md](/link/README.md).
+For more details on **the ESSTRA Link**, please refer to [link/README.md](/link/README.md).
 
 ### More Simple Way
 
@@ -277,7 +278,7 @@ SourceFiles:
     SHA1: 0de70008ffa3f198baf55c7b3f3d03b4ca11c21f
 ```
 
-For more details on **ESSTRA Utility** and the structure of the metadata, please refer to
+For more details on **the ESSTRA Utility** and the structure of the metadata, please refer to
 [util/README.md](/util/README.md).
 
 ## Installing GCC Spec File
