@@ -40,7 +40,7 @@ The current version of **ESSTRA** consists of the three tools:
 * [**ESSTRA Link**](link/README.md)
 * [**ESSTRA Utility**](util/README.md)
 
-**ESSTRA Core** (`esstracore.so`) is a [GCC plugin](https://gcc.gnu.org/wiki/plugins) that
+**The ESSTRA Core** (`esstracore.so`) is a [GCC plugin](https://gcc.gnu.org/wiki/plugins) that
 intervenes the compilation process to embed metadata into the resulting binary files (i.e.,
 object files).  In the current version, metadata is embedded for all source and header files
 involved in the compilation, including their absolute paths and checksums.
@@ -67,7 +67,7 @@ during compilation.
 **ESSTRA Link** performs post-linking analysis to inspect and optimize the metadata merged
 by the linker.
 
-**ESSTRA Utility** allows users to access the metadata.  For example, you can update the
+**The ESSTRA Utility** allows users to access the metadata.  For example, you can update the
 metadata using license information detected from the source files, delete some or all of the
 metadata, output the metadata to the console, or pass it to other SCA (Software Composition
 Analysis) tools.
@@ -132,9 +132,9 @@ In the case of our development environment mentioned above, the installation pat
 
 The workflow using **ESSTRA** consists of the following steps:
 
-1. Compile source files with GCC using **ESSTRA Core** to generate object files.
-2. Link the object files using **ESSTRA Link** to produce the binary file.
-3. Access the metadata embedded in the binary file using **ESSTRA Utility**.
+1. Compile source files with GCC using **the ESSTRA Core** to generate object files.
+2. Link the object files using **the ESSTRA Link** to produce the binary file.
+3. Access the metadata embedded in the binary file using **the ESSTRA Utility**.
 
 The example below compiles the source file `main.c` and `sub.c` with `gcc` and generates the
 binary file `hello`.
@@ -152,7 +152,7 @@ $ gcc -fplugin=/usr/local/.../esstracore.so -c sub.c -o sub.o
 Then the intervention of `esstracore.so` embeds metadata in the resulting object files
 `main.o` and `sub.o`.
 
-For more details on **ESSTRA Core**, please refer to [core/README.md](/core/README.md).
+For more details on **the ESSTRA Core**, please refer to [core/README.md](/core/README.md).
 
 ### Linking
 
@@ -170,7 +170,7 @@ object files `main.o` and `sub.o`.
 Note that **ESSTRA**'s intervention in the compilation and the linking process does not affect
 the behavior of the resulting binary files.
 
-For more details on **ESSTRA Link**, please refer to [link/README.md](/link/README.md).
+For more details on **the ESSTRA Link**, please refer to [link/README.md](/link/README.md).
 
 ### More Simple Way
 
@@ -280,7 +280,7 @@ SourceFiles:
     SHA1: 0de70008ffa3f198baf55c7b3f3d03b4ca11c21f
 ```
 
-For more details on **ESSTRA Utility** and the structure of the metadata, please refer to
+For more details on **the ESSTRA Utility** and the structure of the metadata, please refer to
 [util/README.md](/util/README.md).
 
 ## Installing GCC Spec File
