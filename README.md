@@ -1,80 +1,74 @@
 # Project ESSTRA
 
-Project **ESSTRA**, a software suite for
-**E**nhancing **S**oftware **S**upply Chain **Tra**nsparency,
-aims to improve transparency of software supply chains as the name suggests.
+Project **ESSTRA**, a software suite for **E**nhancing **S**oftware **S**upply Chain
+**Tra**nsparency, aims to improve transparency of software supply chains as the name suggests.
 
 More specifically, the goal of the project is to provide a set of tools to help illuminate and
 unveil the "dark" areas in the software supply chain where critical information about software
 components is unclear, primarily from a software traceability and compliance perspective.
 
 In the current version of **ESSTRA**, metadata is embedded into the resulting binary files at
-compile time using GCC.
-The metadata contains information about the source and header files from which the binary file
-has been generated.
+compile time using GCC.  The metadata contains information about the source and header files
+from which the binary file has been generated.
 
-For detailed usage and applications, please refer to the
-[Samples](./samples/)
-that help you understand **ESSTRA** using simple source code, as well as the
-[Case Study documentation](./doc/case-study)
-on using **ESSTRA** for open-source software and Linux distributions.
+For detailed usage and applications, please refer to the [Samples](./samples/) that help you
+understand **ESSTRA** using simple source code, as well as the
+[Case Study documentation](./doc/case-study) on using **ESSTRA** for open-source software and
+Linux distributions.
 
 > [!NOTE]
 > The current version of **ESSTRA** is under active development.
 > The metadata format and content, as well as the specifications and functionality of each
 > tool, are provisional and subject to change.
 
-For a detailed overview of ESSTRA, please refer to [the presentation delivered at Open Source Summit Europe 2025](https://static.sched.com/hosted_files/osseu2025/64/20250825_OSSEU2025_ESSTRA.pdf).
+For a detailed overview of ESSTRA, please refer to
+[the presentation delivered at Open Source Summit Europe 2025](https://static.sched.com/hosted_files/osseu2025/64/20250825_OSSEU2025_ESSTRA.pdf).
 
 ## Development Environment
 
 **ESSTRA** is developed and tested on a PC (x86_64 architecture) running Ubuntu 24.04, using
-GCC 13.3.0 and Python 3.12.3.
-Compatibility testing has also been conducted on Ubuntu 22.04 with GCC 11.4.0 and Python 3.10.12.
+GCC 13.3.0 and Python 3.12.3.  Compatibility testing has also been conducted on Ubuntu 22.04
+with GCC 11.4.0 and Python 3.10.12.
 
-We have also confirmed that **ESSTRA** can be built and run on an Aarch64 (arm64) Docker container
-virtualized with QEMU on an x86\_64 PC.
+We have also confirmed that **ESSTRA** can be built and run on an Aarch64 (arm64) Docker
+container virtualized with QEMU on an x86\_64 PC.
 
 ## ESSTRA's Components
 
 The current version of **ESSTRA** consists of the three tools:
 
-* [**ESSTRA Core**](./core/README.md)
-* [**ESSTRA Link**](./link/README.md)
-* [**ESSTRA Utility**](./util/README.md)
+* [**ESSTRA Core**](core/README.md)
+* [**ESSTRA Link**](link/README.md)
+* [**ESSTRA Utility**](util/README.md)
 
-**ESSTRA Core** (`esstracore.so`) is a [GCC plugin](https://gcc.gnu.org/wiki/plugins) that
+**The ESSTRA Core** (`esstracore.so`) is a [GCC plugin](https://gcc.gnu.org/wiki/plugins) that
 intervenes the compilation process to embed metadata into the resulting binary files (i.e.,
-object files).
-In the current version, metadata is embedded for all source and header files involved in the
-compilation, including their absolute paths and checksums.
+object files).  In the current version, metadata is embedded for all source and header files
+involved in the compilation, including their absolute paths and checksums.
 
-**ESSTRA Link** (`esstralink.so`) is a
-[GNU linker plugin](https://sourceware.org/binutils/docs/ld/Plugins.html)
-that performs post-processing during the linking phase of GCC to optimize the metadata embedded
-in the resulting binary file.
+**The ESSTRA Link** (`esstralink.so`) is a [GNU linker
+plugin](https://sourceware.org/binutils/docs/ld/Plugins.html) that performs post-processing
+during the linking phase of GCC to optimize the metadata embedded in the resulting binary file.
 Specifically, it removes redundant entries from the metadata originating from multiple object
 files, ensuring the uniqueness of the information.
 
-**ESSTRA Utility** (`esstra`) is a Python script that provides access to the metadata embedded
-in binary files by **ESSTRA Core** and **ESSTRA Link**.
-It offers functionality such as displaying metadata contents, attaching related information,
-and removing metadata from binary files.
-In this version, you can output metadata in YAML format, shrink metadata by removing
-duplication, and attach license information to metadata by specifying files in the
-[SPDX 2.3 tag-value format](https://spdx.github.io/spdx-spec/v2.3/) which contain license
-information.
-
+**The ESSTRA Utility** (`esstra`) is a Python script that provides access to the metadata
+embedded in binary files by **the ESSTRA Core** and **the ESSTRA Link**.  It offers
+functionality such as displaying metadata contents, attaching related information, and removing
+metadata from binary files.  In this version, you can output metadata in YAML format, shrink
+metadata by removing duplication, and attach license information to metadata by specifying
+files in the [SPDX 2.3 tag-value format](https://spdx.github.io/spdx-spec/v2.3/) which contain
+license information.
 
 ## Technical Overview
 
-**ESSTRA Core** creates an ELF section in the resulting object file to store metadata during
-compilation.
+**The ESSTRA Core** creates an ELF section in the resulting object file to store metadata
+during compilation.
 
-**ESSTRA Link** performs post-linking analysis to inspect and optimize the metadata merged by
-the linker.
+**The ESSTRA Link** performs post-linking analysis to inspect and optimize the metadata merged
+by the linker.
 
-**ESSTRA Utility** allows users to access the metadata.  For example, you can update the
+**The ESSTRA Utility** allows users to access the metadata.  For example, you can update the
 metadata using license information detected from the source files, delete some or all of the
 metadata, output the metadata to the console, or pass it to other SCA (Software Composition
 Analysis) tools.
@@ -101,8 +95,8 @@ In this case, the major version is 13, so install the package named `gcc-13-plug
 $ sudo apt install gcc-13-plugin-dev
 ```
 
-Since **ESSTRA Utility** uses the [PyYAML](https://pyyaml.org/) module to handle YAML
-data, you may need to install it:
+Since **the ESSTRA Utility** uses the [PyYAML](https://pyyaml.org/) module to handle YAML data,
+you may need to install it:
 
 ```sh
 $ sudo apt install python3-yaml
@@ -116,16 +110,17 @@ $ make
 
 If no errors, the build is complete.
 
-To install **ESSTRA Core**, **ESSTRA Link** and **ESSTRA Utility** on your system, run the following command:
+To install **the ESSTRA Core**, **the ESSTRA Link** and **the ESSTRA Utility** on your system,
+run the following command:
 
 ```sh
 $ sudo make install
 ```
 
 Then, `esstracore.so` and `esstralink.so` are installed to
-`/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/`,
-and the script `esstra` is installed to `/usr/local/bin/` by default.
-Please make sure that `/usr/local/bin` is included in your system's PATH.
+`/usr/local/lib/gcc/<gcc-arch>/<gcc-major-version>/plugin/`, and the script `esstra` is
+installed to `/usr/local/bin/` by default.  Please make sure that `/usr/local/bin` is included
+in your system's PATH.
 
 Here, `<gcc-arch>` refers to a string like `x86_64-linux-gnu`, which can be obtained using the
 `gcc -dumpmachine` command, and `<gcc-major-version>` refers to a number like `13`, obtained
@@ -138,9 +133,9 @@ In the case of our development environment mentioned above, the installation pat
 
 The workflow using **ESSTRA** consists of the following steps:
 
-1. Compile source files with GCC using **ESSTRA Core** to generate object files.
-2. Link the object files using **ESSTRA Link** to produce the binary file.
-3. Access the metadata embedded in the binary file using **ESSTRA Utility**.
+1. Compile source files with GCC using **the ESSTRA Core** to generate object files.
+2. Link the object files using **the ESSTRA Link** to produce the binary file.
+3. Access the metadata embedded in the binary file using **the ESSTRA Utility**.
 
 The example below compiles the source file `main.c` and `sub.c` with `gcc` and generates the
 binary file `hello`.
@@ -158,7 +153,7 @@ $ gcc -fplugin=/usr/local/.../esstracore.so -c sub.c -o sub.o
 Then the intervention of `esstracore.so` embeds metadata in the resulting object files
 `main.o` and `sub.o`.
 
-For more details on **ESSTRA Core**, please refer to [core/README.md](/core/README.md).
+For more details on **the ESSTRA Core**, please refer to [core/README.md](/core/README.md).
 
 ### Linking
 
@@ -173,10 +168,10 @@ $ gcc -Wl,-plugin=/usr/local/.../esstralink.so main.o sub.o -o hello
 As a result, the generated `hello` binary file contains optimized metadata inherited from the
 object files `main.o` and `sub.o`.
 
-Note that **ESSTRA**'s intervention in the compilation and linking process does not affect the
-behavior of the resulting binary files.
+Note that **ESSTRA**'s intervention in the compilation and the linking process does not affect
+the behavior of the resulting binary files.
 
-For more details on **ESSTRA Link**, please refer to [link/README.md](/link/README.md).
+For more details on **the ESSTRA Link**, please refer to [link/README.md](/link/README.md).
 
 ### More Simple Way
 
@@ -190,12 +185,11 @@ $ gcc -fplugin=/usr/local/.../esstracore.so \
 
 ### Accessing the Metadata
 
-To access the embedded metadata, use the script `esstra`.  The
-first argument of this script is a *command*, and the second or subsequent arguments are the
-arguments of the *command*.
+To access the embedded metadata, use the script `esstra`.  The first argument of this script is
+a *command*, and the second or subsequent arguments are the arguments of the *command*.
 
-The command `show` outputs metadata in binary files in YAML format to the standard output.
-A command line:
+The command `show` outputs metadata in binary files in YAML format to the standard output.  A
+command line:
 
 ```sh
 $ esstra show hello
@@ -215,7 +209,7 @@ Headers:
   InputFileNames:
   - hello.c
 SourceFiles:
-- Directory: /home/snagao/esstra/samples/hello
+- Directory: .
   Files:
   - File: hello.c
     SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
@@ -287,7 +281,7 @@ SourceFiles:
     SHA1: 0de70008ffa3f198baf55c7b3f3d03b4ca11c21f
 ```
 
-For more details on **ESSTRA Utility** and the structure of the metadata, please refer to
+For more details on **the ESSTRA Utility** and the structure of the metadata, please refer to
 [util/README.md](/util/README.md).
 
 ## Installing GCC Spec File
@@ -299,8 +293,8 @@ tedious. To simplify this process, run the following command:
 $ sudo make install-specs
 ```
 
-This installs a [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html)
-that configures your system to automatically apply the following options:
+This installs a [GCC spec file](https://gcc.gnu.org/onlinedocs/gcc/Spec-Files.html) that
+configures your system to automatically apply the following options:
 
 * `-fplugin=/usr/local/.../esstracore.so` (for `gcc/g++`)
 * `-plugin=/usr/local/.../esstralink.so` (for `ld`)
@@ -311,8 +305,8 @@ After installation, you can compile your code as usual:
 $ gcc main.c sub.c -o hello
 ```
 
-**ESSTRA Core** and **ESSTRA Link** will be automatically used during compilation and linking,
-embedding and optimizing metadata in the resulting binary `hello`.
+**The ESSTRA Core** and **the ESSTRA Link** will be automatically used during compilation and
+linking, embedding and optimizing metadata in the resulting binary `hello`.
 
 This is a very handy feature when you want to get the information **ESSTRA** generates while
 compiling any kind of project -- whether it's open-source or closed-source.
@@ -330,15 +324,14 @@ $ sudo make uninstall-specs
 ```
 
 > [!WARNING]
-> `make install-specs` and `make uninstall-specs` commands will overwrite or delete a spec file
-> **regardless of whether you already have your own spec file**.
-> So, if you have your own spec file, please refrain from using these commands and edit the
-> spec file manually instead.
+> `make install-specs` and `make uninstall-specs` commands will overwrite and delete a spec
+> file **regardless of whether you already have your own spec file**.  So, if you have your own
+> spec file, please refrain from using these commands and edit the spec file manually instead.
 
 ## How to Uninstall
 
-To uninstall the ESSTRA Core, the ESSTRA Utility, and spec file from your system, run the
-following command in the top directory :
+To uninstall **the ESSTRA Core**, **the ESSTRA Utility**, and spec file from your system, run
+the following command in the top directory:
 
 ```sh
 $ sudo make uninstall
@@ -346,4 +339,4 @@ $ sudo make uninstall
 
 ## License
 
-See the [LICENSE](./LICENSE) file.
+See the [LICENSE](LICENSE) file.
