@@ -11,11 +11,10 @@ contains information about all source files involved in the compilation, such
 as absolute paths and checksums. We will verify this using
 [**ESSTRA Utility**](/util/README.md).
 
-Next, we will demonstrate how to use **ESSTRA Utility**'s feature that adds
-license information of source files to the metadata.
-In this sample, we will use the license information files prepared by the license analysis tools.
-Using this information, we will update the metadata with the **ESSTRA Utility**
-Utility and verify that the license information has been correctly associated
+Next, we will demonstrate how to use **ESSTRA Utility**'s feature that adds license information
+of source files to the metadata.  In this sample, we will use the license information files
+prepared by the license analysis tools.  Using this information, we will update the metadata
+with **ESSTRA Utility** and verify that the license information has been correctly associated
 with the metadata.
 
 The license information files

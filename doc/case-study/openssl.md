@@ -4,15 +4,16 @@ In this demo, we will explain how to use ESSTRA with a popular open-source packa
 "OpenSSL". This document is structured as a step-by-step guide, allowing you to easily
 understand the basic operations of ESSTRA by following each step in order.
 
-First, we will build the OpenSSL package using the ESSTRA Core to generate the ELF
+First, we will build the OpenSSL package using ESSTRA Core to generate the ELF
 files. These ELF files include metadata containing information about all the source files
 involved in the compilation, such as absolute paths and checksums. We will verify this using
 ESSTRA Utility.
 
 Next, we will demonstrate how to use the feature of ESSTRA Utility that adds
 license information of source files to the metadata. In this demo, we will
-use the following open-source software license analysis tools to scan the source code for licenses and generate a license information
-file.
+use the following open-source software license analysis tools to scan the source code for
+licenses and generate a license information file.
+
 * [FOSSology](https://github.com/fossology/fossology)
 * [ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit)
 
@@ -371,7 +372,8 @@ that includes the license information of the source files.
 
 #### ScanCode toolkit setup
 
-We will install the tool using the source code from the [official repository](https://github.com/aboutcode-org/scancode-toolkit).
+We will install the tool using the source code from the
+[official repository](https://github.com/aboutcode-org/scancode-toolkit).
 
 ScanCode toolkit requires a Python version between 3.9 to 3.13 to work properly.
 
@@ -632,14 +634,17 @@ The complete output of ESSTRA Utility, including license information, can be fou
 </tr>
 </table>
 
-Please note that the SPDX files generated previously by ScanCode toolkit and FOSSology contain only license information
-for the files present in the
+Please note that the SPDX files generated previously by ScanCode toolkit and FOSSology contain
+only license information for the files present in the
+
 [OpenSSL repository](https://github.com/openssl/openssl).
 Therefore, license information will not be assigned to files
 other than OpenSSL source files in the metadata of the ELF `./openssl-3.4.1/apps/openssl`.
 
-To add license information for those files, you can use ScanCode toolkit or FOSSology or similar tools to identify their licenses and generate an SPDX tag-value format file.
-By passing the file to ESSTRA Utility, you can add license information to the metadata in the binary.
+To add license information for those files, you can use ScanCode toolkit or FOSSology or
+similar tools to identify their licenses and generate an SPDX tag-value format file.  By
+passing the file to ESSTRA Utility, you can add license information to the metadata in the
+binary.
 
 ## Analyze Effectiveness of ESSTRA for OpenSSL
 
@@ -711,6 +716,7 @@ Next, we used ESSTRA Utility to add license information to the metadata of the g
 To generate the license information, we demonstrated how to use the following open-source license analysis tools to scan the licenses of all the files in the
 [OpenSSL repository](https://github.com/openssl/openssl)
 and generate SPDX tag-value format files:
+
 * [FOSSology](https://github.com/fossology/fossology)
 * [ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit)
 
