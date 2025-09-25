@@ -4,19 +4,17 @@ In this demo, we will explain how to use ESSTRA with a popular open-source packa
 "OpenSSL". This document is structured as a step-by-step guide, allowing you to easily
 understand the basic operations of ESSTRA by following each step in order.
 
-First, we will build the OpenSSL package using the ESSTRA Core to generate the ELF
-files. These ELF files include metadata containing information about all the source files
-involved in the compilation, such as absolute paths and checksums. We will verify this using
-the ESSTRA Utility.
+First, we will build the OpenSSL package using ESSTRA Core to generate the ELF files. These ELF
+files include metadata containing information about all the source files involved in the
+compilation, such as absolute paths and checksums. We will verify this using ESSTRA Utility.
 
-Next, we will demonstrate how to use the feature of the ESSTRA Utility that adds
-license information of source files to the metadata. In this demo, we will
-use the open-source software license analysis tool
+Next, we will demonstrate how to use the feature of ESSTRA Utility that adds license
+information of source files to the metadata. In this demo, we will use the open-source software
+license analysis tool
 [FOSSology](https://github.com/fossology/fossology)
-to scan the source code for licenses and generate a license information
-file. We will then update the metadata using the ESSTRA Utility based on this
-information and verify that the license information has been correctly added to
-the metadata.
+to scan the source code for licenses and generate a license information file. We will then
+update the metadata using ESSTRA Utility based on this information and verify that the license
+information has been correctly added to the metadata.
 
 The operational procedures for the license analysis tool FOSSology are also explained in this
 guide.
@@ -27,8 +25,8 @@ Finally, we calculate the effectiveness of ESSTRA in license analysis activities
 
 ### Build and Install ESSTRA
 
-Before building the ESSTRA Core (`esstracore.so`) GCC plugin, you need to install a package on
-your system. For Debian/Ubuntu, first check the version of GCC:
+Before building ESSTRA Core (`esstracore.so`) GCC plugin, you need to install a package on your
+system. For Debian/Ubuntu, first check the version of GCC:
 
 ```sh
 $ gcc --version
@@ -118,7 +116,8 @@ openssl-3.4.1$ make
 ### Find ELF Files Generated During the Build
 
 We will use `BuildID` to find the ELF files.
-A `BuildID` is a unique identifier assigned to a specific build of a binary, embedded within the ELF file itself.
+A `BuildID` is a unique identifier assigned to a specific build of a binary, embedded within
+the ELF file itself.
 
 ```sh
 openssl-3.4.1$ find ./ -type f -exec sh -c "file '{}' | grep -q 'BuildID'" \; -print
@@ -140,8 +139,8 @@ openssl-3.4.1$ find ./ -type f -exec sh -c "file '{}' | grep -q 'BuildID'" \; -p
 
 #### Prerequisite
 
-Since the ESSTRA Utility depends on the [PyYAML](https://pyyaml.org/)
-module to handle YAML data, you may need to install it by typing:
+Since ESSTRA Utility depends on the [PyYAML](https://pyyaml.org/) module to handle YAML data,
+you may need to install it by typing:
 
 ```sh
 $ pip install pyyaml
@@ -214,15 +213,14 @@ SourceFiles:
 ```
 
 > [!NOTE]
-> You can provide multiple ELF files as arguments to the ESSTRA Utility.
+> You can provide multiple ELF files as arguments to ESSTRA Utility.
 
 The complete output in YAML format can be found in
 [yaml-report](./output-examples/openssl/esstra_scan_on_openssl_elf.yaml).
 
 ## License Analysis Using FOSSology
 
-The ESSTRA Utility includes a feature that adds license information to the metadata of each
-file.
+ESSTRA Utility includes a feature that adds license information to the metadata of each file.
 Below are the steps to add the license information of the OpenSSL source files to the metadata
 of the binaries/ELFs (generated during build) using this feature.
 
@@ -362,7 +360,7 @@ PackageFileName: openssl-3.4.1.tar.gz
 
 ## Adding License Information to Metadata
 
-To add license information to the metadata in the binary using the ESSTRA Utility
+To add license information to the metadata in the binary using ESSTRA Utility
 with the
 [`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz.spdx)
 file downloaded from FOSSology, run the following command:
@@ -415,7 +413,7 @@ SourceFiles:
     - OpenSSL
 ```
 
-The complete output of the ESSTRA Utility, including license information, can be found
+The complete output of ESSTRA Utility, including license information, can be found
 [here](./output-examples/openssl/esstra_show_openssl_result_with_license_info.yaml).
 
 Please note that the file
@@ -428,7 +426,7 @@ other than OpenSSL source files in the metadata of the ELF `./openssl-3.4.1/apps
 
 To add license information for those files, you can use FOSSology or similar tools to identify
 their licenses and generate an SPDX tag-value format file.
-By passing the file to the ESSTRA Utility, you can add license information to the metadata in
+By passing the file to ESSTRA Utility, you can add license information to the metadata in
 the binary.
 
 ## Analyze Effectiveness of ESSTRA for OpenSSL
@@ -444,9 +442,9 @@ openssl-3.4.1$ find ./ -type f | wc -l
 9625
 ```
 
-### Calculate Unique Source Files Given by the ESSTRA
+### Calculate Unique Source Files Given by ESSTRA
 
-Run the ESSTRA Utility on all the generated ELF files and redirect output to a file.
+Run ESSTRA Utility on all the generated ELF files and redirect output to a file.
 
 ```sh
 openssl-3.4.1$ esstra show $(find ./ -type f -exec sh -c "file '{}' | grep -q 'BuildID'" \; -print) >../esstra_scan_result.yaml
@@ -494,11 +492,11 @@ This means that out of all the files, only **16.685%** were used in the generate
 
 ## Summary
 
-In this demo, we first compiled the OpenSSL source files using the ESSTRA Core
-to generate the ELFs and confirmed that the metadata in the generated ELF
-includes information about all the files involved in the compilation.
+In this demo, we first compiled the OpenSSL source files using ESSTRA Core to generate the ELFs
+and confirmed that the metadata in the generated ELF includes information about all the files
+involved in the compilation.
 
-Next, we used the ESSTRA Utility to add license information to the metadata of the generated ELF.
+Next, we used ESSTRA Utility to add license information to the metadata of the generated ELF.
 To generate the license information, we demonstrated how to use the
 open-source license analysis tool
 [FOSSology](https://github.com/fossology/fossology)
