@@ -193,9 +193,9 @@ carried out according to the content of the file.
 In this demo, we aim to achieve the following two objectives,
 both of these objectives can be done by editing the rules in the `debian/rules` file:
 
-* Apply the ESSTRA Core during compilation to include the obtained provenance information in
-  the debug package in YAML format.
-* Remove the metadata embedded by the ESSTRA Core from the binaries to be included in the
+* Apply ESSTRA Core during compilation to include the obtained provenance information in the
+  debug package in YAML format.
+* Remove the metadata embedded by ESSTRA Core from the binaries to be included in the
   packages, ensuring they are in the same state as the original package.
 
 In this demo, we will describe how to "separate" provenance information from each binaries and
@@ -291,7 +291,7 @@ recent changes in `debian/rules`.
 This is because the `strip` command removes debug information but does not recognize ESSTRA's
 metadata.
 
-To begin with, we use the `rm` command of the ESSTRA Utility to remove ESSTRA's metadata from
+To begin with, we use the `rm` command of ESSTRA Utility to remove ESSTRA's metadata from
 all the ELF files that are to be included in the binary package:
 
 ```diff
@@ -317,7 +317,7 @@ This file is essentially a copy of the corresponding ELF file, and just renamed.
 The name of the `.debug` file is based on the BuildID of the ELF file, and it varies for each
 file and each build.
 
-Therefore, the `.debug` file contains embedded ESSTRA's metadata. So, we will use the ESSTRA
+Therefore, the `.debug` file contains embedded ESSTRA's metadata. So, we will use ESSTRA
 Utility to:
 
 * Export the metadata content from the `.debug` file to a `.yaml` file by the `show` command, and
@@ -377,7 +377,7 @@ with `+` should be added:
 
 There is a known issue with the current ESSTRA Core:
 
-* When the GCC's LTO (Link Time Optimization) option is enabled, the ESSTRA's metadata is not
+* When the GCC's LTO (Link Time Optimization) option is enabled, ESSTRA's metadata is not
   embedded as expected in the generated binaries.
 
 Since the Debian packaging system enables the LTO option by default, the known issue prevents
@@ -455,7 +455,7 @@ The content of the binary package is shown below:
   lrwxrwxrwx root/root         0 2024-02-02 00:52 ./usr/share/doc/unzip/changelog.gz -> History.600.gz
   ```
 
-Due to the modifications made so far to the `debian/rules`, the metadata embedded by the ESSTRA
+Due to the modifications made so far to the `debian/rules`, the metadata embedded by ESSTRA
 Core has been removed from the ELF files included in the binary package.
 So, this binary package is essentially identical to the original **unzip** binary package as shown
 in Section [Debian Package Types](#debian-package-types).
@@ -652,7 +652,7 @@ for each package, so the ways of defining variables and rules may vary.
 This list below outlines the points that need to be considered, discussed, and addressed in the
 future based on the content of this document:
 
-* Need to identify and fix The cause of the LTO issue in the ESSTRA Core.
+* Need to identify and fix The cause of the LTO issue in ESSTRA Core.
 * In this demo, provenance information is separated into `.yaml` files, but it can also be keep
   within binaries or `.debug` files.
 * Including provenance information in binaries or `.debug` files increases file sizes.
@@ -682,11 +682,11 @@ provenance information obtained with ESSTRA in Debian debug packages.
 By modifying the `debian/rules` file of the source package to accomplish the following three
 points, the goal can be achieved:
 
-1. Add options to apply the ESSTRA Core to the options passed to gcc/g++.
+1. Add options to apply ESSTRA Core to the options passed to gcc/g++.
 2. Override `dh_strip` to generate `.yaml` files containing provenance information to include
-   in the debug package using the ESSTRA Utility.
+   in the debug package using ESSTRA Utility.
 3. Remove unnecessary provenance information embedded in binary files and `.debug` files using
-   the ESSTRA Utility.
+   ESSTRA Utility.
 
 While we used **unzip** as an example to explain the process step-by-step, we also showed
 that this method is applicable to other software such as **bunzip2** and **openssl**.

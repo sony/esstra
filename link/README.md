@@ -11,27 +11,22 @@ It also removes environment-specific path prefixes from file paths in metadata a
 them to relative paths in order to ensure consistent path information across different
 environments.
 
-## Status of This Version
-
-**ESSTRA Link** is currently being developed on Ubuntu 24.04 with GCC 13.3.0 and GNU ld 2.42
-installed on an x86\_64 PC.
-
-The current version of **ESSTRA Link** requires **ESSTRA Utility** to be installed on the
-system in order to perform metadata optimization for binary files.
-
-Please note that the specifications and the features of **ESSTRA Link** are tentative and may
-change in future versions.
-
-## How to Build and Install
-
-Refer to the [How to Build and Install](/README.md#how-to-build-and-install) section of the
-documentation found in the top-level directory.
+> [!NOTE]
+> The current version of **ESSTRA** is under active development.
+> Please be aware that the metadata format and content, as well as the specifications and
+> functionality of each tool, are provisional and subject to change.
+>
+> Additionally, the current version of **ESSTRA Link** requires **ESSTRA Utility** to be
+> installed on the system in order to perform metadata optimization for binary files.
 
 ## How to Use
 
-Refer to the [Linking](/README.md#linking) section of the documentation found in the top-level
-directory.
+See the following sections in the [README.md](/README.md) file in the top-level directory for a
+quick overview of how to use the tool:
 
+* [How to Build and Install](/README.md#how-to-build-and-install)
+* [Linking](/README.md#linking)
+* [Installing GCC Spec File](/README.md#installing-gcc-spec-file)
 
 ## License
 

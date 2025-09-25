@@ -2,14 +2,14 @@
 
 This sample is essentially the same as [Sample "hello"](../hello/README.md),
 but it demonstrates how to compile multiple source files into a single binary
-using the ESSTRA Core.
+using **ESSTRA Core**.
 
 Please note that this document assumes you have completed all the steps
 outlined in [Sample "hello"](../hello/README.md).
 
 ## Source Code to be Compiled
 
-In this sample, we use the [ESSTRA Core](/core/README.md) to compile
+In this sample, we use **ESSTRA Core** to compile
 the two source files [`hello_main.c`](./hello_main.c) and [`hello_sub.c`](./hello_sub.c)
 into a single binary named `hello2`.
 The binary `hello2` is a program that, similar to [Sample "hello"](../hello/README.md),
@@ -69,16 +69,14 @@ the beginning of each file as follows:
 // SPDX-License-Identifier: LGPL-2.1-or-later
 ```
 
-Please note that these licenses are only for verifying the operation of the
-ESSTRA and do not represent the actual licenses of the source code. For the
-actual source code licenses, please refer to the [LICENSE](../../LICENSE) file
-in the top directory.
+Please note that these licenses are only for verifying the operation of the **ESSTRA** tools
+and do not represent the actual licenses of the source code. For the actual source code
+licenses, please refer to the [LICENSE](/LICENSE) file in the top-level directory.
 
 ## Compiling with ESSTRA Core
 
 We will compile the source files shown above to generate the binary
-`hello2`. By using the
-[ESSTRA Core](/core/README.md) during compilation,
+`hello2`. By using **ESSTRA Core** during compilation,
 metadata is embedded into `hello2`.
 Since we are using GCC version 11 on an x86\_64 PC, the command line would be as follows:
 
@@ -86,8 +84,8 @@ Since we are using GCC version 11 on an x86\_64 PC, the command line would be as
 $ gcc -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so hello_main.c hello_sub.c -o hello2
 ```
 
-If you have already installed the [Spec File](/README.md#installing-spec-file), the
-[ESSTRA Core](/core/README.md) will intervene in the compilation
+If you have already installed the [Spec File](/README.md#installing-spec-file),
+**ESSTRA Core** will intervene in the compilation
 without needing to specify the `-fplugin=` option, yielding the same result as above:
 
 ```sh
@@ -103,8 +101,7 @@ Hello, world!
 
 ## Verifying Metadata in the Binary
 
-Use the `show` command of the [ESSTRA utility](/util/README.md) to verify
-the metadata within `hello2`:
+Use the `show` command of **ESSTRA Utility** to verify the metadata within `hello2`:
 
 ```sh
 $ esstra show hello2
@@ -119,7 +116,7 @@ And you will get a result as follows:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.2.0
+  ToolVersion: 0.4.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
@@ -239,7 +236,7 @@ You will get the result shown below:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.2.0
+  ToolVersion: 0.4.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
@@ -277,13 +274,12 @@ with the values `MIT`, `BSD-3-Clause`, and `LGPL-2.1-or-later`, respectively.
 
 ## Summary
 
-In this sample, we confirmed that by using the
-[ESSTRA Core](/core/README.md) during the compilation of multiple
+In this sample, we confirmed that by using
+**ESSTRA Core** during the compilation of multiple
 source files into a single binary, the metadata includes information on
 all the source files involved in the compilation and
 all the header files they `#include`.
 
-Additionally, by using the [ESSTRA Utility](/util/README.md) to add license
-information to the metadata,
+Additionally, by using **ESSTRA Utility** to add license information to the metadata,
 we updated the metadata in the binary `hello2` and confirmed that the license
 information declared in each source file was added to the metadata.
