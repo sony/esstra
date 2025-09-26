@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <filesystem>
 
 #include "gcc-plugin.h"
 #include "output.h"
@@ -60,7 +61,7 @@ static const string section_name = ".esstra";
 // metadata
 static vector<string> allpaths;
 using FileInfo = map<string, string>;
-static std::map<string, FileInfo> infomap;
+static map<string, FileInfo> infomap;
 
 // hash algorithms
 static const vector<string> supported_algos = {
@@ -68,6 +69,16 @@ static const vector<string> supported_algos = {
     "sha256",
 };
 static vector<string> specified_algos;
+
+// path substitution
+static enum PathSubstituionMode {
+    SUBST_MODE_DISABLE,
+    SUBST_MODE_AUTO,
+    SUBST_MODE_AUTO_WITH_PREFIX,
+    SUBST_MODE_BY_RULE,
+} subst_mode = SUBST_MODE_AUTO;       // default mode
+static string subst_auto_prefix;
+static map<string, string> subst_rule;
 
 // yaml
 static const string yaml_item = "- ";
@@ -321,8 +332,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
  * parse comma connected argument
  */
 static void
-parse_comma_connected_arg(const char *arg, vector<string>& parsed_args)
-{
+parse_comma_connected_arg(const char* arg, vector<string>& parsed_args) {
     string elem;
     while (*arg) {
         if (*arg == ',') {
@@ -338,6 +348,37 @@ parse_comma_connected_arg(const char *arg, vector<string>& parsed_args)
     if (elem.length() > 0) {
         parsed_args.push_back(elem);
     }
+}
+
+/*
+ * parse value of file-prefix-map option
+ */
+static int
+parse_file_prefix_map_option(const char* arg) {
+    vector<string> args;
+    parse_comma_connected_arg(arg, args);
+
+    if (args[0] == "disable") {
+        subst_mode = SUBST_MODE_DISABLE;
+        debug("subst_mode: disable");
+    } else if (args[0] == "auto") {
+        subst_mode = SUBST_MODE_AUTO;
+        debug("subst_mode: auto");
+    } else if (args[0].size() >= 5 && args[0].substr(0, 5) == "auto:") {
+        subst_mode = SUBST_MODE_AUTO_WITH_PREFIX;
+        subst_auto_prefix = args[0].substr(5);
+        debug("subst_mode: auto_with_prefix");
+        debug("subst_auto_prefix: %s", subst_auto_prefix.c_str());
+    } else {
+        subst_mode = SUBST_MODE_BY_RULE;
+        debug("subst_mode: by_rule");
+        for (const auto& elem : args) {
+            debug("subst_rule: %s", elem.c_str());
+        }
+        // need to check if each elem is in fotmart A=B
+        // and store them to map subst_rule
+    }
+    return 0;
 }
 
 /*
@@ -368,13 +409,7 @@ plugin_init(struct plugin_name_args* plugin_info,
             }
         } else if (strcmp(argv->key, "file-prefix-map") == 0) {
             debug("file-prefix-map: %s", argv->value);
-            vector<string> prefix_maps;
-            parse_comma_connected_arg(argv->value, prefix_maps);
-            if (flag_debug) {
-                for (const auto& prefix_map: prefix_maps) {
-                    debug("prefix_map: '%s'", prefix_map.c_str());
-                }
-            }
+            parse_file_prefix_map_option(argv->value);
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug("arg-checksum: %s", argv->value);
             specified_algos.clear(); // delete default algo
