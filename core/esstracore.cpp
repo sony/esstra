@@ -78,7 +78,7 @@ static enum PathSubstituionMode {
     SUBST_MODE_BY_RULE,
 } subst_mode = SUBST_MODE_AUTO;       // default mode
 static string subst_auto_prefix;
-static map<string, string> subst_rule;
+static vector<std::tuple<string, string>> subst_rule;
 
 // yaml
 static const string yaml_item = "- ";
@@ -337,6 +337,7 @@ parse_comma_connected_arg(const char* arg, vector<string>& parsed_args) {
     while (*arg) {
         if (*arg == ',') {
             if (elem.length() > 0) {
+                message("parsed: %s", elem.c_str());
                 parsed_args.push_back(elem);
             }
             elem = "";
@@ -346,6 +347,7 @@ parse_comma_connected_arg(const char* arg, vector<string>& parsed_args) {
         arg++;
     }
     if (elem.length() > 0) {
+        message("parsed: %s", elem.c_str());
         parsed_args.push_back(elem);
     }
 }
@@ -353,7 +355,7 @@ parse_comma_connected_arg(const char* arg, vector<string>& parsed_args) {
 /*
  * parse value of file-prefix-map option
  */
-static int
+static bool
 parse_file_prefix_map_option(const char* arg) {
     vector<string> args;
     parse_comma_connected_arg(arg, args);
@@ -371,14 +373,31 @@ parse_file_prefix_map_option(const char* arg) {
         debug("subst_auto_prefix: %s", subst_auto_prefix.c_str());
     } else {
         subst_mode = SUBST_MODE_BY_RULE;
+        int errors = 0;
         debug("subst_mode: by_rule");
         for (const auto& elem : args) {
-            debug("subst_rule: %s", elem.c_str());
+            size_t delimiter_pos = elem.find(":");
+            debug("subst_rule: %s, pos:%u, npos:%u", elem.c_str(), delimiter_pos, string::npos);
+            if (delimiter_pos == string::npos) {
+                message("argument '%s' must contain ':'", elem.c_str());
+                errors++;
+                continue;
+            }
+            std::tuple<string, string> subst_map = {
+                elem.substr(0, delimiter_pos),
+                elem.substr(delimiter_pos + 1)
+            };
+            subst_rule.push_back(subst_map);
+            debug("rule: '%s' => '%s'",
+                  std::get<0>(subst_map).c_str(),
+                  std::get<1>(subst_map).c_str());
+
         }
-        // need to check if each elem is in fotmart A=B
-        // and store them to map subst_rule
+        if (errors > 0) {
+            return false;
+        }
     }
-    return 0;
+    return true;
 }
 
 /*
@@ -409,7 +428,10 @@ plugin_init(struct plugin_name_args* plugin_info,
             }
         } else if (strcmp(argv->key, "file-prefix-map") == 0) {
             debug("file-prefix-map: %s", argv->value);
-            parse_file_prefix_map_option(argv->value);
+            if (!parse_file_prefix_map_option(argv->value)) {
+                error = true;
+                message("parse error: file-refix-map");
+            }
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug("arg-checksum: %s", argv->value);
             specified_algos.clear(); // delete default algo
