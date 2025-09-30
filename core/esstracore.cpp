@@ -180,14 +180,20 @@ calc_sha256(uint8_t *buffer, uint32_t size) {
  * substitute path with subst_rule
  */
 static string
-substitute_path(const string& path)
+substitute_path_prefix(const string& path)
 {
-    for (const auto& [from, to] : subst_rule) {
-        message("subst: '%s' => '%s'", from.c_str(), to.c_str());
-        if (path.size() >= from.size() && path.compare(0, from.size(), from) == 0) {
-            std::filesystem::path path_to(to);
-            std::filesystem::path path_from(path.substr(from.size()));
-            return (path_to / path_from).string();
+    for (const auto& [subst_from, subst_to] : subst_rule) {
+        debug("subst: '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        if (path.size() >= subst_from.size() &&
+            path.compare(0, subst_from.size(), subst_from) == 0) {
+            string subst_rest(path.substr(subst_from.size()));
+            if (subst_rest[0] == '/') {
+                debug("eliminate heading '/' from '%s'", subst_rest.c_str());
+                subst_rest = subst_rest.substr(1);
+            }
+            std::filesystem::path path_to(subst_to);
+            std::filesystem::path path_rest(subst_rest);
+            return (subst_to / path_rest).string();
         }
     }
     return path;
@@ -308,8 +314,8 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
         // enumerate all directories and files
         for (const auto& directory : sorted_dirs) {
             // ---
-            auto substituted = substitute_path(directory);
-            message("directory: '%s' => '%s'", directory.c_str(), substituted.c_str());
+            string substituted = substitute_path_prefix(directory);
+            debug("directory: '%s' => '%s'", directory.c_str(), substituted.c_str());
             // ---
             strings_to_embed.push_back(yaml_item + key_directory + ": " + substituted);
             strings_to_embed.push_back(yaml_indent + key_files + ":");
@@ -351,7 +357,7 @@ parse_comma_connected_arg(const char* arg, vector<string>& parsed_args) {
     while (*arg) {
         if (*arg == ',') {
             if (elem.length() > 0) {
-                message("parsed: %s", elem.c_str());
+                debug("parsed: %s", elem.c_str());
                 parsed_args.push_back(elem);
             }
             elem = "";
@@ -361,7 +367,7 @@ parse_comma_connected_arg(const char* arg, vector<string>& parsed_args) {
         arg++;
     }
     if (elem.length() > 0) {
-        message("parsed: %s", elem.c_str());
+        debug("parsed: %s", elem.c_str());
         parsed_args.push_back(elem);
     }
 }
@@ -383,11 +389,23 @@ parse_file_prefix_map_option(const char* arg) {
             errors++;
             continue;
         }
-        std::filesystem::path from(elem.substr(0, delimiter_pos));
-        std::filesystem::path to(elem.substr(delimiter_pos + 1));
+        if (delimiter_pos == 0 || delimiter_pos == elem.size() - 1) {
+            message("both sides of ':' must be strings in argument '%s'", elem.c_str());
+            errors++;
+            continue;
+        }
+        string subst_from(elem.substr(0, delimiter_pos));
+        string subst_to(elem.substr(delimiter_pos + 1));
+        if (subst_from.find(":") != string::npos || subst_to.find(":") != string::npos) {
+            message("argument '%s' must contain only a single ':'", elem.c_str());
+            errors++;
+            continue;
+        }
+        std::filesystem::path path_from(subst_from);
+        std::filesystem::path path_to(subst_to);
         const tuple<string, string> subst_map = {
-            from.lexically_normal().string(),
-            to.lexically_normal().string(),
+            path_from.lexically_normal().string(),
+            path_to.lexically_normal().string(),
         };
         subst_rule.push_back(subst_map);
         debug("rule: '%s' => '%s'",
