@@ -42,6 +42,7 @@
 
 
 using std::vector;
+using std::tuple;
 using std::string;
 using std::map;
 using std::set;
@@ -71,14 +72,7 @@ static const vector<string> supported_algos = {
 static vector<string> specified_algos;
 
 // path substitution
-static enum PathSubstituionMode {
-    SUBST_MODE_DISABLE,
-    SUBST_MODE_AUTO,
-    SUBST_MODE_AUTO_WITH_PREFIX,
-    SUBST_MODE_BY_RULE,
-} subst_mode = SUBST_MODE_AUTO;       // default mode
-static string subst_auto_prefix;
-static vector<std::tuple<string, string>> subst_rule;
+static vector<tuple<string, string>> subst_rule;
 
 // yaml
 static const string yaml_item = "- ";
@@ -182,6 +176,22 @@ calc_sha256(uint8_t *buffer, uint32_t size) {
     return bytes_to_string(hash.bytes, SHA256_HASH_SIZE);
 }
 
+/*
+ * substitute path with subst_rule
+ */
+static string
+substitute_path(const string& path)
+{
+    for (const auto& [from, to] : subst_rule) {
+        message("subst: '%s' => '%s'", from.c_str(), to.c_str());
+        if (path.size() >= from.size() && path.compare(0, from.size(), from) == 0) {
+            std::filesystem::path path_to(to);
+            std::filesystem::path path_from(path.substr(from.size()));
+            return (path_to / path_from).string();
+        }
+    }
+    return path;
+}
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
@@ -297,7 +307,11 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 
         // enumerate all directories and files
         for (const auto& directory : sorted_dirs) {
-            strings_to_embed.push_back(yaml_item + key_directory + ": " + directory);
+            // ---
+            auto substituted = substitute_path(directory);
+            message("directory: '%s' => '%s'", directory.c_str(), substituted.c_str());
+            // ---
+            strings_to_embed.push_back(yaml_item + key_directory + ": " + substituted);
             strings_to_embed.push_back(yaml_indent + key_files + ":");
             for (const auto& filename : dir_to_files[directory]) {
                 debug("dir: %s", directory.c_str());
@@ -360,44 +374,28 @@ parse_file_prefix_map_option(const char* arg) {
     vector<string> args;
     parse_comma_connected_arg(arg, args);
 
-    if (args[0] == "disable") {
-        subst_mode = SUBST_MODE_DISABLE;
-        debug("subst_mode: disable");
-    } else if (args[0] == "auto") {
-        subst_mode = SUBST_MODE_AUTO;
-        debug("subst_mode: auto");
-    } else if (args[0].size() >= 5 && args[0].substr(0, 5) == "auto:") {
-        subst_mode = SUBST_MODE_AUTO_WITH_PREFIX;
-        subst_auto_prefix = args[0].substr(5);
-        debug("subst_mode: auto_with_prefix");
-        debug("subst_auto_prefix: %s", subst_auto_prefix.c_str());
-    } else {
-        subst_mode = SUBST_MODE_BY_RULE;
-        int errors = 0;
-        debug("subst_mode: by_rule");
-        for (const auto& elem : args) {
-            size_t delimiter_pos = elem.find(":");
-            debug("subst_rule: %s, pos:%u, npos:%u", elem.c_str(), delimiter_pos, string::npos);
-            if (delimiter_pos == string::npos) {
-                message("argument '%s' must contain ':'", elem.c_str());
-                errors++;
-                continue;
-            }
-            std::tuple<string, string> subst_map = {
-                elem.substr(0, delimiter_pos),
-                elem.substr(delimiter_pos + 1)
-            };
-            subst_rule.push_back(subst_map);
-            debug("rule: '%s' => '%s'",
-                  std::get<0>(subst_map).c_str(),
-                  std::get<1>(subst_map).c_str());
+    int errors = 0;
+    for (const auto& elem : args) {
+        size_t delimiter_pos = elem.find(":");
+        debug("subst_rule: %s, pos:%u, npos:%u", elem.c_str(), delimiter_pos, string::npos);
+        if (delimiter_pos == string::npos) {
+            message("argument '%s' must contain ':'", elem.c_str());
+            errors++;
+            continue;
+        }
+        std::filesystem::path from(elem.substr(0, delimiter_pos));
+        std::filesystem::path to(elem.substr(delimiter_pos + 1));
+        const tuple<string, string> subst_map = {
+            from.lexically_normal().string(),
+            to.lexically_normal().string(),
+        };
+        subst_rule.push_back(subst_map);
+        debug("rule: '%s' => '%s'",
+              std::get<0>(subst_map).c_str(),
+              std::get<1>(subst_map).c_str());
 
-        }
-        if (errors > 0) {
-            return false;
-        }
     }
-    return true;
+    return errors == 0;
 }
 
 /*
