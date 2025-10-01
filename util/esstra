@@ -182,7 +182,7 @@ class MetadataHandler:
                 dirname = f'{to}{trimmed}'
                 debug(f'  ==> relative dir={dirname!r}')
                 directory[self.KEY_DIRECTORY] = dirname
-            print(directory[self.KEY_DIRECTORY])
+            debug(directory[self.KEY_DIRECTORY])
 
     def relativize_paths_by_rule(self, rule):
         normalized_rule = {
@@ -622,6 +622,8 @@ class CommandShow(CommandBase):
 class CommandShrink(CommandBase):
     NAME = 'shrink'
     DESCRIPTION = 'shrink embedded information by removing duplication'
+    MAP_ELEMENT_DELIMITER = ','
+    MAP_DELIMITER = ':'
 
     class FilePrefixMap(Enum):
         AUTO = 'auto'
@@ -656,7 +658,6 @@ class CommandShrink(CommandBase):
             message(f'shrinking metadata of {binary!r}...')
             try:
                 handler = MetadataHandler(binary)
-                print(handler)
             except Exception as ex:
                 error(f'failed to update metadata: {ex}')
                 errors += 1
@@ -694,7 +695,7 @@ class CommandShrink(CommandBase):
             debug('>> auto')
             return cls.FilePrefixMap.AUTO, None
         # auto:<path>
-        if option.startswith(cls.FilePrefixMap.AUTO.value + ':'):
+        if option.startswith(cls.FilePrefixMap.AUTO.value + cls.MAP_DELIMITER):
             stride = len(cls.FilePrefixMap.AUTO.value) + 1
             arg = option[stride:]
             debug(f'>> auto with arg:{arg!r}')
@@ -703,7 +704,7 @@ class CommandShrink(CommandBase):
         if option == cls.FilePrefixMap.DISABLE.value:
             return cls.FilePrefixMap.DISABLE, None
         # rule (from=to,from=to,...,from=to)
-        if '=' in option:
+        if cls.MAP_DELIMITER in option:
             rule = cls.__parse_file_prefix_map_rule(option)
             return cls.FilePrefixMap.RULE, rule
         # parse failed
@@ -715,13 +716,13 @@ class CommandShrink(CommandBase):
         # a dict {from:to, from:to, ..., from:to}
         errors = 0
         rule = {}
-        for elem in option.split(','):
+        for elem in option.split(cls.MAP_ELEMENT_DELIMITER):
             # elem should be in the form of 'from=to'
-            if '=' not in elem:
+            if cls.MAP_DELIMITER not in elem:
                 error(f'file-prefix-map: invalid expression {elem!r}')
                 errors += 1
                 continue
-            path_from, path_to = elem.split('=', 1)
+            path_from, path_to = elem.split(cls.MAP_DELIMITER, 1)
             rule[path_from] = path_to
 
         if errors > 0:

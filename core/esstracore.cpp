@@ -72,6 +72,7 @@ static const vector<string> supported_algos = {
 static vector<string> specified_algos;
 
 // path substitution
+static const string subst_map_delimiter = ":";
 static vector<tuple<string, string>> subst_rule;
 
 // yaml
@@ -382,22 +383,26 @@ parse_file_prefix_map_option(const char* arg) {
 
     int errors = 0;
     for (const auto& elem : args) {
-        size_t delimiter_pos = elem.find(":");
-        debug("subst_rule: %s, pos:%u, npos:%u", elem.c_str(), delimiter_pos, string::npos);
+        size_t delimiter_pos = elem.find(subst_map_delimiter);
+        debug("subst_rule: %s, pos:%u, npos:%u",
+              elem.c_str(), delimiter_pos, string::npos);
         if (delimiter_pos == string::npos) {
-            message("argument '%s' must contain ':'", elem.c_str());
+            message("argument '%s' must contain '%s'", elem.c_str(),
+                    subst_map_delimiter.c_str());
             errors++;
             continue;
         }
         if (delimiter_pos == 0 || delimiter_pos == elem.size() - 1) {
-            message("both sides of ':' must be strings in argument '%s'", elem.c_str());
+            message("both sides of '%s' must be strings in argument '%s'",
+                    elem.c_str(), subst_map_delimiter.c_str());
             errors++;
             continue;
         }
         string subst_from(elem.substr(0, delimiter_pos));
         string subst_to(elem.substr(delimiter_pos + 1));
         if (subst_from.find(":") != string::npos || subst_to.find(":") != string::npos) {
-            message("argument '%s' must contain only a single ':'", elem.c_str());
+            message("argument '%s' must contain only a single '%s'",
+                    elem.c_str(), subst_map_delimiter.c_str());
             errors++;
             continue;
         }
