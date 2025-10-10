@@ -35,7 +35,7 @@ static ld_plugin_register_cleanup register_cleanup;
 
 #define FILE_PREFIX_MAP_OPTION "file-prefix-map="
 #define FILE_PREFIX_MAP_DELIMITER ":"
-static char util_arg[ARG_MAX];
+static char util_arg[ARG_MAX] = "--";
 
 /*
  * CLEANUP HOOK - aggregates metadata
