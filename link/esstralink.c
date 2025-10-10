@@ -21,9 +21,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include <linux/limits.h>
 #include "plugin-api.h"
 
 static const char *tool_name = "ESSTRA Link";
@@ -33,6 +33,9 @@ static ld_plugin_message message;
 static const char *link_output_name = NULL;
 static ld_plugin_register_cleanup register_cleanup;
 
+#define FILE_PREFIX_MAP_OPTION "file-prefix-map="
+#define FILE_PREFIX_MAP_DELIMITER ":"
+static char util_arg[ARG_MAX];
 
 /*
  * CLEANUP HOOK - aggregates metadata
@@ -54,8 +57,9 @@ oncleanup(void)
         // child process
         char filename[PATH_MAX];
         strncpy(filename, link_output_name, PATH_MAX - 1);
-        char *args[] = {"esstra", "shrink", filename, NULL};
-        message(LDPL_INFO, "[%s] invoking: '%s %s %s'...", tool_name, args[0], args[1], args[2]);
+        char *args[] = {"esstra", "shrink", util_arg, filename, NULL};
+        message(LDPL_INFO, "[%s] invoking: '%s %s %s %s'...",
+                tool_name, args[0], args[1], args[2], args[3]);
         execvp("esstra", args);
         // below runs only on error
         message(LDPL_FATAL, "[%s] execvp failed: %s", tool_name, strerror_r(errno, buf, sizeof(buf)));
@@ -98,6 +102,17 @@ onload(struct ld_plugin_tv *tv)
             break;
         case LDPT_OUTPUT_NAME:
             link_output_name = p->tv_u.tv_string;
+            status = LDPS_OK;
+            break;
+        case LDPT_OPTION:
+            const char *option = p->tv_u.tv_string;
+            message(LDPL_INFO, "option [%s]", option);
+            if (strncmp(option, FILE_PREFIX_MAP_OPTION, strlen(FILE_PREFIX_MAP_OPTION)) != 0) {
+                message(LDPL_FATAL, "[%s] invalid option", option);
+                return LDPS_ERR;
+            }
+            snprintf(util_arg, sizeof(util_arg), "--%s", option);
+            message(LDPL_INFO, "util_arg = %s", util_arg);
             status = LDPS_OK;
             break;
         default:
