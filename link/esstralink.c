@@ -36,7 +36,7 @@ static ld_plugin_register_cleanup register_cleanup;
 #define FILE_PREFIX_MAP_OPTION "file-prefix-map="
 #define FILE_PREFIX_MAP_DELIMITER ":"
 static char shrink_option[] = "--file-prefix-map";
-static char shrink_value[ARG_MAX];
+static char shrink_value[ARG_MAX - sizeof(shrink_option) - 1];
 
 /*
  * CLEANUP HOOK - aggregates metadata
@@ -110,14 +110,15 @@ onload(struct ld_plugin_tv *tv)
         case LDPT_OPTION:
             const char *option = p->tv_u.tv_string;
             message(LDPL_INFO, "option [%s]", option);
-            if (strncmp(option, FILE_PREFIX_MAP_OPTION, strlen(FILE_PREFIX_MAP_OPTION)) != 0) {
+            if (strncmp(option, FILE_PREFIX_MAP_OPTION, strlen(option)) != 0) {
                 message(LDPL_FATAL, "[%s] invalid option", option);
                 return LDPS_ERR;
             }
             if (strlen(shrink_value) > 0) {
                 strncat(shrink_value, " ", sizeof(shrink_value));
             }
-            strncat(shrink_value, option + strlen(FILE_PREFIX_MAP_OPTION), sizeof(shrink_value));
+            size_t remaining = sizeof(shrink_value) - strlen(shrink_value) - 1;
+            strncat(shrink_value, option + strlen(FILE_PREFIX_MAP_OPTION), remaining);
             message(LDPL_INFO, "shrink_value: '%s'", shrink_value);
             status = LDPS_OK;
             break;
