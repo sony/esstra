@@ -35,7 +35,8 @@ static ld_plugin_register_cleanup register_cleanup;
 
 #define FILE_PREFIX_MAP_OPTION "file-prefix-map="
 #define FILE_PREFIX_MAP_DELIMITER ":"
-static char util_arg[ARG_MAX] = "--";
+static char shrink_option[] = "--file-prefix-map";
+static char shrink_value[ARG_MAX];
 
 /*
  * CLEANUP HOOK - aggregates metadata
@@ -56,8 +57,10 @@ oncleanup(void)
     if (pid == 0) {
         // child process
         char filename[PATH_MAX];
+        char option[ARG_MAX];
+        snprintf(option, sizeof(option), "%s=%s", shrink_option, shrink_value);
         strncpy(filename, link_output_name, PATH_MAX - 1);
-        char *args[] = {"esstra", "shrink", util_arg, filename, NULL};
+        char *args[] = {"esstra", "shrink", option, filename, NULL};
         message(LDPL_INFO, "[%s] invoking: '%s %s %s %s'...",
                 tool_name, args[0], args[1], args[2], args[3]);
         execvp("esstra", args);
@@ -111,8 +114,11 @@ onload(struct ld_plugin_tv *tv)
                 message(LDPL_FATAL, "[%s] invalid option", option);
                 return LDPS_ERR;
             }
-            snprintf(util_arg, sizeof(util_arg), "--%s", option);
-            message(LDPL_INFO, "util_arg = %s", util_arg);
+            if (strlen(shrink_value) > 0) {
+                strncat(shrink_value, " ", sizeof(shrink_value));
+            }
+            strncat(shrink_value, option + strlen(FILE_PREFIX_MAP_OPTION), sizeof(shrink_value));
+            message(LDPL_INFO, "shrink_value: '%s'", shrink_value);
             status = LDPS_OK;
             break;
         default:

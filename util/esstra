@@ -30,7 +30,7 @@ from pathlib import Path
 import subprocess
 import re
 import tempfile
-from enum import Enum, auto
+from enum import Enum
 import yaml
 
 TOOL_NAME = 'ESSTRA Utility'
@@ -622,7 +622,6 @@ class CommandShow(CommandBase):
 class CommandShrink(CommandBase):
     NAME = 'shrink'
     DESCRIPTION = 'shrink embedded information by removing duplication'
-    MAP_ELEMENT_DELIMITER = ','
     MAP_DELIMITER = ':'
 
     class FilePrefixMap(Enum):
@@ -643,6 +642,7 @@ class CommandShrink(CommandBase):
 
     def run_command(self, args):
         errors = 0
+        debug(f'args={args!r}')
 
         # parse path substitution rule
         mapmode, maparg = self.__parse_file_prefix_map(args.file_prefix_map)
@@ -716,7 +716,7 @@ class CommandShrink(CommandBase):
         # a dict {from:to, from:to, ..., from:to}
         errors = 0
         rule = {}
-        for elem in option.split(cls.MAP_ELEMENT_DELIMITER):
+        for elem in option.split():
             # elem should be in the form of 'from=to'
             if cls.MAP_DELIMITER not in elem:
                 error(f'file-prefix-map: invalid expression {elem!r}')

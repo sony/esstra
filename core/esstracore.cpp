@@ -74,6 +74,7 @@ static vector<string> specified_algos;
 // path substitution
 static const string subst_map_delimiter = ":";
 static vector<tuple<string, string>> subst_rule;
+static const char file_prefix_map_separator = ' ';
 
 // yaml
 static const string yaml_item = "- ";
@@ -350,13 +351,13 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 }
 
 /*
- * parse comma connected argument
+ * split connected argument
  */
 static void
-parse_comma_connected_arg(const char* arg, vector<string>& parsed_args) {
+split_comma_connected_arg(const char* arg, char separator, vector<string>& parsed_args) {
     string elem;
     while (*arg) {
-        if (*arg == ',') {
+        if (*arg == separator) {
             if (elem.length() > 0) {
                 debug("parsed: %s", elem.c_str());
                 parsed_args.push_back(elem);
@@ -379,7 +380,7 @@ parse_comma_connected_arg(const char* arg, vector<string>& parsed_args) {
 static bool
 parse_file_prefix_map_option(const char* arg) {
     vector<string> args;
-    parse_comma_connected_arg(arg, args);
+    split_comma_connected_arg(arg, file_prefix_map_separator, args);
 
     int errors = 0;
     for (const auto& elem : args) {
@@ -456,7 +457,7 @@ plugin_init(struct plugin_name_args* plugin_info,
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug("arg-checksum: %s", argv->value);
             specified_algos.clear(); // delete default algo
-            parse_comma_connected_arg(argv->value, specified_algos);
+            split_comma_connected_arg(argv->value, ',', specified_algos);
             // check if specified algos are supported
             for (const auto& algo: specified_algos) {
                 if (!is_algo_supported(algo)) {
