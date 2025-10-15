@@ -40,7 +40,6 @@ static const char *tool_version = "0.4.0";
 
 static ld_plugin_message message;
 static const char *link_output_name = NULL;
-static ld_plugin_register_cleanup register_cleanup;
 
 #define ESSTRA_UTIL_COMMAND "esstra"
 #define FILE_PREFIX_MAP_OPTION "file-prefix-map="
@@ -110,6 +109,7 @@ onload(struct ld_plugin_tv *tv)
 {
     struct ld_plugin_tv *p;
     enum ld_plugin_status status;
+    ld_plugin_register_cleanup register_cleanup = NULL;
 
     fprintf(stderr, "[%s] loaded: v%s\n", tool_name, tool_version);
 
@@ -123,11 +123,7 @@ onload(struct ld_plugin_tv *tv)
             break;
         case LDPT_REGISTER_CLEANUP_HOOK:
             register_cleanup = p->tv_u.tv_register_cleanup;
-            status = register_cleanup(oncleanup);
-            if (status != LDPS_OK) {
-                message(LDPL_FATAL, "[%s] register cleanup hook failed", tool_name);
-                return status;
-            }
+            status = LDPS_OK;
             break;
         case LDPT_OUTPUT_NAME:
             link_output_name = p->tv_u.tv_string;
@@ -150,6 +146,14 @@ onload(struct ld_plugin_tv *tv)
             break;
         }
         p++;
+    }
+
+    if (register_cleanup) {
+        status = register_cleanup(oncleanup);
+        if (status != LDPS_OK) {
+            message(LDPL_FATAL, "[%s] register cleanup hook failed", tool_name);
+            return status;
+        }
     }
 
     return status;
