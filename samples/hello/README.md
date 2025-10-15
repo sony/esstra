@@ -1,23 +1,22 @@
 # Sample "hello"
 
-This sample explains how to use ESSTRA with a simple C source code. The
+This sample explains how to use **ESSTRA** with a simple C source code. The
 document is structured as a step-by-step guide, allowing you to easily
-understand the basic operations of ESSTRA by following each step in sequence.
+understand the basic operations of **ESSTRA** by following each step in sequence.
 
 First, in this sample, we will compile [`hello.c`](./hello.c), which is
-provided in this directory, using the [ESSTRA Core](/core/README.md) to
+provided in this directory, using [**ESSTRA Core**](/core/README.md) to
 generate the binary file `hello`. This binary has metadata embedded that
 contains information about all source files involved in the compilation, such
-as absolute paths and checksums. We will verify this using the
-[ESSTRA Utility](/util/README.md).
+as absolute paths and checksums. We will verify this using
+[**ESSTRA Utility**](/util/README.md).
 
-Next, we will demonstrate how to use the
-[ESSTRA Utility](/util/README.md)'s feature that adds
+Next, we will demonstrate how to use **ESSTRA Utility**'s feature that adds
 license information of source files to the metadata.
 In this sample, we will use a prepared license information file
 [`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx).
-Using this information, we will update the metadata with the ESSTRA
-Utility and verify that the license information has been correctly associated
+Using this information, we will update the metadata with **ESSTRA Utility**
+and verify that the license information has been correctly associated
 with the metadata.
 
 The license information file
@@ -29,7 +28,7 @@ If you are interested in how to use FOSSology, please refer to the document
 
 ## Building and Installing ESSTRA
 
-First, build and install ESSTRA on your system. In the top directory, enter:
+First, build and install **ESSTRA** on your system. In the top directory, enter:
 
 ```sh
 $ make
@@ -41,13 +40,12 @@ If there are no errors, the build is complete. Then, enter:
 $ sudo make install
 ```
 
-This will install the [ESSTRA Core](/core/README.md) and the
-[ESSTRA Utility](/util/README.md) on your system.
+This will install **ESSTRA Core**, **ESSTRA Link** and **ESSTRA Utility** on your system.
 
 ## Source Code to Compile
 
-In this sample, we will compile the source code [`hello.c`](./hello.c) using
-the ESSTRA Core. The content of the code is as follows, and it is a very simple
+In this sample, we will compile the source code [`hello.c`](hello.c) using
+**ESSTRA Core**. The content of the code is as follows, and it is a very simple
 program that just prints `Hello, world!` to the standard output:
 
 ```c
@@ -73,8 +71,8 @@ This declaration indicates that this file is available under the
 ## Compiling with ESSTRA Core
 
 Use the following command line to compile [`hello.c`](./hello.c) and generate
-the binary `hello`. By involving the [ESSTRA Core](/core/README.md)
-during compilation, metadata will be embedded into `hello`.
+the binary `hello`. By involving **ESSTRA Core** during compilation,
+metadata will be embedded into `hello`.
 Since we are using GCC version 11 on an x86\_64 PC, the command line would be as follows:
 
 ```sh
@@ -82,16 +80,15 @@ $ gcc -fplugin=/usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so hello
 ```
 
 If you have already [installed the Spec File](/README.md#installing-spec-file),
-the ESSTRA Core will intervene in the compilation without needing the
+**ESSTRA Core** will intervene in the compilation without needing the
 `-fplugin=` option, yielding the same result as above:
 
 ```sh
 $ gcc hello.c -o hello
 ```
 
-Note that the [ESSTRA Core](/core/README.md) does not affect the behavior
-of the binary. When you run the generated binary `hello`, you will get the
-following result:
+Note that **ESSTRA Core** does not affect the behavior of the binary.
+When you run the generated binary `hello`, you will get the following result:
 
 ```sh
 $ ./hello
@@ -116,7 +113,7 @@ format. These files are all involved in the compilation of the file `hello`:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.2.0
+  ToolVersion: 0.4.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
@@ -246,8 +243,8 @@ license information file that has already been prepared,
 [`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx),
 generated using the open-source license analysis tool
 [FOSSology](https://github.com/fossology/fossology).
-To associate the license information with the metadata in the binary using the
-[ESSTRA Utility](/util/README.md), execute the following command:
+To associate the license information with the metadata in the binary using
+**ESSTRA Utility**, execute the following command:
 
 ```sh
 $ esstra update hello -i SPDX2TV_esstra.spdx
@@ -271,7 +268,7 @@ The result will be as follows:
 #
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.2.0
+  ToolVersion: 0.4.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
@@ -300,17 +297,16 @@ Therefore, in this sample, license information will not be associated with any
 files other than [`hello.c`](./hello.c).
 
 You can also prepare an SPDX 2.3 tag-value format file for files other than
-[`hello.c`](./hello.c) and provide it to the
-[ESSTRA Utility](/util/README.md) to associate
-license information with those files.
+[`hello.c`](./hello.c) and provide it to
+**ESSTRA Utility** to associate license information with those files.
 
 ## Summary
 
 In this sample, we first compiled the source file [`hello.c`](./hello.c) using
-the [ESSTRA Core](/core/README.md) to generate the binary `hello`, and
+**ESSTRA Core** to generate the binary `hello`, and
 confirmed that the metadata in `hello` contains information about all files
 involved in the compilation.
 
 Then, using a file in SPDX 2.3 tag-value format, we updated the metadata in the
-binary `hello` with the [ESSTRA Utility](/util/README.md)'s feature to
-associate license information with the metadata.
+binary `hello` with **ESSTRA Utility**'s feature to associate license information
+with the metadata.
