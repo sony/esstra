@@ -131,7 +131,7 @@ onload(struct ld_plugin_tv *tv)
             break;
         case LDPT_OPTION:
             const char *option = p->tv_u.tv_string;
-            message(LDPL_INFO, "option [%s]", option);
+            // message(LDPL_INFO, "option [%s]", option);
             if (strncmp(option, FILE_PREFIX_MAP_OPTION, strlen(FILE_PREFIX_MAP_OPTION)) != 0) {
                 message(LDPL_FATAL, "[%s] invalid option", option);
                 return LDPS_ERR;
@@ -139,7 +139,7 @@ onload(struct ld_plugin_tv *tv)
             exists_shrink_option = true;
             size_t remaining = sizeof(shrink_rule) - strlen(shrink_rule) - 1;
             strncat(shrink_rule, option + strlen(FILE_PREFIX_MAP_OPTION), remaining);
-            message(LDPL_INFO, "shrink_rule: '%s'", shrink_rule);
+            // message(LDPL_INFO, "shrink_rule: '%s'", shrink_rule);
             status = LDPS_OK;
             break;
         default:
