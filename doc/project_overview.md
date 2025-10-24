@@ -100,4 +100,4 @@ Based on this idea, ESSTRA has been released as open source.
 We hope ESSTRA will be widely adopted and contribute to overall software supply chain quality improvement.
 
 ## 6. References & Related Links
-- https://github.com/sony/esstra/blob/main/doc/presentation_history.md
+- [Presentation History](https://github.com/sony/esstra/blob/main/doc/presentation_history.md)
