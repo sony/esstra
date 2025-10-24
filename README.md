@@ -21,8 +21,7 @@ Linux distributions.
 > Please be aware that the metadata format and content, as well as the specifications and
 > functionality of each tool, are provisional and subject to change.
 
-For a detailed overview of ESSTRA, please refer to
-[doc/project_overview.md](https://github.com/sony/esstra/blob/main/doc/project_overview.md).
+For a detailed overview of ESSTRA, please refer to [doc/project_overview.md](https://github.com/sony/esstra/blob/main/doc/project_overview.md).
 
 ## Development Environment
 
