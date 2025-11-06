@@ -254,28 +254,28 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     uint8_t* buffer = new uint8_t[st_size];
     ssize_t size = read(fd, buffer, st_size);
+    close(fd);
+
     if (size != st_size) {
         fprintf(stderr, "size mismatch: st_size:%lu, read():%zd\n", st_size, size);
-        return;
-    }
+    } else {
+      FileInfo finfo;
+      // calculate hashes with specified algorithms
+      finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
 
-    // calculate hashes with specified algorithms
-    FileInfo finfo;
-    finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
-
-    // just for demonstration
-    for (const auto &algo: specified_algos) {
+      // just for demonstration
+      for (const auto &algo: specified_algos) {
         debug("calculate '%s' hash", algo.c_str());
         if (algo == "md5") {
-            finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
+          finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
         } else if (algo == "sha256") {
-            finfo[key_sha256] = "'" + calc_sha256(buffer, size) + "'";
+          finfo[key_sha256] = "'" + calc_sha256(buffer, size) + "'";
         } else {
-            fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
+          fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
         }
+      }
+      infomap[resolved] = finfo;
     }
-
-    infomap[resolved] = finfo;
 
     delete[] buffer;
 }
