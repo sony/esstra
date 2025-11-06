@@ -147,11 +147,8 @@ class MetadataHandler:
 
         return True
 
-    def relativize_paths_auto(self, to=None):
-        if to is None:
-            to = '.'
-        else:
-            to = os.path.normpath(to)
+    def relativize_paths_auto(self, to):
+        to = os.path.normpath(to)
 
         dirs = [
             directory[self.KEY_DIRECTORY]
@@ -623,17 +620,18 @@ class CommandShrink(CommandBase):
     NAME = 'shrink'
     DESCRIPTION = 'shrink embedded information by removing duplication'
     MAP_DELIMITER = ':'
+    DEFAULT_AUTO_TOP_DIRECTORY = '.'
 
     class FilePrefixMap(Enum):
-        AUTO = 'auto'
         DISABLE = 'disable'
+        AUTO = 'auto'
         RULE = 'rule'
 
     def setup_parser(self, parser):
         super().setup_parser(parser, binaries=True, backup=True)
         parser.add_argument(
             '--file-prefix-map',
-            default=self.FilePrefixMap.AUTO.value,
+            default=self.FilePrefixMap.DISABLE.value,
             help='specify path substitution rule')
         parser.add_argument(
             '--dry-run',
@@ -663,6 +661,8 @@ class CommandShrink(CommandBase):
                 errors += 1
 
             if mapmode == self.FilePrefixMap.AUTO:
+                if maparg is None:
+                    maparg = self.DEFAULT_AUTO_TOP_DIRECTORY
                 handler.relativize_paths_auto(maparg)
             elif mapmode == self.FilePrefixMap.RULE:
                 handler.relativize_paths_by_rule(maparg)
