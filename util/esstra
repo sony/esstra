@@ -411,15 +411,14 @@ class CommandDispatcher:
     def __init__(self, *command_classes):
         self._command_table = {}
 
-        description = ''
+        description = 'commands:\n'
         for command_class in command_classes:
             if not issubclass(command_class, CommandBase):
                 raise TypeError(
                     'not a subclass of CommandBase: '
                     f'{command_class.__name__!r}')
             command = command_class()
-            description += ('commands:\n' +
-                            f'  {command.NAME:10}{command.DESCRIPTION}')
+            description += f'  {command.NAME:10}{command.DESCRIPTION}\n'
             self._command_table[command.NAME] = command
 
         self._parser = argparse.ArgumentParser(
