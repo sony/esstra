@@ -4,12 +4,14 @@
 # SPDX-License-Identifier: MIT
 
 from abc import ABC, abstractmethod
+import os
 import sys
 import argparse
 from pathlib import Path
 import subprocess
 import re
 import tempfile
+from enum import Enum
 import yaml
 
 TOOL_NAME = 'ESSTRA Utility'
@@ -58,6 +60,9 @@ class MetadataHandler:
             raise FileNotFoundError(f'not found: {binary_path!r}')
         if not Path(binary_path).is_file():
             raise RuntimeError(f'not a file: {binary_path!r}')
+
+        self._system_header_paths = self.__get_system_header_paths()
+        debug(f'system header paths: {self._system_header_paths!r}')
 
         self._binary_path = binary_path
         self._raw_data = self.__extract_metadata(binary_path)
@@ -123,6 +128,63 @@ class MetadataHandler:
 
         return True
 
+    def relativize_paths_auto(self, to):
+        to = self.__normalize_path(to)
+
+        dirs = [
+            directory[self.KEY_DIRECTORY]
+            for directory in self._shrunk_data[self.KEY_SOURCE_FILES]
+            if not any(map(
+                    lambda x: directory[self.KEY_DIRECTORY].startswith(x),
+                    self._system_header_paths))
+        ]
+        common_path = os.path.commonpath(dirs)
+        debug(f'common_path: {common_path!r}')
+        if common_path in ('', to):
+            debug(f'nothing to do: common_path={common_path!r}, to={to!r}')
+            return
+
+        debug('original: ' + '\n'.join(dirs))
+        debug(f'relativize to={to!r}')
+        for directory in self._shrunk_data[self.KEY_SOURCE_FILES]:
+            if any(map(
+                    lambda x: directory[self.KEY_DIRECTORY].startswith(x),
+                    self._system_header_paths)):
+                continue
+            dirname = directory[self.KEY_DIRECTORY]
+            if dirname.startswith(common_path):
+                trimmed = dirname[len(common_path):]
+                if len(trimmed) > 0 and trimmed[0] != '/':
+                    debug(f'not absoulte path: {trimmed!r}')
+                    continue
+                dirname = f'{to}{trimmed}'
+                debug(f'  ==> relative dir={dirname!r}')
+                directory[self.KEY_DIRECTORY] = dirname
+            debug(directory[self.KEY_DIRECTORY])
+
+    def relativize_paths_by_rule(self, rule):
+        normalized_rule = {
+            self.__normalize_path(path_from): self.__normalize_path(path_to)
+            for path_from, path_to in rule.items()
+        }
+        debug(f'rule={rule!r}')
+        debug(f'normalized_rule={normalized_rule!r}')
+
+        sourcefiles = self._shrunk_data[self.KEY_SOURCE_FILES]
+        for directory in sourcefiles:
+            dirname = directory[self.KEY_DIRECTORY]
+            for path_from, path_to in normalized_rule.items():
+                if dirname.startswith(path_from):
+                    break
+            else:
+                debug(f'{dirname!r}: rule not matched')
+                continue
+
+            debug(f'substitute {path_from!r} to {path_to!r} in {dirname!r}')
+            dirname = dirname.replace(path_from, path_to, 1)
+            debug(f'  ==> relative dir={dirname!r}')
+            directory[self.KEY_DIRECTORY] = dirname
+
     def dump_shrunk_data(self):
         return yaml.safe_dump(self._shrunk_data, sort_keys=False)
 
@@ -133,6 +195,40 @@ class MetadataHandler:
     def __run_command(self, command_line):
         return subprocess.run(
             command_line, capture_output=True, shell=True, encoding='utf-8')
+
+    def __get_system_header_paths(self):
+        def extract_search_paths(lines):
+            START_MARK = '<...> search starts here'
+            END_MARK = 'End of search list'
+            paths = []
+            inside_list = False
+            for line in lines:
+                if START_MARK in line:
+                    inside_list = True
+                    continue
+                if END_MARK in line:
+                    break
+                if inside_list:
+                    paths.append(line.strip())
+            return paths
+
+        result = self.__run_command('gcc -xc -E -v /dev/null')
+        if result.returncode:
+            raise RuntimeError('could not obtain system header paths')
+        c_paths = extract_search_paths(result.stderr.splitlines())
+
+        result = self.__run_command('gcc -xc++ -E -v /dev/null')
+        if result.returncode:
+            raise RuntimeError('could not obtain system header paths')
+        cpp_paths = extract_search_paths(result.stderr.splitlines())
+
+        return sorted(list(set(c_paths + cpp_paths)))
+
+    def __is_system_header_path(self, path):
+        for syspath in self._system_header_paths:
+            if path.startswith(syspath):
+                return True
+        return False
 
     def __exists_metadata(self, bianry_path):
         result = self.__run_command(
@@ -255,6 +351,10 @@ class MetadataHandler:
             raise RuntimeError(f'cp returned code {result.returncode} '
                                f'with output {result.stderr!r}')
 
+
+    @staticmethod
+    def __normalize_path(path):
+        return path.rstrip('/')
 
 class SpdxTagValueInfo:
     RE_TAG_VALUE = re.compile(r'([a-z0-9-]+):\s*(.*)\s*$', re.I)
@@ -503,12 +603,36 @@ class CommandShow(CommandBase):
 class CommandShrink(CommandBase):
     NAME = 'shrink'
     DESCRIPTION = 'shrink embedded information by removing duplication'
+    MAP_DELIMITER = ':'
+    DEFAULT_AUTO_TOP_DIRECTORY = '.'
+
+    class FilePrefixMap(Enum):
+        DISABLE = 'disable'
+        AUTO = 'auto'
+        RULE = 'rule'
 
     def setup_parser(self, parser):
         super().setup_parser(parser, binaries=True, backup=True)
+        parser.add_argument(
+            '--file-prefix-map',
+            default=self.FilePrefixMap.DISABLE.value,
+            help='specify path substitution rule')
+        parser.add_argument(
+            '--dry-run',
+            action='store_true',
+            help='jusr run the process and do not update metadata in bianry')
 
     def run_command(self, args):
         errors = 0
+        debug(f'args={args!r}')
+
+        # parse path substitution rule
+        mapmode, maparg = self.__parse_file_prefix_map(args.file_prefix_map)
+        debug(f'parsed file-prefix-map: {mapmode!r}, {maparg!r}')
+        if mapmode is None:
+            error(f'invalid value of --file-prefix-map: {args.file_prefix_map!r}')
+            return 1
+
         for binary in args.binary:
             if binary.endswith(f'.{args.backup_suffix}'):
                 message(f'skip backup file {binary!r}.')
@@ -516,14 +640,30 @@ class CommandShrink(CommandBase):
             message(f'shrinking metadata of {binary!r}...')
             try:
                 handler = MetadataHandler(binary)
-                handler.update_metadata(
-                    binary,
-                    args.backup,
-                    args.backup_suffix,
-                    args.overwrite_backup)
             except Exception as ex:
                 error(f'failed to update metadata: {ex}')
                 errors += 1
+
+            if mapmode == self.FilePrefixMap.AUTO:
+                if maparg is None:
+                    maparg = self.DEFAULT_AUTO_TOP_DIRECTORY
+                handler.relativize_paths_auto(maparg)
+            elif mapmode == self.FilePrefixMap.RULE:
+                handler.relativize_paths_by_rule(maparg)
+
+            # update metadata in binary file
+            if args.dry_run:
+                message('binary not updated (--dry-run)')
+            else:
+                try:
+                    handler.update_metadata(
+                        binary,
+                        args.backup,
+                        args.backup_suffix,
+                        args.overwrite_backup)
+                except Exception as ex:
+                    error(f'failed to update metadata: {ex}')
+                    errors += 1
 
         if errors:
             message(f'done with {errors} error(s).')
@@ -531,6 +671,48 @@ class CommandShrink(CommandBase):
 
         message('done.')
         return 0
+
+    @classmethod
+    def __parse_file_prefix_map(cls, option):
+        # auto
+        if option == cls.FilePrefixMap.AUTO.value:
+            debug('>> auto')
+            return cls.FilePrefixMap.AUTO, None
+        # auto:<path>
+        if option.startswith(cls.FilePrefixMap.AUTO.value + cls.MAP_DELIMITER):
+            stride = len(cls.FilePrefixMap.AUTO.value) + 1
+            arg = option[stride:]
+            debug(f'>> auto with arg:{arg!r}')
+            return cls.FilePrefixMap.AUTO, arg
+        # disable
+        if option == cls.FilePrefixMap.DISABLE.value:
+            return cls.FilePrefixMap.DISABLE, None
+        # rule (from=to,from=to,...,from=to)
+        if cls.MAP_DELIMITER in option:
+            rule = cls.__parse_file_prefix_map_rule(option)
+            return cls.FilePrefixMap.RULE, rule
+        # parse failed
+        return None, None
+
+    @classmethod
+    def __parse_file_prefix_map_rule(cls, option):
+        # parse 'from=to,from=to,...,from=to' into
+        # a dict {from:to, from:to, ..., from:to}
+        errors = 0
+        rule = {}
+        for elem in option.split():
+            # elem should be in the form of 'from=to'
+            if cls.MAP_DELIMITER not in elem:
+                error(f'file-prefix-map: invalid expression {elem!r}')
+                errors += 1
+                continue
+            path_from, path_to = elem.split(cls.MAP_DELIMITER, 1)
+            rule[path_from] = path_to
+
+        if errors > 0:
+            return None
+
+        return rule
 
 
 class CommandUpdate(CommandBase):

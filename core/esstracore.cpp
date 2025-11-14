@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <filesystem>
 
 #include "gcc-plugin.h"
 #include "output.h"
@@ -26,6 +27,7 @@
 
 
 using std::vector;
+using std::tuple;
 using std::string;
 using std::map;
 using std::set;
@@ -45,7 +47,7 @@ static const string section_name = ".esstra";
 // metadata
 static vector<string> allpaths;
 using FileInfo = map<string, string>;
-static std::map<string, FileInfo> infomap;
+static map<string, FileInfo> infomap;
 
 // hash algorithms
 static const vector<string> supported_algos = {
@@ -53,6 +55,11 @@ static const vector<string> supported_algos = {
     "sha256",
 };
 static vector<string> specified_algos;
+
+// path substitution
+static const string subst_map_delimiter = ":";
+static vector<tuple<string, string>> subst_rule;
+static const char file_prefix_map_separator = ' ';
 
 // yaml
 static const string yaml_item = "- ";
@@ -156,6 +163,38 @@ calc_sha256(uint8_t *buffer, uint32_t size) {
     return bytes_to_string(hash.bytes, SHA256_HASH_SIZE);
 }
 
+/*
+ * remove trailing slahses
+ */
+static inline void
+remove_traliing_slashes(string& path) {
+    while (!path.empty() && path.back() == '/') {
+        path.pop_back();
+    }
+}
+
+/*
+ * substitute path with subst_rule
+ */
+static string
+substitute_path_prefix(const string& path)
+{
+    for (const auto& [subst_from, subst_to] : subst_rule) {
+        debug("subst: '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        if (path.size() >= subst_from.size() &&
+            path.compare(0, subst_from.size(), subst_from) == 0) {
+            string subst_rest(path.substr(subst_from.size()));
+            if (subst_rest[0] == '/') {
+                debug("eliminate heading '/' from '%s'", subst_rest.c_str());
+                subst_rest = subst_rest.substr(1);
+            }
+            std::filesystem::path path_to(subst_to);
+            std::filesystem::path path_rest(subst_rest);
+            return (subst_to / path_rest).string();
+        }
+    }
+    return path;
+}
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
@@ -271,7 +310,11 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 
         // enumerate all directories and files
         for (const auto& directory : sorted_dirs) {
-            strings_to_embed.push_back(yaml_item + key_directory + ": " + directory);
+            // ---
+            string substituted = substitute_path_prefix(directory);
+            debug("directory: '%s' => '%s'", directory.c_str(), substituted.c_str());
+            // ---
+            strings_to_embed.push_back(yaml_item + key_directory + ": " + substituted);
             strings_to_embed.push_back(yaml_indent + key_files + ":");
             for (const auto& filename : dir_to_files[directory]) {
                 debug("dir: %s", directory.c_str());
@@ -303,6 +346,84 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 }
 
 /*
+ * split connected argument
+ */
+static void
+split_comma_connected_arg(const char* arg, char separator, vector<string>& parsed_args) {
+    string elem;
+    while (*arg) {
+        if (*arg == separator) {
+            if (elem.length() > 0) {
+                debug("parsed: %s", elem.c_str());
+                parsed_args.push_back(elem);
+            }
+            elem = "";
+        } else {
+            elem += string(arg, 1);
+        }
+        arg++;
+    }
+    if (elem.length() > 0) {
+        debug("parsed: %s", elem.c_str());
+        parsed_args.push_back(elem);
+    }
+}
+
+/*
+ * parse value of file-prefix-map option
+ */
+static bool
+parse_file_prefix_map_option(const char* arg) {
+    vector<string> args;
+    split_comma_connected_arg(arg, file_prefix_map_separator, args);
+
+    int errors = 0;
+    for (const auto& elem : args) {
+        size_t delimiter_pos = elem.find(subst_map_delimiter);
+        debug("subst_rule: %s, pos:%u, npos:%u",
+              elem.c_str(), delimiter_pos, string::npos);
+        if (delimiter_pos == string::npos) {
+            message("argument '%s' must contain '%s'", elem.c_str(),
+                    subst_map_delimiter.c_str());
+            errors++;
+            continue;
+        }
+        if (delimiter_pos == 0 || delimiter_pos == elem.size() - 1) {
+            message("both sides of '%s' must be strings in argument '%s'",
+                    elem.c_str(), subst_map_delimiter.c_str());
+            errors++;
+            continue;
+        }
+        debug("delimiter_pos = %d", delimiter_pos);
+        string subst_from(elem.substr(0, delimiter_pos));
+        string subst_to(elem.substr(delimiter_pos + 1));
+        debug("rule (string): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        remove_traliing_slashes(subst_from);
+        remove_traliing_slashes(subst_to);
+        debug("rule (after removing slashes): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        if (subst_from.find(subst_map_delimiter) != string::npos ||
+            subst_to.find(subst_map_delimiter) != string::npos) {
+            message("argument '%s' must contain only a single '%s'",
+                  elem.c_str(), subst_map_delimiter.c_str());
+            errors++;
+            continue;
+        }
+        std::filesystem::path path_from(subst_from);
+        std::filesystem::path path_to(subst_to);
+        const tuple<string, string> subst_map = {
+            path_from.string(),
+            path_to.string(),
+        };
+        subst_rule.push_back(subst_map);
+        debug("rule (tuple of path): '%s' => '%s'",
+              std::get<0>(subst_map).c_str(),
+              std::get<1>(subst_map).c_str());
+
+    }
+    return errors == 0;
+}
+
+/*
  * initialization
  */
 int
@@ -328,25 +449,16 @@ plugin_init(struct plugin_name_args* plugin_info,
             if (flag_debug) {
                 debug("debug mode enabled");
             }
+        } else if (strcmp(argv->key, "file-prefix-map") == 0) {
+            debug("file-prefix-map: %s", argv->value);
+            if (!parse_file_prefix_map_option(argv->value)) {
+                error = true;
+                message("parse error: file-refix-map");
+            }
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug("arg-checksum: %s", argv->value);
-            auto value = reinterpret_cast<const char*>(argv->value);
-            string algo;
             specified_algos.clear(); // delete default algo
-            while (*value) {
-                if (*value == ',') {
-                    if (algo.length() > 0) {
-                        specified_algos.push_back(algo);
-                    }
-                    algo = "";
-                } else {
-                    algo += string(value, 1);
-                }
-                value++;
-            }
-            if (algo.length() > 0) {
-                specified_algos.push_back(algo);
-            }
+            split_comma_connected_arg(argv->value, ',', specified_algos);
             // check if specified algos are supported
             for (const auto& algo: specified_algos) {
                 if (!is_algo_supported(algo)) {
@@ -355,6 +467,9 @@ plugin_init(struct plugin_name_args* plugin_info,
                 }
                 debug("algo: '%s'", algo.c_str());
             }
+        } else {
+            message("unknown option: %s", argv->key);
+            error = true;
         }
         argv++;
     }
