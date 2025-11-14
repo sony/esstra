@@ -179,6 +179,16 @@ calc_sha256(uint8_t *buffer, uint32_t size) {
 }
 
 /*
+ * remove trailing slahses
+ */
+static inline void
+remove_traliing_slashes(string& path) {
+    while (!path.empty() && path.back() == '/') {
+        path.pop_back();
+    }
+}
+
+/*
  * substitute path with subst_rule
  */
 static string
@@ -399,22 +409,28 @@ parse_file_prefix_map_option(const char* arg) {
             errors++;
             continue;
         }
+        debug("delimiter_pos = %d", delimiter_pos);
         string subst_from(elem.substr(0, delimiter_pos));
         string subst_to(elem.substr(delimiter_pos + 1));
-        if (subst_from.find(":") != string::npos || subst_to.find(":") != string::npos) {
+        debug("rule (string): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        remove_traliing_slashes(subst_from);
+        remove_traliing_slashes(subst_to);
+        debug("rule (after removing slashes): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        if (subst_from.find(subst_map_delimiter) != string::npos ||
+            subst_to.find(subst_map_delimiter) != string::npos) {
             message("argument '%s' must contain only a single '%s'",
-                    elem.c_str(), subst_map_delimiter.c_str());
+                  elem.c_str(), subst_map_delimiter.c_str());
             errors++;
             continue;
         }
         std::filesystem::path path_from(subst_from);
         std::filesystem::path path_to(subst_to);
         const tuple<string, string> subst_map = {
-            path_from.lexically_normal().string(),
-            path_to.lexically_normal().string(),
+            path_from.string(),
+            path_to.string(),
         };
         subst_rule.push_back(subst_map);
-        debug("rule: '%s' => '%s'",
+        debug("rule (tuple of path): '%s' => '%s'",
               std::get<0>(subst_map).c_str(),
               std::get<1>(subst_map).c_str());
 
