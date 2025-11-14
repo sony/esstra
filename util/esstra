@@ -148,7 +148,7 @@ class MetadataHandler:
         return True
 
     def relativize_paths_auto(self, to):
-        to = os.path.normpath(to)
+        to = self.__normalize_path(to)
 
         dirs = [
             directory[self.KEY_DIRECTORY]
@@ -183,7 +183,7 @@ class MetadataHandler:
 
     def relativize_paths_by_rule(self, rule):
         normalized_rule = {
-            os.path.normpath(path_from): os.path.normpath(path_to)
+            self.__normalize_path(path_from): self.__normalize_path(path_to)
             for path_from, path_to in rule.items()
         }
         debug(f'rule={rule!r}')
@@ -370,6 +370,10 @@ class MetadataHandler:
             raise RuntimeError(f'cp returned code {result.returncode} '
                                f'with output {result.stderr!r}')
 
+
+    @staticmethod
+    def __normalize_path(path):
+        return path.rstrip('/')
 
 class SpdxTagValueInfo:
     RE_TAG_VALUE = re.compile(r'([a-z0-9-]+):\s*(.*)\s*$', re.I)
