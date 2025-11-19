@@ -163,10 +163,9 @@ Since ESSTRA is at an early stage in development, we have developed a feature
 that attaches license information as a sort of feasibility study.
 
 To attach license information, you need to prepare an
-[SPDX 2.3 tag-value](https://spdx.github.io/spdx-spec/v2.3/) file
+SPDX tag-value file with a minimum version of [SPDX 2.2](https://spdx.github.io/spdx-spec/v2.2.2/) file
 including `LicenseInfoInFile:` tags.
-Some license scanners like [FOSSology](https://fossology.github.io/) can
-generate such files.
+Some license scanners like [FOSSology](https://fossology.github.io/) and [ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit) can generate such files.
 
 A typical usage is:
 
