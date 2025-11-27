@@ -4,19 +4,23 @@ In this demo, we will explain how to use ESSTRA with a popular open-source packa
 "OpenSSL". This document is structured as a step-by-step guide, allowing you to easily
 understand the basic operations of ESSTRA by following each step in order.
 
-First, we will build the OpenSSL package using ESSTRA Core to generate the ELF files. These ELF
-files include metadata containing information about all the source files involved in the
-compilation, such as absolute paths and checksums. We will verify this using ESSTRA Utility.
+First, we will build the OpenSSL package using the ESSTRA Core to generate the ELF
+files. These ELF files include metadata containing information about all the source files
+involved in the compilation, such as absolute paths and checksums. We will verify this using
+ESSTRA Utility.
 
-Next, we will demonstrate how to use the feature of ESSTRA Utility that adds license
-information of source files to the metadata. In this demo, we will use the open-source software
-license analysis tool
-[FOSSology](https://github.com/fossology/fossology)
-to scan the source code for licenses and generate a license information file. We will then
-update the metadata using ESSTRA Utility based on this information and verify that the license
-information has been correctly added to the metadata.
+Next, we will demonstrate how to use the feature of ESSTRA Utility that adds
+license information of source files to the metadata. In this demo, we will
+use the following open-source software license analysis tools to scan the source code for licenses and generate a license information
+file.
+* [FOSSology](https://github.com/fossology/fossology)
+* [ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit)
 
-The operational procedures for the license analysis tool FOSSology are also explained in this
+We will then update the metadata using ESSTRA Utility based on this
+information and verify that the license information has been correctly added to 
+the metadata.
+
+The operational procedures for the above mentioned license analysis tools are also explained in this
 guide.
 
 Finally, we calculate the effectiveness of ESSTRA in license analysis activities.
@@ -218,11 +222,15 @@ SourceFiles:
 The complete output in YAML format can be found in
 [yaml-report](./output-examples/openssl/esstra_scan_on_openssl_elf.yaml).
 
-## License Analysis Using FOSSology
+## License Analysis
 
 ESSTRA Utility includes a feature that adds license information to the metadata of each file.
 Below are the steps to add the license information of the OpenSSL source files to the metadata
 of the binaries/ELFs (generated during build) using this feature.
+
+This can be done by any tool that can scan the source code and generate a spdx file. Here, we demostrate using FOSSology and ScanCode toolkit.
+
+### Using FOSSology
 
 As a preliminary step, you need to create a document in the
 [SPDX 2.3 tag-value format](https://spdx.github.io/spdx-spec/v2.3/)
@@ -230,7 +238,7 @@ that includes the license information of the source files.
 Here, we will demonstrate how to use the open-source software license analysis tool
 [FOSSology](https://github.com/fossology/fossology) to achieve this.
 
-### Starting the FOSSology Server
+#### Starting the FOSSology Server
 
 We will use the FOSSology container image provided on
 [Docker Hub](https://hub.docker.com/).
@@ -258,7 +266,7 @@ When accessing FOSSology, make sure to append `/repo` to the URL.
 
 Then the FOSSology startup screen will appear in your browser.
 
-### Analyzing Source Code with FOSSology
+#### Analyzing Source Code
 
 Refer to
 [this guide](https://github.com/sony/esstra/blob/main/samples/hello/README_FOSSOLOGY.md)
@@ -272,7 +280,7 @@ report using the tool [FOSSology.REST.shell](https://github.com/fossology/FOSSol
 
 ```sh
 $ git clone https://github.com/fossology/FOSSology.REST.shell.git
-$ apt install -y jq curl
+$ sudo apt install -y jq curl
 ```
 
 #### Upload and Scan the OpenSSL Source Files
@@ -311,7 +319,7 @@ FOSSology.REST.shell$ ./download-rest.sh -F spdx2tv -r http://localhost:8081/rep
 
 Output directory: /home/FOSSology.REST.shell
 Downloading file
-Downloaded file: /home/FOSSology.REST.shell/SPDX2TV_openssl-3.4.1.tar.gz.spdx
+Downloaded file: /home/FOSSology.REST.shell/SPDX2TV_openssl-3.4.1.tar.gz_fossology.spdx
 
 ======================================
 === End
@@ -319,7 +327,7 @@ Downloaded file: /home/FOSSology.REST.shell/SPDX2TV_openssl-3.4.1.tar.gz.spdx
 ```
 
 Below is a portion of the downloaded file
-[`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz.spdx):
+[`SPDX2TV_openssl-3.4.1.tar.gz_fossology.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz_fossology.spdx):
 
 ```yaml
 SPDXVersion: SPDX-2.2
@@ -358,18 +366,138 @@ PackageFileName: openssl-3.4.1.tar.gz
   :
 ```
 
-## Adding License Information to Metadata
+### Using ScanCode toolkit
 
-To add license information to the metadata in the binary using ESSTRA Utility
-with the
-[`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz.spdx)
-file downloaded from FOSSology, run the following command:
+Here, we will demonstrate how to use the open-source software license analysis tool
+[ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit) to generate a document in the
+[SPDX 2.2 tag-value format](https://spdx.github.io/spdx-spec/v2.2.2/)
+that includes the license information of the source files.
+
+#### ScanCode toolkit setup
+
+We will install the tool using the source code from the [official repository](https://github.com/aboutcode-org/scancode-toolkit).
+
+ScanCode toolkit requires a Python version between 3.9 to 3.13 to work properly.
 
 ```sh
-$ esstra update ../openssl-3.4.1/apps/openssl -i SPDX2TV_openssl-3.4.1.tar.gz.spdx
-* processing '../openssl-3.4.1/apps/openssl'...
-* done.
+$ sudo apt update
+$ sudo apt install python3 python3-pip
 ```
+
+We will be using version [v32.4.1](https://github.com/aboutcode-org/scancode-toolkit/releases/tag/v32.4.1) for this demo.
+
+Clone the repo with the following command:
+
+```sh
+$ git clone https://github.com/aboutcode-org/scancode-toolkit.git -b v32.4.1
+```
+
+Once the repo is successfully cloned, execute the following commands to install the tool.
+
+```sh
+$ cd scancode-toolkit
+$ ./configure
+$ source venv/bin/activate
+```
+
+This will install it for local and development usage.
+
+#### Analyzing Source Code with ScanCode toolkit
+
+Once ScanCode toolkit is installed, we can start a scan with the following steps.
+
+Since the tool doesn't support archives yet, we have to untar the files to be scanned.
+
+Here we are using a fresh copy of OpenSSL package to get started with.
+
+```sh
+$ wget https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
+$ tar -xf openssl-3.4.1.tar.gz
+```
+After the untar has been completed, use the following command to scan and generate the SPDX report.
+
+```sh
+$ scancode -clpeui --spdx-tv SPDX2TV_openssl-3.4.1.tar.gz_scancode.spdx openssl-3.4.1
+```
+Following is a sample output of the above command.
+
+```sh
+Setup plugins...
+Collect file inventory...
+Scan files for: info, packages, licenses, copyrights, emails, urls with 19 process(es)...
+[####################] 10796                                                     
+Scanning done.
+Summary:        info, packages, licenses, copyrights, emails, urls with 19 process(es)
+Errors count:   0
+Scan Speed:     20.83 files/sec. 248.46 KB/sec.
+Initial counts: 5681 resource(s): 5398 file(s) and 283 directorie(s) 
+Final counts:   5681 resource(s): 5398 file(s) and 283 directorie(s) for 62.89 MB
+Timings:
+  scan_start: 2025-10-06T125159.852780
+  scan_end:   2025-10-06T125621.466463
+  setup_scan:licenses: 1.73s
+  setup: 1.73s
+  inventory: 0.33s
+  scan:packages: 0.26s
+  scan:licenses: 0.24s
+  scan: 259.21s
+  output:spdx-tv: 1.28s
+  output: 1.28s
+  total: 262.97s
+Removing temporary files...done.
+```
+
+Refer to
+[this guide](https://scancode-toolkit.readthedocs.io/en/stable/tutorials/how_to_run_a_scan.html)
+for a step-by-step manual approach to analyze the source code with ScanCode toolkit and generate a
+report.
+
+
+#### Getting the Scan Report
+
+Since we have already defined the report name and path while starting the scan, the same will be available at the defined location once the scan is complete.
+
+Below is a portion of the downloaded file
+[`SPDX2TV_openssl-3.4.1.tar.gz_scancode.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz_scancode.spdx):
+
+```yaml
+## Document Information
+SPDXVersion: SPDX-2.2
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: SPDX Document created by ScanCode Toolkit
+DocumentNamespace: http://spdx.org/spdxdocs/project-bd64978c-c6c5-4d01-ad39-5a573360edda
+DocumentComment: <text>Generated with ScanCode and provided on an "AS IS" BASIS, WITHOUT WARRANTIES
+OR CONDITIONS OF ANY KIND, either express or implied. No content created from
+ScanCode should be considered or used as legal advice. Consult an Attorney
+for any legal advice.
+ScanCode is a free software code scanning tool from nexB Inc. and others.
+Visit https://github.com/nexB/scancode-toolkit/ for support and download.
+SPDX License List: 3.27</text>
+
+## Creation Information
+LicenseListVersion: 3.27
+Creator: Tool: scancode-toolkit 32.4.1
+Created: 2025-09-24T08:58:09Z
+
+  :
+(snip)
+  :
+```
+
+### Adding License Information to Metadata
+
+To add license information to the metadata in the binary using ESSTRA Utility with the generated spdx files from FOSSology or ScanCode toolkit, run the following command:
+
+```sh
+$ esstra update ../openssl-3.4.1/apps/openssl -i ${SPDX_FILE}
+* processing '../openssl-3.4.1/apps/openssl'...
+* done. 
+```
+
+Where `${SPDX_FILE}` is one of the following:
+ * [`SPDX2TV_openssl-3.4.1.tar.gz_fossology.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz_fossology.spdx)
+ * [`SPDX2TV_openssl-3.4.1.tar.gz_scancode.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz_scancode.spdx)
 
 If no errors occur, the process is successful. To display the metadata content
 of the ELF `openssl-3.4.1/apps/openssl`, run:
@@ -378,15 +506,41 @@ of the ELF `openssl-3.4.1/apps/openssl`, run:
 $ esstra show ../openssl-3.4.1/apps/openssl
 ```
 
-The result will be as follows:
+The results will be as follows:
 
-```yaml
-#
-# BinaryFileName: ../openssl-3.4.1/apps/openssl
-# BinaryPath: /home/openssl-3.4.1/apps/openssl
-#
-SourceFiles:
-  /home/openssl-3.4.1/apps:
+<table>
+ <tr>
+ <td> FOSSology </td> <td> ScanCode toolkit </td>
+ </tr>
+ <tr>
+ <td>
+ 
+ ```yaml
+ #
+ # BinaryFileName: ../openssl-3.4.1/apps/openssl
+ # BinaryPath: /esstra/openssl-3.4.1/apps/openssl
+ #
+ Headers:
+   ToolName: ESSTRA Core
+   ToolVersion: 0.4.0
+   DataFormatVersion: 0.1.0
+   InputFileNames:
+   - apps/lib/cmp_mock_srv.c
+   - apps/asn1parse.c
+   - apps/ca.c
+   - apps/ciphers.c
+   - apps/cmp.c
+   - apps/cms.c
+   - apps/crl.c
+   - apps/crl2pkcs7.c
+   - apps/dgst.c
+   - apps/dhparam.c
+   :
+ (snip)
+   :
+ SourceFiles:
+ - Directory: /esstra/openssl-3.4.1/apps
+   Files:
   - File: info.c
     LicenseInfo:
     - OpenSSL
@@ -407,27 +561,97 @@ SourceFiles:
     - OpenSSL
     - Apache-2.0
     SHA1: c295c80b647ff6a6667caa603f89ad436c29fd93
-  - File: nseq.c
-    LicenseInfo:
-    - Apache-2.0
-    - OpenSSL
-```
+ 
 
-The complete output of ESSTRA Utility, including license information, can be found
-[here](./output-examples/openssl/esstra_show_openssl_result_with_license_info.yaml).
 
-Please note that the file
-[`SPDX2TV_openssl-3.4.1.tar.gz.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz.spdx),
-generated previously by FOSSology, only contains license information
+
+  (snip)
+ 
+ ```
+ 
+ 
+ </td>
+ <td>
+ 
+ ```yaml
+  #
+  # BinaryFileName: openssl-3.4.1/apps/openssl
+  # BinaryPath: /openssl/openssl-3.4.1/apps/openssl
+  #
+  Headers:
+    ToolName: ESSTRA Core
+    ToolVersion: 0.4.0
+    DataFormatVersion: 0.1.0
+    InputFileNames:
+    - apps/lib/cmp_mock_srv.c
+    - apps/asn1parse.c
+    - apps/ca.c
+    - apps/ciphers.c
+    - apps/cmp.c
+    - apps/cms.c
+    - apps/crl.c
+    - apps/crl2pkcs7.c
+    - apps/dgst.c
+    - apps/dhparam.c
+    :
+  (snip)
+    :
+  SourceFiles:
+  - Directory: /openssl/openssl-3.4.1/apps
+    Files:
+    - File: info.c
+      SHA1: 51aa1d9f96d789cd3fe178fd67ca758c4ab877ee
+      LicenseInfo:
+      - MIT
+      - Apache-2.0
+      - OpenSSL
+    - File: kdf.c
+      SHA1: 49ba6552b654317b940599cfb964e7c0397c7121
+      LicenseInfo:
+      - MIT
+      - Apache-2.0
+      - OpenSSL
+    - File: list.c
+      SHA1: 13ec3cdb556dfd35d723bd460c3253718f5358d4
+      LicenseInfo:
+      - Apache-2.0
+      - OpenSSL
+    - File: mac.c
+      SHA1: c295c80b647ff6a6667caa603f89ad436c29fd93
+      LicenseInfo:
+      - MIT
+      - Apache-2.0
+      - OpenSSL
+    
+    (snip)
+  ```
+ 
+ </td>
+ </tr>
+ </table>
+
+> [!NOTE]
+> It can be observed that ScanCode toolkit has detected some extra licenses for some of the source files.
+
+The complete output of ESSTRA Utility, including license information, can be found below
+
+<table>
+<tr>
+<td>FOSSology</td> <td>ScanCode toolkit</td>
+</tr>
+<tr>
+<td> <a href="./output-examples/openssl/esstra_show_openssl_fossology.yaml"> esstra_show_openssl_fossology </a> </td> <td> <a href='./output-examples/openssl/esstra_show_openssl_scancode.yaml'> esstra_show_openssl_scancode </a></td>
+</tr>
+</table>
+
+Please note that the SPDX files generated previously by ScanCode toolkit and FOSSology contain only license information
 for the files present in the
 [OpenSSL repository](https://github.com/openssl/openssl).
 Therefore, license information will not be assigned to files
 other than OpenSSL source files in the metadata of the ELF `./openssl-3.4.1/apps/openssl`.
 
-To add license information for those files, you can use FOSSology or similar tools to identify
-their licenses and generate an SPDX tag-value format file.
-By passing the file to ESSTRA Utility, you can add license information to the metadata in
-the binary.
+To add license information for those files, you can use ScanCode toolkit or FOSSology or similar tools to identify their licenses and generate an SPDX tag-value format file.
+By passing the file to ESSTRA Utility, you can add license information to the metadata in the binary.
 
 ## Analyze Effectiveness of ESSTRA for OpenSSL
 
@@ -492,16 +716,14 @@ This means that out of all the files, only **16.685%** were used in the generate
 
 ## Summary
 
-In this demo, we first compiled the OpenSSL source files using ESSTRA Core to generate the ELFs
-and confirmed that the metadata in the generated ELF includes information about all the files
-involved in the compilation.
+In this demo, we first compiled the OpenSSL source files using ESSTRA Core 
+to generate the ELFs and confirmed that the metadata in the generated ELF includes information about all the files involved in the compilation.
 
 Next, we used ESSTRA Utility to add license information to the metadata of the generated ELF.
-To generate the license information, we demonstrated how to use the
-open-source license analysis tool
-[FOSSology](https://github.com/fossology/fossology)
-to scan the licenses of all the files in the
+To generate the license information, we demonstrated how to use the following open-source license analysis tools to scan the licenses of all the files in the
 [OpenSSL repository](https://github.com/openssl/openssl)
-and generate an SPDX 2.3 tag-value format file.
+and generate SPDX tag-value format files:
+* [FOSSology](https://github.com/fossology/fossology)
+* [ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit)
 
 Finally, we analyzed the effectiveness of ESSTRA in the license analysis of the ELFs.
