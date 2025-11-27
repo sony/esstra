@@ -316,6 +316,10 @@ compiling any kind of project -- whether it's open-source or closed-source.
 > will involve **ESSTRA Core** and **ESSTRA Link**.
 > Please install the spec file with caution to avoid unintended interference.
 
+> [!Note]
+> The spec file is intended for quick testing purposes only. For official integration, please
+> incorporate the plugin into your build system by adding the `-fplugin` option.
+
 To uninstall the spec file, run:
 
 ```sh
