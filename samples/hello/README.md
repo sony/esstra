@@ -13,18 +13,19 @@ as absolute paths and checksums. We will verify this using
 
 Next, we will demonstrate how to use **ESSTRA Utility**'s feature that adds
 license information of source files to the metadata.
-In this sample, we will use a prepared license information file
-[`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx).
-Using this information, we will update the metadata with **ESSTRA Utility**
-and verify that the license information has been correctly associated
+In this sample, we will use the license information files prepared by the license analysis tools.
+Using this information, we will update the metadata with the **ESSTRA Utility**
+Utility and verify that the license information has been correctly associated
 with the metadata.
 
-The license information file
-[`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx)
-was generated using the open-source license analysis tool
-[FOSSology](https://github.com/fossology/fossology).
-If you are interested in how to use FOSSology, please refer to the document
-[License Analysis Using FOSSology](./README_FOSSOLOGY.md).
+The license information files
+[`SPDX2TV_esstra_fossology.spdx`](../output-examples/SPDX2TV_esstra_fossology.spdx) and [`SPDX2TV_esstra_scancode.spdx`](../output-examples/SPDX2TV_esstra_scancode.spdx)
+were generated using the open-source license analysis tools
+[FOSSology](https://github.com/fossology/fossology) and [ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit) respectively.
+If you are interested in how to use these tools, please refer to the following documents:
+
+* [License Analysis Using FOSSology](./README_FOSSOLOGY.md)
+* [License Analysis Using ScanCode toolkit](./README_SCANCODE.md)
 
 ## Building and Installing ESSTRA
 
@@ -247,10 +248,15 @@ To associate the license information with the metadata in the binary using
 **ESSTRA Utility**, execute the following command:
 
 ```sh
-$ esstra update hello -i SPDX2TV_esstra.spdx
+$ esstra update hello -i ${SPDX_FILE}
 * processing 'hello'...
 * done.
 ```
+
+Where `${SPDX_FILE}` is one of the following:
+
+* [`SPDX2TV_esstra_fossology.spdx`](../output-examples/SPDX2TV_esstra_fossology.spdx)
+* [`SPDX2TV_esstra_scancode.spdx`](../output-examples/SPDX2TV_esstra_scancode.spdx)
 
 If no errors occur, the process is successful. To display the metadata content
 of the binary `hello`, execute the command:
@@ -286,11 +292,14 @@ SourceFiles:
      :
 ```
 
+> [!NOTE]
+> The above data will be similar for either of the SPDX reports used.
+
 From the above result, we can see that the file [`hello.c`](./hello.c) has
 been tagged with `LicenseInfo`, and the value assigned to it is `MIT`.
 
-Please note that the file
-[`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx) only contains
+Please note that the files
+[`SPDX2TV_esstra_fossology.spdx`](../output-examples/SPDX2TV_esstra_fossology.spdx) and [`SPDX2TV_esstra_scancode.spdx`](../output-examples/SPDX2TV_esstra_scancode.spdx) contain only the
 license information for the files present in the
 [ESSTRA GitHub repository](https://github.com/sony/esstra).
 Therefore, in this sample, license information will not be associated with any
