@@ -71,7 +71,7 @@ $ scancode -clpeui --spdx-tv SSPDX2TV_openssl-3.4.1.tar.gz_scancode.spdx esstra-
 
 Here is a breakdown of the scan options used in the above command.
 
-* **-c** for --copyright 
+* **-c** for --copyright
 * **-l** for --license
 * **-p** for --package
 * **-e** for --email
