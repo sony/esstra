@@ -180,6 +180,24 @@ files at once, you can specify them all on the command line:
 $ esstra update <binary> [<binary> ...] -i <spdx-tv-file> [<spdx-tv-file> ..]
 ```
 
+When multiple SPDX tag-value files are provided, or when license information is already
+embedded in the binary metadata, all license data for each file will be **appended** in a
+deduplicated manner.  For example, if the binary metadata specifies that the file:
+
+* `/home/snagao/esstra/samples/hello2/hello_main.c`
+
+is licensed under:
+
+* `MIT`
+
+and the SPDX tag-value file assigns the same file the license:
+
+* `BSD-3-Clause`
+
+then the resulting license information for that file will be:
+
+* `[MIT, BSD-3-Clause]`
+
 For more details on the `update` command, please refer to the document
 [Sample "hello2"](../samples/hello2/README.md).
 
