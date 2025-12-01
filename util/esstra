@@ -46,6 +46,7 @@ def error(msg):
 class MetadataHandler:
     KEY_HEADERS = 'Headers'
     KEY_DATA_FORMAT_VERSION = 'DataFormatVersion'
+    KEY_BINARY_FILE = 'BinaryFile'
     KEY_INPUT_FILE_NAME = 'InputFileName'
     KEY_INPUT_FILE_NAMES = 'InputFileNames'
     KEY_SOURCE_FILES = 'SourceFiles'
@@ -67,7 +68,7 @@ class MetadataHandler:
         self._binary_path = binary_path
         self._raw_data = self.__extract_metadata(binary_path)
         self._parsed_data = self.__decode_metadata(self._raw_data)
-        self._shrunk_data = self.__shrink_parsed_data(self._parsed_data)
+        self._shrunk_data = self.__shrink_parsed_data(self._parsed_data, self._binary_path)
 
     # public
     def get_raw_data(self):
@@ -129,6 +130,15 @@ class MetadataHandler:
         return True
 
     def relativize_paths_auto(self, to):
+        def substitute_path_prefix(dirname, common_path):
+            trimmed = dirname[len(common_path):]
+            if len(trimmed) > 0 and trimmed[0] != '/':
+                debug(f'not absoulte path: {trimmed!r}')
+                return None
+            dirname = f'{to}{trimmed}'
+            debug(f'  ==> relative dir={dirname!r}')
+            return dirname
+
         to = self.__normalize_path(to)
 
         dirs = [
@@ -153,16 +163,29 @@ class MetadataHandler:
                 continue
             dirname = directory[self.KEY_DIRECTORY]
             if dirname.startswith(common_path):
-                trimmed = dirname[len(common_path):]
-                if len(trimmed) > 0 and trimmed[0] != '/':
-                    debug(f'not absoulte path: {trimmed!r}')
-                    continue
-                dirname = f'{to}{trimmed}'
-                debug(f'  ==> relative dir={dirname!r}')
-                directory[self.KEY_DIRECTORY] = dirname
+                dirname = substitute_path_prefix(dirname, common_path)
+                if dirname:
+                    directory[self.KEY_DIRECTORY] = dirname
             debug(directory[self.KEY_DIRECTORY])
 
+        binary_path = self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE]
+        debug(f'binary_path = {binary_path}')
+        if binary_path.startswith(common_path):
+            dirname = substitute_path_prefix(binary_path, common_path)
+            if dirname:
+                self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE] = dirname
+                debug(f'-> binary_path = {dirname}')
+
     def relativize_paths_by_rule(self, rule):
+        def substitute_path_prefix(dirname, rule):
+            for path_from, path_to in normalized_rule.items():
+                if dirname.startswith(path_from):
+                    debug(f'substitute {path_from!r} to {path_to!r} in {dirname!r}')
+                    return dirname.replace(path_from, path_to, 1)
+            else:
+                debug(f'{dirname!r}: rule not matched')
+                return None
+
         normalized_rule = {
             self.__normalize_path(path_from): self.__normalize_path(path_to)
             for path_from, path_to in rule.items()
@@ -172,18 +195,18 @@ class MetadataHandler:
 
         sourcefiles = self._shrunk_data[self.KEY_SOURCE_FILES]
         for directory in sourcefiles:
-            dirname = directory[self.KEY_DIRECTORY]
-            for path_from, path_to in normalized_rule.items():
-                if dirname.startswith(path_from):
-                    break
-            else:
-                debug(f'{dirname!r}: rule not matched')
-                continue
+            dirname = substitute_path_prefix(
+                directory[self.KEY_DIRECTORY], normalized_rule)
+            if dirname:
+                debug(f'  ==> relative dir={dirname!r}')
+                directory[self.KEY_DIRECTORY] = dirname
 
-            debug(f'substitute {path_from!r} to {path_to!r} in {dirname!r}')
-            dirname = dirname.replace(path_from, path_to, 1)
-            debug(f'  ==> relative dir={dirname!r}')
-            directory[self.KEY_DIRECTORY] = dirname
+        binary_path = self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE]
+        debug(f'binary_path = {binary_path}')
+        dirname = substitute_path_prefix(binary_path, normalized_rule)
+        if dirname:
+            self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE] = dirname
+            debug(f'-> binary_path = {dirname}')
 
     def dump_shrunk_data(self):
         return yaml.safe_dump(self._shrunk_data, sort_keys=False)
@@ -283,7 +306,7 @@ class MetadataHandler:
         return yaml_docs
 
     @classmethod
-    def __shrink_parsed_data(cls, docs):
+    def __shrink_parsed_data(cls, docs, binary_path):
         headers = {}
         sourcefiles = {}
 
@@ -325,6 +348,9 @@ class MetadataHandler:
         for path in sourcefiles:
             sourcefiles[path] = sorted(
                 sourcefiles[path], key=lambda x: x[cls.KEY_FILE])
+
+        if cls.KEY_BINARY_FILE not in headers:
+            headers[cls.KEY_BINARY_FILE] = str(Path(binary_path).resolve())
 
         shrunk_data = {
             cls.KEY_HEADERS: headers,
@@ -567,29 +593,16 @@ class CommandShow(CommandBase):
             '-r', '--raw',
             action='store_true',
             help='display raw data')
-        parser.add_argument(
-            '-n', '--no-comments',
-            action='store_true',
-            help='suppress displaying comment lines')
 
     def run_command(self, args):
         for given_path in args.binary:
-            if not args.no_comments:
-                print('#')
-                print(f'# {self.KEY_BINARY_FILE_NAME}: {given_path}')
+            path = str(Path(given_path).resolve())
             try:
-                path = str(Path(given_path).resolve())
                 handler = MetadataHandler(path)
-                string_to_display = self.__make_string_to_display(args, handler)
-            except Exception as ex:
-                if not args.no_comments:
-                    print('#')
+            except FileNotFoundError as ex:
                 print(f'Exeption: {ex!r}')
-                print()
                 continue
-            if not args.no_comments:
-                print(f'# {self.KEY_BINARY_PATH}: {path}')
-                print('#')
+            string_to_display = self.__make_string_to_display(args, handler)
             print(string_to_display.rstrip())
 
     # private
