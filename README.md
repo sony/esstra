@@ -197,18 +197,15 @@ $ esstra show hello
 would generate an output as follows:
 
 ```yaml
-#
-# BinaryFileName: hello
-# BinaryPath: /home/snagao/esstra/samples/hello/hello
-#
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.4.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
+  BinaryFile:
 SourceFiles:
-- Directory: .
+- Directory: /home/snagao/esstra/samples/hello
   Files:
   - File: hello.c
     SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2

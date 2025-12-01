@@ -1,7 +1,3 @@
-#
-# BinaryFileName: ../openssl-3.4.1/apps/openssl
-# BinaryPath: /home/openssl-3.4.1/apps/openssl
-#
 SourceFiles:
   /home/openssl-3.4.1/apps:
   - File: info.c

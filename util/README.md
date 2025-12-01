@@ -54,10 +54,6 @@ $ esstra show hello
 would give you an output as follows:
 
 ```yaml
-#
-# BinaryFileName: hello
-# BinaryPath: /home/snagao/esstra/samples/hello/hello
-#
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.4.0
@@ -146,9 +142,6 @@ $ esstra rm hello
 * processing 'hello'...
 * done.
 $ esstra show hello
-#
-# BinaryFileName: hello
-#
 Exception: RuntimeError("section not found: .'esstra")
 ```
 

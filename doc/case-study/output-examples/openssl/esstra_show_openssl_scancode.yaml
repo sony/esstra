@@ -1,7 +1,3 @@
-#
-# BinaryFileName: openssl-3.4.1/apps/openssl
-# BinaryPath: /openssl/openssl-3.4.1/apps/openssl
-#
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.4.0

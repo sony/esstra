@@ -110,10 +110,6 @@ $ esstra show hello2
 And you will get a result as follows:
 
 ```yaml
-#
-# BinaryFileName: hello2
-# BinaryPath: /home/snagao/esstra/samples/hello2/hello2
-#
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.4.0
@@ -230,10 +226,6 @@ $ esstra show hello2
 You will get the result shown below:
 
 ```yaml
-#
-# BinaryFileName: hello2
-# BinaryPath: /home/snagao/esstra/samples/hello2/hello2
-#
 Headers:
   ToolName: ESSTRA Core
   ToolVersion: 0.4.0
