@@ -349,7 +349,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
  * split connected argument
  */
 static void
-split_comma_connected_arg(const char* arg, char separator, vector<string>& parsed_args) {
+split_connected_args(const char* arg, char separator, vector<string>& parsed_args) {
     string elem;
     while (*arg) {
         if (*arg == separator) {
@@ -375,7 +375,7 @@ split_comma_connected_arg(const char* arg, char separator, vector<string>& parse
 static bool
 parse_file_prefix_map_option(const char* arg) {
     vector<string> args;
-    split_comma_connected_arg(arg, file_prefix_map_separator, args);
+    split_connected_args(arg, file_prefix_map_separator, args);
 
     int errors = 0;
     for (const auto& elem : args) {
@@ -458,7 +458,7 @@ plugin_init(struct plugin_name_args* plugin_info,
         } else if (strcmp(argv->key, "checksum") == 0) {
             debug("arg-checksum: %s", argv->value);
             specified_algos.clear(); // delete default algo
-            split_comma_connected_arg(argv->value, ',', specified_algos);
+            split_connected_args(argv->value, ',', specified_algos);
             // check if specified algos are supported
             for (const auto& algo: specified_algos) {
                 if (!is_algo_supported(algo)) {
