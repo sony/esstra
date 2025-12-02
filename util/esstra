@@ -554,9 +554,9 @@ class CommandBase(ABC):
             action='store_true',
             help='verbose mode')
         parser.add_argument(
-            '-S', '--show-errors',
+            '-S', '--show-error',
             action='store_true',
-            help='show errors')
+            help='show error even when -s is used')
 
     @abstractmethod
     def run_command(self, args):
@@ -616,18 +616,18 @@ class CommandDispatcher:
             print(f'{TOOL_NAME} {TOOL_VERSION}')
             return 0
 
+        if not hasattr(args, 'name'):
+            msg.error('no command specified. show help by "-h".')
+            sys.exit(1)
+
         if args.silent:
             msg.set_silent_mode()
         if args.verbose:
             msg.set_verbose_mode()
         if args.debug:
             msg.set_debug_mode()
-        if args.show_errors:
+        if args.show_error:
             msg.set_show_errors_mode()
-
-        if not hasattr(args, 'name'):
-            msg.error('no command specified. show help by "-h".')
-            sys.exit(1)
 
         result = (self._command_table[args.name]).run_command(args)
         if args.ignore_errors and result:
