@@ -87,7 +87,7 @@ enum MessageLevel {
     L_NOTICE = 1 << 3,
     L_ERROR  = 1 << 4,
 };
-static uint8_t enabled_messages = L_ERROR | L_NOTICE;
+static uint8_t messages_to_show = L_ERROR | L_NOTICE;
 
 
 // Some OSes (e.g. Hurd) explicitly need to specify PATH_MAX
@@ -102,7 +102,7 @@ static uint8_t enabled_messages = L_ERROR | L_NOTICE;
  */
 static void
 message(MessageLevel level, const char* format, ...) {
-    if ((enabled_messages & level) == 0) return;
+    if ((messages_to_show & level) == 0) return;
     va_list args;
     va_start(args, format);
     fprintf(stderr, "[%s] ", tool_name.c_str());
@@ -422,14 +422,10 @@ parse_file_prefix_map_option(const char* arg) {
 int
 plugin_init(struct plugin_name_args* plugin_info,
             struct plugin_gcc_version* version) {
-    message(L_INFO, "loaded: v%s", tool_version.c_str());
-
     if (!plugin_default_version_check(version, &gcc_version)) {
         message(L_ERROR, "initialization failed: version mismatch");
         return 1;
     }
-
-    message(L_INFO, "initializing plugin for '%s'...", in_fnames[0]);
 
     bool error = false;
 
@@ -438,8 +434,8 @@ plugin_init(struct plugin_name_args* plugin_info,
 
     while (argc--) {
         if (strcmp(argv->key, "debug") == 0) {
-            if (atoi(argv->value) != 0) {
-                enabled_messages |= L_DEBUG;
+            if (argv->value && atoi(argv->value) != 0) {
+                messages_to_show |= L_DEBUG;
                 message(L_DEBUG, "debug mode enabled");
             }
         } else if (strcmp(argv->key, "file-prefix-map") == 0) {
@@ -460,6 +456,15 @@ plugin_init(struct plugin_name_args* plugin_info,
                 }
                 message(L_DEBUG, "algo: '%s'", algo.c_str());
             }
+        } else if (strcmp(argv->key, "verbose") == 0) {
+            messages_to_show |= L_ERROR | L_INFO;
+            message(L_DEBUG, "verbose mode enabled");
+        } else if (strcmp(argv->key, "silent") == 0) {
+            messages_to_show &= ~(L_ERROR | L_INFO | L_DEBUG);
+            message(L_DEBUG, "silent mode enabled");
+        } else if (strcmp(argv->key, "show-error") == 0) {
+            messages_to_show |= L_ERROR;
+            message(L_DEBUG, "show error even when in silent mode");
         } else {
             message(L_ERROR, "unknown option: %s", argv->key);
             error = true;
