@@ -82,12 +82,19 @@ static const string key_sha256 = "SHA256";
 
 // flags
 enum MessageLevel {
-  DEBUG  = 1,
-  INFO   = 1 << 2,
-  NOTICE = 1 << 3,
-  ERROR  = 1 << 4,
+    DEBUG  = 1,
+    INFO   = 1 << 2,
+    NOTICE = 1 << 3,
+    ERROR  = 1 << 4,
 };
 static uint8_t enabled_messages = MessageLevel::ERROR | MessageLevel::NOTICE;
+
+
+// Some OSes (e.g. Hurd) explicitly need to specify PATH_MAX
+// "4096" is specified in Linux, see /usr/include/linux/limits.h
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 
 /*
@@ -202,14 +209,6 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     // get absolute path
 
-    /*
-     * Some OSes (e.g. Hurd) explicitly need to specify PATH_MAX
-     * "4096" is specified in Linux, see /usr/include/linux/limits.h
-     */
-    #ifndef PATH_MAX
-    #define PATH_MAX 4096
-    #endif
-
     char resolved[PATH_MAX];
     if (!realpath(path.c_str(), resolved)) {
         perror((path + ": realpath() failed").c_str());
@@ -246,22 +245,22 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     if (size != st_size) {
         fprintf(stderr, "size mismatch: st_size:%lu, read():%zd\n", st_size, size);
     } else {
-      FileInfo finfo;
-      // calculate hashes with specified algorithms
-      finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
+        FileInfo finfo;
+        // calculate hashes with specified algorithms
+        finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
 
-      // just for demonstration
-      for (const auto &algo: specified_algos) {
-        message(MessageLevel::DEBUG, "calculate '%s' hash", algo.c_str());
-        if (algo == "md5") {
-          finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
-        } else if (algo == "sha256") {
-          finfo[key_sha256] = "'" + calc_sha256(buffer, size) + "'";
-        } else {
-          fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
+        // just for demonstration
+        for (const auto &algo: specified_algos) {
+            message(MessageLevel::DEBUG, "calculate '%s' hash", algo.c_str());
+            if (algo == "md5") {
+                finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
+            } else if (algo == "sha256") {
+                finfo[key_sha256] = "'" + calc_sha256(buffer, size) + "'";
+            } else {
+                fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
+            }
         }
-      }
-      infomap[resolved] = finfo;
+        infomap[resolved] = finfo;
     }
 
     delete[] buffer;
@@ -373,7 +372,7 @@ parse_file_prefix_map_option(const char* arg) {
     for (const auto& elem : args) {
         size_t delimiter_pos = elem.find(subst_map_delimiter);
         message(MessageLevel::DEBUG, "subst_rule: %s, pos:%u, npos:%u",
-              elem.c_str(), delimiter_pos, string::npos);
+                elem.c_str(), delimiter_pos, string::npos);
         if (delimiter_pos == string::npos) {
             message(MessageLevel::ERROR, "argument '%s' must contain '%s'", elem.c_str(),
                     subst_map_delimiter.c_str());
@@ -381,7 +380,7 @@ parse_file_prefix_map_option(const char* arg) {
             continue;
         }
         if (delimiter_pos == 0 || delimiter_pos == elem.size() - 1) {
-                    message(MessageLevel::ERROR,
+            message(MessageLevel::ERROR,
                     "both sides of '%s' must be strings in argument '%s'",
                     elem.c_str(), subst_map_delimiter.c_str());
             errors++;
@@ -396,9 +395,9 @@ parse_file_prefix_map_option(const char* arg) {
         message(MessageLevel::DEBUG, "rule (after removing slashes): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
         if (subst_from.find(subst_map_delimiter) != string::npos ||
             subst_to.find(subst_map_delimiter) != string::npos) {
-                  message(MessageLevel::ERROR,
-                  "argument '%s' must contain only a single '%s'",
-                  elem.c_str(), subst_map_delimiter.c_str());
+            message(MessageLevel::ERROR,
+                    "argument '%s' must contain only a single '%s'",
+                    elem.c_str(), subst_map_delimiter.c_str());
             errors++;
             continue;
         }
@@ -410,8 +409,8 @@ parse_file_prefix_map_option(const char* arg) {
         };
         subst_rule.push_back(subst_map);
         message(MessageLevel::DEBUG, "rule (tuple of path): '%s' => '%s'",
-              std::get<0>(subst_map).c_str(),
-              std::get<1>(subst_map).c_str());
+                std::get<0>(subst_map).c_str(),
+                std::get<1>(subst_map).c_str());
 
     }
     return errors == 0;
@@ -460,13 +459,8 @@ plugin_init(struct plugin_name_args* plugin_info,
                     error = true;
                 }
                 message(MessageLevel::DEBUG, "algo: '%s'", algo.c_str());
-            if (atoi(argv->value) != 0) {
-                enabled_messages |= MessageLevel::DEBUG;
-                message(MessageLevel::DEBUG, "debug mode enabled");
             }
-            } else if (strcmp(argv->key, "debug") == 0) {
-
-    } else {
+        } else {
             message(MessageLevel::ERROR, "unknown option: %s", argv->key);
             error = true;
         }
