@@ -81,29 +81,21 @@ static const string key_sha1 = "SHA1";
 static const string key_sha256 = "SHA256";
 
 // flags
-static bool flag_debug = false;
+enum MessageLevel {
+  DEBUG  = 1,
+  INFO   = 1 << 2,
+  NOTICE = 1 << 3,
+  ERROR  = 1 << 4,
+};
+static uint8_t enabled_messages = MessageLevel::ERROR | MessageLevel::NOTICE;
 
-
-/*
- * debug print
- */
-static void
-debug(const char* format, ...) {
-    if (flag_debug) {
-        va_list args;
-        va_start(args, format);
-        fputs("[DEBUG] ", stderr);
-        vfprintf(stderr, format, args);
-        fputs("\n", stderr);
-        va_end(args);
-    }
-}
 
 /*
  * message
  */
 static void
-message(const char* format, ...) {
+message(MessageLevel level, const char* format, ...) {
+    if ((enabled_messages & level) == 0) return;
     va_list args;
     va_start(args, format);
     fprintf(stderr, "[%s] ", tool_name.c_str());
@@ -180,12 +172,12 @@ static string
 substitute_path_prefix(const string& path)
 {
     for (const auto& [subst_from, subst_to] : subst_rule) {
-        debug("subst: '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        message(MessageLevel::DEBUG, "subst: '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
         if (path.size() >= subst_from.size() &&
             path.compare(0, subst_from.size(), subst_from) == 0) {
             string subst_rest(path.substr(subst_from.size()));
             if (subst_rest[0] == '/') {
-                debug("eliminate heading '/' from '%s'", subst_rest.c_str());
+                message(MessageLevel::DEBUG, "eliminate heading '/' from '%s'", subst_rest.c_str());
                 subst_rest = subst_rest.substr(1);
             }
             std::filesystem::path path_to(subst_to);
@@ -204,7 +196,7 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     string path(reinterpret_cast<const char*>(gcc_data));
 
     if (path[0] == '<') {
-        debug("skip '%s': pseudo file name", path.c_str());
+        message(MessageLevel::DEBUG, "skip '%s': pseudo file name", path.c_str());
         return;
     }
 
@@ -226,7 +218,7 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     string resolved_path(resolved);
     if (find(allpaths.begin(), allpaths.end(), resolved_path) != allpaths.end()) {
-        debug("skip '%s': already registered", resolved_path.c_str());
+        message(MessageLevel::DEBUG, "skip '%s': already registered", resolved_path.c_str());
         return;
     }
 
@@ -260,7 +252,7 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
       // just for demonstration
       for (const auto &algo: specified_algos) {
-        debug("calculate '%s' hash", algo.c_str());
+        message(MessageLevel::DEBUG, "calculate '%s' hash", algo.c_str());
         if (algo == "md5") {
           finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
         } else if (algo == "sha256") {
@@ -312,12 +304,12 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
         for (const auto& directory : sorted_dirs) {
             // ---
             string substituted = substitute_path_prefix(directory);
-            debug("directory: '%s' => '%s'", directory.c_str(), substituted.c_str());
+            message(MessageLevel::DEBUG, "directory: '%s' => '%s'", directory.c_str(), substituted.c_str());
             // ---
             strings_to_embed.push_back(yaml_item + key_directory + ": " + substituted);
             strings_to_embed.push_back(yaml_indent + key_files + ":");
             for (const auto& filename : dir_to_files[directory]) {
-                debug("dir: %s", directory.c_str());
+                message(MessageLevel::DEBUG, "dir: %s", directory.c_str());
                 strings_to_embed.push_back(yaml_indent + yaml_item + key_file + ": " + filename);
                 string path = directory + "/" + filename;
                 for (const auto& elem : infomap[path]) {
@@ -333,7 +325,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     for (const auto& item : strings_to_embed) {
         datasize += item.size() + 1;  // plus 1 for null-character temination
     }
-    debug("size=%d", datasize);
+    message(MessageLevel::DEBUG, "size=%d", datasize);
 
     // add assembly code
     fprintf(asm_out_file, "\t.pushsection %s\n", section_name.c_str());
@@ -342,7 +334,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     }
     fprintf(asm_out_file, "\t.popsection\n");
 
-    message("added metadata to assembly output of '%s'", in_fnames[0]);
+    message(MessageLevel::INFO, "added metadata to assembly output of '%s'", in_fnames[0]);
 }
 
 /*
@@ -354,7 +346,7 @@ split_connected_args(const char* arg, char separator, vector<string>& parsed_arg
     while (*arg) {
         if (*arg == separator) {
             if (elem.length() > 0) {
-                debug("parsed: %s", elem.c_str());
+                message(MessageLevel::DEBUG, "parsed: %s", elem.c_str());
                 parsed_args.push_back(elem);
             }
             elem = "";
@@ -364,7 +356,7 @@ split_connected_args(const char* arg, char separator, vector<string>& parsed_arg
         arg++;
     }
     if (elem.length() > 0) {
-        debug("parsed: %s", elem.c_str());
+        message(MessageLevel::DEBUG, "parsed: %s", elem.c_str());
         parsed_args.push_back(elem);
     }
 }
@@ -380,30 +372,32 @@ parse_file_prefix_map_option(const char* arg) {
     int errors = 0;
     for (const auto& elem : args) {
         size_t delimiter_pos = elem.find(subst_map_delimiter);
-        debug("subst_rule: %s, pos:%u, npos:%u",
+        message(MessageLevel::DEBUG, "subst_rule: %s, pos:%u, npos:%u",
               elem.c_str(), delimiter_pos, string::npos);
         if (delimiter_pos == string::npos) {
-            message("argument '%s' must contain '%s'", elem.c_str(),
+            message(MessageLevel::ERROR, "argument '%s' must contain '%s'", elem.c_str(),
                     subst_map_delimiter.c_str());
             errors++;
             continue;
         }
         if (delimiter_pos == 0 || delimiter_pos == elem.size() - 1) {
-            message("both sides of '%s' must be strings in argument '%s'",
+                    message(MessageLevel::ERROR,
+                    "both sides of '%s' must be strings in argument '%s'",
                     elem.c_str(), subst_map_delimiter.c_str());
             errors++;
             continue;
         }
-        debug("delimiter_pos = %d", delimiter_pos);
+        message(MessageLevel::DEBUG, "delimiter_pos = %d", delimiter_pos);
         string subst_from(elem.substr(0, delimiter_pos));
         string subst_to(elem.substr(delimiter_pos + 1));
-        debug("rule (string): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        message(MessageLevel::DEBUG, "rule (string): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
         remove_traliing_slashes(subst_from);
         remove_traliing_slashes(subst_to);
-        debug("rule (after removing slashes): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        message(MessageLevel::DEBUG, "rule (after removing slashes): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
         if (subst_from.find(subst_map_delimiter) != string::npos ||
             subst_to.find(subst_map_delimiter) != string::npos) {
-            message("argument '%s' must contain only a single '%s'",
+                  message(MessageLevel::ERROR,
+                  "argument '%s' must contain only a single '%s'",
                   elem.c_str(), subst_map_delimiter.c_str());
             errors++;
             continue;
@@ -415,7 +409,7 @@ parse_file_prefix_map_option(const char* arg) {
             path_to.string(),
         };
         subst_rule.push_back(subst_map);
-        debug("rule (tuple of path): '%s' => '%s'",
+        message(MessageLevel::DEBUG, "rule (tuple of path): '%s' => '%s'",
               std::get<0>(subst_map).c_str(),
               std::get<1>(subst_map).c_str());
 
@@ -429,14 +423,14 @@ parse_file_prefix_map_option(const char* arg) {
 int
 plugin_init(struct plugin_name_args* plugin_info,
             struct plugin_gcc_version* version) {
-    message("loaded: v%s", tool_version.c_str());
+    message(MessageLevel::INFO, "loaded: v%s", tool_version.c_str());
 
     if (!plugin_default_version_check(version, &gcc_version)) {
-        message("initialization failed: version mismatch");
+        message(MessageLevel::ERROR, "initialization failed: version mismatch");
         return 1;
     }
 
-    message("initializing plugin for '%s'...", in_fnames[0]);
+    message(MessageLevel::INFO, "initializing plugin for '%s'...", in_fnames[0]);
 
     bool error = false;
 
@@ -445,39 +439,44 @@ plugin_init(struct plugin_name_args* plugin_info,
 
     while (argc--) {
         if (strcmp(argv->key, "debug") == 0) {
-            flag_debug = (atoi(argv->value) != 0);
-            if (flag_debug) {
-                debug("debug mode enabled");
+            if (atoi(argv->value) != 0) {
+                enabled_messages |= MessageLevel::DEBUG;
+                message(MessageLevel::DEBUG, "debug mode enabled");
             }
         } else if (strcmp(argv->key, "file-prefix-map") == 0) {
-            debug("file-prefix-map: %s", argv->value);
+            message(MessageLevel::DEBUG, "file-prefix-map: %s", argv->value);
             if (!parse_file_prefix_map_option(argv->value)) {
                 error = true;
-                message("parse error: file-refix-map");
+                message(MessageLevel::ERROR, "parse error: file-refix-map");
             }
         } else if (strcmp(argv->key, "checksum") == 0) {
-            debug("arg-checksum: %s", argv->value);
+            message(MessageLevel::DEBUG, "arg-checksum: %s", argv->value);
             specified_algos.clear(); // delete default algo
             split_connected_args(argv->value, ',', specified_algos);
             // check if specified algos are supported
             for (const auto& algo: specified_algos) {
                 if (!is_algo_supported(algo)) {
-                    fprintf(stderr, "algorithm '%s' not supported\n", algo.c_str());
+                    message(MessageLevel::ERROR, "algorithm '%s' not supported\n", algo.c_str());
                     error = true;
                 }
-                debug("algo: '%s'", algo.c_str());
+                message(MessageLevel::DEBUG, "algo: '%s'", algo.c_str());
+            if (atoi(argv->value) != 0) {
+                enabled_messages |= MessageLevel::DEBUG;
+                message(MessageLevel::DEBUG, "debug mode enabled");
             }
-        } else {
-            message("unknown option: %s", argv->key);
+            } else if (strcmp(argv->key, "debug") == 0) {
+
+    } else {
+            message(MessageLevel::ERROR, "unknown option: %s", argv->key);
             error = true;
         }
         argv++;
     }
 
-    debug("main_input_filename: %s", main_input_filename);
+    message(MessageLevel::DEBUG, "main_input_filename: %s", main_input_filename);
 
     if (error) {
-        fprintf(stderr, "error occurred.");
+        message(MessageLevel::ERROR, "error occurred.");
         return 1;
     }
 
