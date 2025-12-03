@@ -82,10 +82,10 @@ static const string key_sha256 = "SHA256";
 
 // flags
 enum MessageLevel {
-    L_DEBUG  = 1,
-    L_INFO   = 1 << 2,
-    L_NOTICE = 1 << 3,
-    L_ERROR  = 1 << 4,
+    L_DEBUG  = 1U,
+    L_INFO   = 1U << 2,
+    L_NOTICE = 1U << 3,
+    L_ERROR  = 1U << 4,
 };
 static uint8_t messages_to_show = L_ERROR | L_NOTICE;
 
