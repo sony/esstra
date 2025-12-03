@@ -1,0 +1,17 @@
+[package]
+name = "esstra-test-utils"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0.99"
+cargo_metadata = "0.19.0"
+clap = { version = "4.5.47", features = ["derive"] }
+elf = "0.8.0"
+esstra-lib = { path = "../esstra-lib" }
+flate2 = "1.1.2"
+log = "0.4.28"
+reqwest = { version = "0.12.23", features = ["blocking"] }
+serde_yaml = "0.9.34"
+simple_logger = { version = "5.0.0", features = ["stderr"] }
+tar = "0.4.44"

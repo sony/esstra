@@ -1,0 +1,7 @@
+/target
+
+# LLVM intermediate/binary codes
+*.bc
+*.s
+*.ll
+*.out

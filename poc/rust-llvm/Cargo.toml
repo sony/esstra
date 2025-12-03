@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = [
+    "esstra-lib",
+    "esstra-test-utils",
+    "esstra-llvm-plugin",
+    "esstra-rustc",
+]
