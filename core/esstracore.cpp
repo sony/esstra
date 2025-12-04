@@ -457,14 +457,14 @@ plugin_init(struct plugin_name_args* plugin_info,
                 message(L_DEBUG, "algo: '%s'", algo.c_str());
             }
         } else if (strcmp(argv->key, "verbose") == 0) {
-            messages_to_show |= L_ERROR | L_INFO;
+            messages_to_show |= L_ERROR | L_NOTICE | L_INFO;
             message(L_DEBUG, "verbose mode enabled");
         } else if (strcmp(argv->key, "silent") == 0) {
             messages_to_show &= ~(L_ERROR | L_INFO | L_DEBUG);
             message(L_DEBUG, "silent mode enabled");
         } else if (strcmp(argv->key, "show-error") == 0) {
             messages_to_show |= L_ERROR;
-            message(L_DEBUG, "show error even when in silent mode");
+            message(L_DEBUG, "show errors");
         } else {
             message(L_ERROR, "unknown option: %s", argv->key);
             error = true;
