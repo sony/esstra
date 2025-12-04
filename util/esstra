@@ -33,7 +33,7 @@ class Message():
     def __init__(self):
         self.__output = sys.stderr
         self.__enabled_levels = set([
-            self.Level.ERROR
+            self.Level.ERROR,
             self.Level.NOTICE,
         ])
 
