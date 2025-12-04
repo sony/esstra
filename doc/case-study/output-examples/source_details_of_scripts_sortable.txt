@@ -1,0 +1,11 @@
+/home/linux-hwe-6.8-6.8.0/scripts/sorttable.c GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/scripts/sorttable.h GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/tools/arch/x86/include/asm/orc_types.h GPL-2.0-or-later
+/home/linux-hwe-6.8-6.8.0/tools/include/asm-generic/bitsperlong.h GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/tools/include/linux/compiler-gcc.h GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/tools/include/linux/compiler.h GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/tools/include/linux/compiler_types.h GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/tools/include/linux/types.h GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/tools/include/tools/be_byteshift.h GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/tools/include/tools/le_byteshift.h GPL-2.0-only
+/home/linux-hwe-6.8-6.8.0/tools/include/uapi/asm-generic/bitsperlong.h Linux-syscall-note, LicenseRef-fossology-Dual-license, GPL-2.0-only

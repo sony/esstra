@@ -1,0 +1,101 @@
+diff -bur linux-hwe-6.8-6.8.0_original/Makefile linux-hwe-6.8-6.8.0/Makefile
+--- linux-hwe-6.8-6.8.0_original/Makefile	2025-10-24 07:14:29.655328340 +0000
++++ linux-hwe-6.8-6.8.0/Makefile	2025-11-06 10:53:37.366000895 +0000
+@@ -809,6 +809,28 @@
+ 	/bin/false)
+ 
+ endif # may-sync-config
++
++ifeq ($(CONFIG_ESSTRA),y)
++# Detect GCC info
++GCC_VERSION := $(shell gcc -dumpversion)
++GCC_ARCH := $(shell gcc -dumpmachine)
++
++# Construct plugin path
++ESSTRA_PLUGIN_PATH := /usr/local/lib/gcc/$(GCC_ARCH)/$(GCC_VERSION)/plugin/esstracore.so
++
++# Check if plugin exists, else error out
++ifeq ("$(wildcard $(ESSTRA_PLUGIN_PATH))","")
++$(error ESSTRA plugin not found at $(ESSTRA_PLUGIN_PATH). Please install esstra plugin.)
++endif
++
++ESSTRA_FLAGS := -fplugin=$(ESSTRA_PLUGIN_PATH) -Wno-error
++export ESSTRA_FLAGS
++# Apply flags to the host tools build
++KBUILD_HOSTCFLAGS += $(ESSTRA_FLAGS)
++KBUILD_HOSTCXXFLAGS += $(ESSTRA_FLAGS)
++
++KBUILD_CFLAGS += $(ESSTRA_FLAGS)
++endif
+ endif # need-config
+ 
+ KBUILD_CFLAGS	+= -fno-delete-null-pointer-checks
+diff -bur linux-hwe-6.8-6.8.0_original/arch/x86/Kconfig linux-hwe-6.8-6.8.0/arch/x86/Kconfig
+--- linux-hwe-6.8-6.8.0_original/arch/x86/Kconfig	2025-10-24 07:14:30.638944287 +0000
++++ linux-hwe-6.8-6.8.0/arch/x86/Kconfig	2025-11-06 10:46:38.948561428 +0000
+@@ -3003,6 +3003,19 @@
+ 
+ endmenu
+ 
++menu "Build data options"
++
++config ESSTRA
++    bool "Enable support for ESSTRA build data"
++    depends on X86_64
++    default n
++    help
++      Enable this to run the ESSTRA GCC plugin on all C code compiled
++      during the kernel build. This includes the kernel, modules,
++      and host tools.
++
++endmenu
++
+ menu "Binary Emulations"
+ 
+ config IA32_EMULATION
+diff -bur linux-hwe-6.8-6.8.0_original/arch/x86/boot/Makefile linux-hwe-6.8-6.8.0/arch/x86/boot/Makefile
+--- linux-hwe-6.8-6.8.0_original/arch/x86/boot/Makefile	2025-10-24 07:14:30.553547676 +0000
++++ linux-hwe-6.8-6.8.0/arch/x86/boot/Makefile	2025-11-06 10:46:38.948561428 +0000
+@@ -83,7 +83,7 @@
+ 	$(call if_changed,image)
+ 	@$(kecho) 'Kernel: $@ is ready' ' (#'$(or $(KBUILD_BUILD_VERSION),`cat .version`)')'
+ 
+-OBJCOPYFLAGS_vmlinux.bin := -O binary -R .note -R .comment -S
++OBJCOPYFLAGS_vmlinux.bin := -O binary -R .note -R .comment -R .esstra -S
+ $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
+ 	$(call if_changed,objcopy)
+ 
+diff -bur linux-hwe-6.8-6.8.0_original/arch/x86/boot/compressed/vmlinux.lds.S linux-hwe-6.8-6.8.0/arch/x86/boot/compressed/vmlinux.lds.S
+--- linux-hwe-6.8-6.8.0_original/arch/x86/boot/compressed/vmlinux.lds.S	2025-10-24 07:14:30.555296532 +0000
++++ linux-hwe-6.8-6.8.0/arch/x86/boot/compressed/vmlinux.lds.S	2025-11-06 10:46:38.948561428 +0000
+@@ -52,6 +52,12 @@
+ 		. = ALIGN(. + 4, 0x200);
+ 		_edata = . ;
+ 	}
++#ifdef CONFIG_ESSTRA
++	.esstra : {
++		*(.esstra)
++		. = ALIGN(4);
++	}
++#endif
+ 	. = ALIGN(L1_CACHE_BYTES);
+ 	.bss : {
+ 		_bss = . ;
+diff -bur linux-hwe-6.8-6.8.0_original/arch/x86/kernel/vmlinux.lds.S linux-hwe-6.8-6.8.0/arch/x86/kernel/vmlinux.lds.S
+--- linux-hwe-6.8-6.8.0_original/arch/x86/kernel/vmlinux.lds.S	2025-10-24 07:14:30.610244616 +0000
++++ linux-hwe-6.8-6.8.0/arch/x86/kernel/vmlinux.lds.S	2025-11-06 10:46:38.948561428 +0000
+@@ -190,6 +190,14 @@
+ 		_edata = .;
+ 	} :data
+ 
++#ifdef CONFIG_ESSTRA
++	.esstra : {
++		__esstra_start = .;
++		*(.esstra)
++		__esstra_end = .;
++	}
++#endif
++
+ 	BUG_TABLE
+ 
+ 	ORC_UNWIND_TABLE
