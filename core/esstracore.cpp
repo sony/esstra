@@ -203,7 +203,7 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     string path(reinterpret_cast<const char*>(gcc_data));
 
     if (path[0] == '<') {
-        message(L_DEBUG, "skip '%s': pseudo file name", path.c_str());
+        message(L_INFO, "skip pseudo file: '%s'", path.c_str());
         return;
     }
 
@@ -217,11 +217,13 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     string resolved_path(resolved);
     if (find(allpaths.begin(), allpaths.end(), resolved_path) != allpaths.end()) {
-        message(L_DEBUG, "skip '%s': already registered", resolved_path.c_str());
+        message(L_DEBUG, "skip registered path: '%s'", resolved_path.c_str());
         return;
     }
 
     allpaths.push_back(resolved_path);
+
+    message(L_INFO, "path added '%s'", resolved_path.c_str());
 
     // calc checksum
 
@@ -434,8 +436,8 @@ plugin_init(struct plugin_name_args* plugin_info,
 
     while (argc--) {
         if (strcmp(argv->key, "debug") == 0) {
-            if (argv->value && atoi(argv->value) != 0) {
-                messages_to_show |= L_DEBUG;
+            if (argv->value == NULL || atoi(argv->value) != 0) {
+                messages_to_show |= L_DEBUG | L_ERROR | L_NOTICE | L_INFO;
                 message(L_DEBUG, "debug mode enabled");
             }
         } else if (strcmp(argv->key, "file-prefix-map") == 0) {
@@ -472,7 +474,7 @@ plugin_init(struct plugin_name_args* plugin_info,
         argv++;
     }
 
-    message(L_DEBUG, "main_input_filename: %s", main_input_filename);
+    message(L_INFO, "main_input_filename: %s", main_input_filename);
 
     if (error) {
         message(L_ERROR, "error occurred.");

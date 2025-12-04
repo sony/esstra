@@ -68,7 +68,7 @@ message(enum MessageLevel level, const char* format, ...) {
 static enum ld_plugin_status
 oncleanup(void)
 {
-    message(L_INFO, "[%s] now aggregating metadata in '%s'...", tool_name, link_output_name);
+    message(L_INFO, "[%s] now optimizing metadata in '%s'...", tool_name, link_output_name);
 
     char buf[256];
 
@@ -153,7 +153,7 @@ onload(struct ld_plugin_tv *tv)
                 message(L_DEBUG, "> shrink_rule: '%s'", shrink_rule);
                 status = LDPS_OK;
             } else if (strcmp(option, "debug") == 0) {
-                messages_to_show |= L_DEBUG;
+                messages_to_show |= L_DEBUG | L_ERROR | L_NOTICE | L_INFO;
                 message(L_DEBUG, "> debug mode enabled");
             } else if (strcmp(option, "verbose") == 0) {
                 messages_to_show |= L_ERROR | L_NOTICE | L_INFO;
@@ -165,7 +165,7 @@ onload(struct ld_plugin_tv *tv)
                 messages_to_show |= L_ERROR;
                 message(L_DEBUG, "> show errors");
             } else {
-                message(L_ERROR, "[%s] invalid option", option);
+                message(L_ERROR, "[%s] invalid option: '%s'", tool_name, option);
                 return LDPS_ERR;
             }
             break;
