@@ -15,14 +15,13 @@ This document provides a comprehensive guide for building the Linux kernel with 
 
 * **Linux Kernel**: Version `6.8.0-79-generic`
 
-    > [!note]
-    > An updated report using the latest stable version will be provided in the future.
+    Please note that an updated report using the latest stable version will be provided in the future.
 
 * **ESSTRA**: Version `0.4.0`
 
 ### FOSSology Analysis (SPDX Files)
 
-The SPDX files can be generated from a [**FOSSology**](https://github.com/fossology/fossology) scan of the kernel source. Refer section 5.3 for more details.
+The SPDX files can be generated from a [**FOSSology**](https://github.com/fossology/fossology) scan of the kernel source. Refer [section 5.3](#53-generating-an-spdx-file-with-fossology) for more details.
 
 * Only [**Ojo**](https://fossology.github.io/d9/d3c/ojo.html) agent:
   * This agent uses regular expressions to find out `SPDX-License-Identifier` from a file.
@@ -413,7 +412,7 @@ This analysis compares the number of unique license IDs detected by **FOSSology*
 #### Step 1: Perform FOSSology Scans and Generate Reports
 
 > [!note]
-> See section 5.3 'Generating an SPDX File with FOSSology' for detailed instructions.
+> See [section 5.3 'Generating an SPDX File with FOSSology'](#53-generating-an-spdx-file-with-fossology) for detailed instructions.
 
 * **Scan 1**: Run a scan on the kernel source with only the **Ojo** agent enabled. Generate an SPDX tag-value report.
 * **Scan 2**: Run a second scan with only the **Monk** and **Nomos** agents enabled. Generate another SPDX tag-value report.
