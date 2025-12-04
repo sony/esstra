@@ -56,7 +56,6 @@ message(enum MessageLevel level, const char* format, ...) {
     vsnprintf(msg, MSG_LEN, format, args);
     va_end(args);
 
-    (void)tool_version;
     enum ld_plugin_level lv = level & L_ERROR ? LDPL_ERROR : LDPL_INFO;
     plugin_message(lv, msg);
 }
