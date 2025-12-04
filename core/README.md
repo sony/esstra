@@ -83,7 +83,7 @@ $ gcc -fplugin=/path/to/.../esstracore.so \
       hello_main.c hello_sub.c -o hello2
 $ esstra show hello2
 Headers:
-  ToolName: ESSTRA Core
+      :
       :
 SourceFiles:
 - Directory: ./samples/hello2
@@ -157,8 +157,9 @@ The option:
 
 * `-fplugin-arg-esstracore-debug=<value>`
 
-controls the output of debug messages.  If you set `<value>` to `1`, debug messages will be
-output to `stderr`.  By default, no debug messages are output.
+controls the output of debug messages.  If you set `<value>` to 1, **ESSTRA Core** will output
+debug messages and all other types of messages to `stderr`. By default, no debug messages are
+output.
 
 #### Example
 

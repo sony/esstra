@@ -103,18 +103,33 @@ When [Project ESSTRA's repository] https://github.com/sony/esstra is cloned unde
 When `auto` is specified, files contained in system header include paths such as `/usr/include`
 are excluded from replacement.
 
-#### Command Line
+Additionally, when:
+
+* `-plugin-opt=file-prefix-map=auto:/project`
+
+is specified, the common path shared by all source files:
+
+* `/home/snagao/esstra/samples/hello2`
+
+is automatically detected and replaced with `/project`:
+
+| **Before**                                       | **After**              |
+|--------------------------------------------------|------------------------|
+| /home/snagao/esstra/samples/hello2/hello\_sub.h  | /project/hello\_sub.h  |
+| /home/snagao/esstra/samples/hello2/hello\_sub.c  | /project/hello\_sub.c  |
+| /home/snagao/esstra/samples/hello2/hello\_main.c | /project/hello\_main.c |
+
+#### Example 1
 
 ```shell
 $ gcc -fplugin=/path/to/.../esstracore.so \
       -Wl,-plugin=/path/to/.../esstralink.so \
       -Wl,-plugin-opt=file-prefix-map=/home/snagao/esstra:. \
       hello_main.c hello_sub.c -o hello2
-```
-
-#### Result
-
-```yaml
+$ esstra show hello2
+Headers:
+      :
+      :
 SourceFiles:
 - Directory: ./samples/hello2
   Files:
@@ -130,34 +145,17 @@ SourceFiles:
       :
 ```
 
-Additionally, when:
-
-* `-plugin-opt=file-prefix-map=auto:/project`
-
-specified, the common path shared by all source files:
-
-* `/home/snagao/esstra/samples/hello2`
-
-is automatically detected and replaced with `/project`:
-
-| **Before**                                       | **After**              |
-|--------------------------------------------------|------------------------|
-| /home/snagao/esstra/samples/hello2/hello\_sub.h  | /project/hello\_sub.h  |
-| /home/snagao/esstra/samples/hello2/hello\_sub.c  | /project/hello\_sub.c  |
-| /home/snagao/esstra/samples/hello2/hello\_main.c | /project/hello\_main.c |
-
-#### Command Line
+#### Example 2
 
 ```shell
 $ gcc -fplugin=/path/to/.../esstracore.so \
       -Wl,-plugin=/path/to/.../esstralink.so \
       -Wl,-plugin-opt=file-prefix-map=auto:/project \
       hello_main.c hello_sub.c -o hello2
-```
-
-#### Result
-
-```yaml
+$ esstra show hello2
+Headers:
+      :
+      :
 SourceFiles:
 - Directory: /project
   Files:
@@ -172,6 +170,79 @@ SourceFiles:
   - File: features-time64.h
       :
 ```
+
+### Option `verbose`
+
+The option:
+
+* `-plugin-opt=verbose`
+
+makes **ESSTRA Link** run in verbose mode.
+This option helps you understand what operations **ESSTRA Link** is performing.
+
+#### Example
+
+```shell
+$ gcc -fplugin=/path/to/.../esstracore.so \
+      -Wl,-plugin=/path/to/.../esstralink.so \
+      -Wl,-plugin-opt=verbose \
+      hello_main.c hello_sub.c -o hello2
+```
+
+### Option `silent`
+
+The option:
+
+* `-plugin-opt=silent`
+
+makes **ESSTRA Link** mute and suppresses all message output, including errors.
+If you want errors to be displayed, enable the [`show-error`](#option-show-error) option.
+
+#### Example
+
+```shell
+$ gcc -fplugin=/path/to/.../esstracore.so \
+      -Wl,-plugin=/path/to/.../esstralink.so \
+      -Wl,-plugin-opt=silent \
+      hello_main.c hello_sub.c -o hello2
+```
+
+### Option `show-error`
+
+The option:
+
+* `-plugin-opt=show-error`
+
+makes **ESSTRA Link** output errors even when muted by the [`silent`](#option-silent) option.
+
+#### Example
+
+```shell
+$ gcc -fplugin=/path/to/.../esstracore.so \
+      -Wl,-plugin=/path/to/.../esstralink.so \
+      -plugin-opt=show-error \
+      hello_main.c hello_sub.c -o hello2
+```
+
+### Option `debug`
+
+The option:
+
+* `-plugin-opt=debug`
+
+controls the output of debug messages.  If you set `<value>` to 1, **ESSTRA Link** will output
+debug messages and all other types of messages to `stderr`. By default, no debug messages are
+output.
+
+#### Example
+
+```shell
+$ gcc -fplugin=/path/to/.../esstracore.so \
+      -Wl,-plugin=/path/to/.../esstralink.so \
+      -plugin-opt=debug=1 \
+      hello_main.c hello_sub.c -o hello2
+```
+
 
 ## License
 

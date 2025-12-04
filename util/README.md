@@ -227,6 +227,15 @@ the final binary.
 To address this, **ESSTRA Utility** provides the shrink command, which removes redundant
 metadata and reduces binary size.
 
+## Common Options
+
+The following options are common to all commands:
+
+* `-v`, `--verbose`: Run in verbose mode.
+* `-s`, `--silent`: Run in silent mode. All messages, including errors, will be suppressed.
+* `-S`, `--show-error`: Output errors even when muted by the `--silent` option.
+* `-D`, `--debug`: Output debug messages and all other types of messages.
+
 ## License
 
 See the [LICENSE](/LICENSE) file.
