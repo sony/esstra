@@ -21,7 +21,7 @@ quick overview of how to use the tool:
 * [Compiling](/README.md#compiling)
 * [Installing GCC Spec File](/README.md#installing-gcc-spec-file)
 
-## Applying ESSTRA Core at Compile Time
+## Applying **ESSTRA Core** at Compile Time
 
 Use GCC's `-fplugin` option to specify the path to `esstracore.so`:
 
@@ -36,7 +36,7 @@ resulting binary.
 
 You can pass options to **ESSTRA Core** by supplying the following arguments to GCC:
 
-* `-fplugin-arg-esstracore-<option>=<value>`
+* `-fplugin-arg-esstracore-<option>[=<value>]`
 
 Here, `<option>` is the option name, and `<value>` is the value assigned to that option.
 Although the option names can become quite long, this is due to GCC’s specification
@@ -45,11 +45,12 @@ Although the option names can become quite long, this is due to GCC’s specific
 
 The option:
 
-* `-fplugin-arg-esstracore-file-prefix-map`
+* `-fplugin-arg-esstracore-file-prefix-map=<rule>`
 
 is used to replace the initial part (prefix) of source file paths embedded as metadata with
-another path name.  This feature can be used to achieve [Reproducible
-Builds](../doc/reproducible_builds.md).  The format for the option value is:
+another path name.
+This feature can be used to achieve [Reproducible Builds](../doc/reproducible_builds.md).
+The format for the option value `<rule>` is:
 
 * `<before>:<after>`
 
@@ -74,17 +75,16 @@ When [Project ESSTRA's repository](https://github.com/sony/esstra) is cloned und
 | /home/snagao/esstra/samples/hello2/hello\_sub.c  | ./samples/hello2/hello\_sub.c  |
 | /home/snagao/esstra/samples/hello2/hello\_main.c | ./samples/hello2/hello\_main.c |
 
-#### Command Line
+#### Example
 
 ```shell
 $ gcc -fplugin=/path/to/.../esstracore.so \
       -fplugin-arg-esstracore-file-prefix-map=/home/snagao/esstra:. \
       hello_main.c hello_sub.c -o hello2
-```
-
-#### Result
-
-```yaml
+$ esstra show hello2
+Headers:
+  ToolName: ESSTRA Core
+      :
 SourceFiles:
 - Directory: ./samples/hello2
   Files:
@@ -100,35 +100,72 @@ SourceFiles:
       :
 ```
 
+### Option `verbose`
+
+The option:
+
+* `-fplugin-arg-esstracore-verbose`
+
+makes **ESSTRA Core** run in verbose mode.
+This option helps you understand what operations **ESSTRA Core** is performing.
+
+#### Example
+
+```shell
+$ gcc -fplugin=/path/to/.../esstracore.so \
+      -fplugin-arg-esstracore-verbose \
+      hello_main.c hello_sub.c -o hello2
+```
+
+### Option `silent`
+
+The option:
+
+* `-fplugin-arg-esstracore-silent`
+
+makes **ESSTRA Core** mute and suppresses all message output, including errors.
+If you want errors to be displayed, enable the [`show-error`](#option-show-error) option.
+
+#### Example
+
+```shell
+$ gcc -fplugin=/path/to/.../esstracore.so \
+      -fplugin-arg-esstracore-silent \
+      hello_main.c hello_sub.c -o hello2
+```
+
+### Option `show-error`
+
+The option:
+
+* `-fplugin-arg-esstracore-show-error`
+
+makes **ESSTRA Core** output errors even when muted by the [`silent`](#option-silent) option.
+
+#### Example
+
+```shell
+$ gcc -fplugin=/path/to/.../esstracore.so \
+      -fplugin-arg-esstracore-silent
+      -fplugin-arg-esstracore-show-error \
+      hello_main.c hello_sub.c -o hello2
+```
+
 ### Option `debug`
 
 The option:
 
-* `-fplugin-arg-esstracore-debug`
+* `-fplugin-arg-esstracore-debug=<value>`
 
-controls the output of debug messages.  If you set its value to `1`, debug messages will be
+controls the output of debug messages.  If you set `<value>` to `1`, debug messages will be
 output to `stderr`.  By default, no debug messages are output.
 
-#### Command Line
+#### Example
 
 ```shell
 $ gcc -fplugin=/path/to/.../esstracore.so \
       -fplugin-arg-esstracore-debug=1 \
       hello_main.c hello_sub.c -o hello2
-```
-
-#### Result
-
-```shell
-[ESSTRA Core] loaded: v0.4.0
-[ESSTRA Core] initializing plugin for 'hello_main.c'...
-[DEBUG] debug mode enabled
-[DEBUG] main_input_filename: hello_main.c
-[DEBUG] skip '<built-in>': pseudo file name
-[DEBUG] skip '<command-line>': pseudo file name
-[DEBUG] skip '/home/snagao/esstra/samples/hello2/hello_main.c': already registered
-[DEBUG] directory: '/home/snagao/esstra/samples/hello2' => '/home/snagao/esstra/samples/hello2'
-      :
 ```
 
 ## Known Issues
