@@ -201,7 +201,7 @@ class MetadataHandler:
                 dirname = substitute_path_prefix(dirname, common_path)
                 if dirname:
                     directory[self.KEY_DIRECTORY] = dirname
-            debug(directory[self.KEY_DIRECTORY])
+            msg.debug(directory[self.KEY_DIRECTORY])
 
         binary_path = self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE]
         msg.debug(f'binary_path = {binary_path}')
