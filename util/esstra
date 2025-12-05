@@ -652,13 +652,17 @@ class CommandShow(CommandBase):
     def run_command(self, args):
         for given_path in args.binary:
             path = str(Path(given_path).resolve())
+            errors = 0
             try:
                 handler = MetadataHandler(path)
-            except FileNotFoundError as ex:
-                msg.error(f'Exeption: {ex!r}')
+            except Exception as ex:
+                msg.error(ex)
+                errors += 1
                 continue
             string_to_display = self.__make_string_to_display(args, handler)
             print(string_to_display.rstrip())
+        if errors > 0:
+            return 1
 
     # private
     def __make_string_to_display(self, args, handler):
