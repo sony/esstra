@@ -98,7 +98,7 @@ class MetadataHandler:
             raise RuntimeError(f'not a file: {binary_path!r}')
 
         self._system_header_paths = self.__get_system_header_paths()
-        msg.debug(f'system header paths: {self._system_header_paths!r}')
+        msg.debug(f'* system header paths: {self._system_header_paths!r}')
 
         self._binary_path = binary_path
         self._raw_data = self.__extract_metadata(binary_path)
@@ -168,10 +168,10 @@ class MetadataHandler:
         def substitute_path_prefix(dirname, common_path):
             trimmed = dirname[len(common_path):]
             if len(trimmed) > 0 and trimmed[0] != '/':
-                msg.debug(f'not absoulte path: {trimmed!r}')
+                msg.debug(f'* not absoulte path: {trimmed!r}')
                 return None
             dirname = f'{to}{trimmed}'
-            msg.debug(f'  ==> relative dir={dirname!r}')
+            msg.debug(f'*   ==> relative dir={dirname!r}')
             return dirname
 
         to = self.__normalize_path(to)
@@ -184,13 +184,13 @@ class MetadataHandler:
                     self._system_header_paths))
         ]
         common_path = os.path.commonpath(dirs)
-        msg.debug(f'common_path: {common_path!r}')
+        msg.debug(f'* common_path: {common_path!r}')
         if common_path in ('', to):
-            msg.debug(f'nothing to do: common_path={common_path!r}, to={to!r}')
+            msg.debug(f'* nothing to do: common_path={common_path!r}, to={to!r}')
             return
 
-        msg.debug('original: ' + '\n'.join(dirs))
-        msg.debug(f'relativize to={to!r}')
+        msg.debug('* original: ' + '\n'.join(dirs))
+        msg.debug(f'* relativize to={to!r}')
         for directory in self._shrunk_data[self.KEY_SOURCE_FILES]:
             if any(map(
                     lambda x: directory[self.KEY_DIRECTORY].startswith(x),
@@ -201,47 +201,47 @@ class MetadataHandler:
                 dirname = substitute_path_prefix(dirname, common_path)
                 if dirname:
                     directory[self.KEY_DIRECTORY] = dirname
-            msg.debug(directory[self.KEY_DIRECTORY])
+            msg.debug(f'* {directory[self.KEY_DIRECTORY]}')
 
         binary_path = self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE]
-        msg.debug(f'binary_path = {binary_path}')
+        msg.debug(f'* binary_path = {binary_path}')
         if binary_path.startswith(common_path):
             dirname = substitute_path_prefix(binary_path, common_path)
             if dirname:
                 self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE] = dirname
-                msg.debug(f'-> binary_path = {dirname}')
+                msg.debug(f'* -> binary_path = {dirname}')
 
     def relativize_paths_by_rule(self, rule):
         def substitute_path_prefix(dirname, rule):
             for path_from, path_to in normalized_rule.items():
                 if dirname.startswith(path_from):
-                    msg.debug(f'substitute {path_from!r} to {path_to!r} in {dirname!r}')
+                    msg.debug(f'* substitute {path_from!r} to {path_to!r} in {dirname!r}')
                     return dirname.replace(path_from, path_to, 1)
             else:
-                msg.debug(f'{dirname!r}: rule not matched')
+                msg.debug(f'* {dirname!r}: rule not matched')
                 return None
 
         normalized_rule = {
             self.__normalize_path(path_from): self.__normalize_path(path_to)
             for path_from, path_to in rule.items()
         }
-        msg.debug(f'rule={rule!r}')
-        msg.debug(f'normalized_rule={normalized_rule!r}')
+        msg.debug(f'* rule={rule!r}')
+        msg.debug(f'* normalized_rule={normalized_rule!r}')
 
         sourcefiles = self._shrunk_data[self.KEY_SOURCE_FILES]
         for directory in sourcefiles:
             dirname = substitute_path_prefix(
                 directory[self.KEY_DIRECTORY], normalized_rule)
             if dirname:
-                msg.debug(f'  ==> relative dir={dirname!r}')
+                msg.debug(f'*   ==> relative dir={dirname!r}')
                 directory[self.KEY_DIRECTORY] = dirname
 
         binary_path = self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE]
-        msg.debug(f'binary_path = {binary_path}')
+        msg.debug(f'* binary_path = {binary_path}')
         dirname = substitute_path_prefix(binary_path, normalized_rule)
         if dirname:
             self._shrunk_data[self.KEY_HEADERS][self.KEY_BINARY_FILE] = dirname
-            msg.debug(f'-> binary_path = {dirname}')
+            msg.debug(f'* -> binary_path = {dirname}')
 
     def dump_shrunk_data(self):
         return yaml.safe_dump(self._shrunk_data, sort_keys=False)
@@ -356,7 +356,7 @@ class MetadataHandler:
                     headers[cls.KEY_INPUT_FILE_NAMES].append(value)
                 elif headers.setdefault(key, value) != value:
                     errors += 1
-                    msg.error(f'header value mismatch: {key!r}:{value!r} '
+                    msg.error(f'* header value mismatch: {key!r}:{value!r} '
                               f'(current:{headers[key]!r})')
                     # TODO: need to decide how to handle values of each header
 
@@ -364,7 +364,7 @@ class MetadataHandler:
                 if key == cls.KEY_DATA_FORMAT_VERSION and \
                    value not in ACCEPTABLE_DATA_FORMAT_VERSION:
                     errors += 1
-                    msg.error('cannot accept DataFormatVersion: '
+                    msg.error('* cannot accept DataFormatVersion: '
                               f'{headers[cls.KEY_DATA_FORMAT_VERSION]!r}')
 
             if errors:
@@ -438,16 +438,16 @@ class SpdxTagValueInfo:
 
     def get_fileinfo(self, path, checksum):
         if checksum not in self._fileinfos:
-            msg.debug(f'path {path!r} with sum {checksum!r} not found')
+            msg.debug(f'* path {path!r} with sum {checksum!r} not found')
             return None
 
         for fileinfo in self._fileinfos[checksum]:
             filepath = fileinfo[self.TAG_FILE_NAME][0]
             if self.__check_filepath(path, filepath):
-                msg.debug(f'FOUND: {path!r} with sum {checksum!r}')
+                msg.debug(f'* FOUND: {path!r} with sum {checksum!r}')
                 return fileinfo
 
-        msg.debug(f'sum {checksum!r} found but path {path!r} not matched: {filepath!r}')
+        msg.debug(f'* sum {checksum!r} found but path {path!r} not matched: {filepath!r}')
         return None
 
     # private
@@ -616,7 +616,7 @@ class CommandDispatcher:
             return 0
 
         if not hasattr(args, 'name'):
-            msg.error('no command specified. show help by "-h".')
+            msg.error('* no command specified. show help by "-h".')
             sys.exit(1)
 
         if args.silent:
@@ -630,7 +630,7 @@ class CommandDispatcher:
 
         result = (self._command_table[args.name]).run_command(args)
         if args.ignore_errors and result:
-            msg.notice('errors ignored.')
+            msg.notice('* errors ignored.')
             return 0
 
         return result
@@ -656,7 +656,7 @@ class CommandShow(CommandBase):
             try:
                 handler = MetadataHandler(path)
             except Exception as ex:
-                msg.error(ex)
+                msg.error(f'* {ex}')
                 errors += 1
                 continue
             string_to_display = self.__make_string_to_display(args, handler)
@@ -696,24 +696,24 @@ class CommandShrink(CommandBase):
 
     def run_command(self, args):
         errors = 0
-        msg.debug(f'args={args!r}')
+        msg.debug(f'* args={args!r}')
 
         # parse path substitution rule
         mapmode, maparg = self.__parse_file_prefix_map(args.file_prefix_map)
-        msg.debug(f'parsed file-prefix-map: {mapmode!r}, {maparg!r}')
+        msg.debug(f'* parsed file-prefix-map: {mapmode!r}, {maparg!r}')
         if mapmode is None:
-            msg.error(f'invalid value of --file-prefix-map: {args.file_prefix_map!r}')
+            msg.error(f'* invalid value of --file-prefix-map: {args.file_prefix_map!r}')
             return 1
 
         for binary in args.binary:
             if binary.endswith(f'.{args.backup_suffix}'):
-                msg.notice(f'skip backup file {binary!r}.')
+                msg.notice(f'* skip backup file {binary!r}.')
                 continue
-            msg.info(f'shrinking metadata of {binary!r}...')
+            msg.info(f'* shrinking metadata of {binary!r}...')
             try:
                 handler = MetadataHandler(binary)
             except Exception as ex:
-                msg.error(f'failed to update metadata: {ex}')
+                msg.error(f'* failed to update metadata: {ex}')
                 errors += 1
                 continue
 
@@ -726,7 +726,7 @@ class CommandShrink(CommandBase):
 
             # update metadata in binary file
             if args.dry_run:
-                msg.notice('binary not updated (--dry-run)')
+                msg.notice('* binary not updated (--dry-run)')
             else:
                 try:
                     handler.update_metadata(
@@ -735,27 +735,27 @@ class CommandShrink(CommandBase):
                         args.backup_suffix,
                         args.overwrite_backup)
                 except Exception as ex:
-                    msg.error(f'failed to update metadata: {ex}')
+                    msg.error(f'* failed to update metadata: {ex}')
                     errors += 1
 
         if errors:
-            msg.notice(f'done with {errors} error(s).')
+            msg.notice(f'* done with {errors} error(s).')
             return 1
 
-        msg.info('done.')
+        msg.info('* done.')
         return 0
 
     @classmethod
     def __parse_file_prefix_map(cls, option):
         # auto
         if option == cls.FilePrefixMap.AUTO.value:
-            msg.debug('>> auto')
+            msg.debug('* >> auto')
             return cls.FilePrefixMap.AUTO, None
         # auto:<path>
         if option.startswith(cls.FilePrefixMap.AUTO.value + cls.MAP_DELIMITER):
             stride = len(cls.FilePrefixMap.AUTO.value) + 1
             arg = option[stride:]
-            msg.debug(f'>> auto with arg:{arg!r}')
+            msg.debug(f'* >> auto with arg:{arg!r}')
             return cls.FilePrefixMap.AUTO, arg
         # disable
         if option == cls.FilePrefixMap.DISABLE.value:
@@ -776,7 +776,7 @@ class CommandShrink(CommandBase):
         for elem in option.split():
             # elem should be in the form of 'from=to'
             if cls.MAP_DELIMITER not in elem:
-                msg.error(f'file-prefix-map: invalid expression {elem!r}')
+                msg.error(f'* file-prefix-map: invalid expression {elem!r}')
                 errors += 1
                 continue
             path_from, path_to = elem.split(cls.MAP_DELIMITER, 1)
@@ -808,19 +808,19 @@ class CommandUpdate(CommandBase):
             for info_file in args.info_file:
                 spdx_info.read(info_file)
         except Exception as ex:
-            msg.error(f'cannot read {info_file!r}: {ex!r}')
+            msg.error(f'* cannot read {info_file!r}: {ex!r}')
             return False
 
         for binary in args.binary:
             if binary.endswith(f'.{args.backup_suffix}'):
-                msg.notice(f'skip backup file {binary!r}.')
+                msg.notice(f'* skip backup file {binary!r}.')
                 continue
-            msg.info(f'updating metadata of {binary!r}...')
+            msg.info(f'* updating metadata of {binary!r}...')
 
             try:
                 handler = MetadataHandler(binary)
             except Exception as ex:
-                msg.error(f'failed to update {binary!r}: {ex}')
+                msg.error(f'* failed to update {binary!r}: {ex}')
                 errors += 1
                 continue
 
@@ -839,14 +839,14 @@ class CommandUpdate(CommandBase):
                     args.backup_suffix,
                     args.overwrite_backup)
             except Exception as ex:
-                msg.error(f'failed to update metadata: {ex}')
+                msg.error(f'* failed to update metadata: {ex}')
                 errors += 1
 
         if errors:
-            msg.notice(f'done with {errors} error(s).')
+            msg.notice(f'* done with {errors} error(s).')
             return False
 
-        msg.info('done.')
+        msg.info('* done.')
         return True
 
 
@@ -861,9 +861,9 @@ class CommandRemove(CommandBase):
         errors = 0
         for binary in args.binary:
             if binary.endswith(f'.{args.backup_suffix}'):
-                msg.notice(f'skip backup file {binary!r}.')
+                msg.notice(f'* skip backup file {binary!r}.')
                 continue
-            msg.info(f'removing metadata from {binary!r}...')
+            msg.info(f'* removing metadata from {binary!r}...')
             try:
                 handler = MetadataHandler(binary)
                 handler.remove_metadata(
@@ -872,14 +872,14 @@ class CommandRemove(CommandBase):
                     args.backup_suffix,
                     args.overwrite_backup)
             except Exception as ex:
-                msg.error(f'failed to remove metadata from {binary!r}: {ex}')
+                msg.error(f'* failed to remove metadata from {binary!r}: {ex}')
                 errors += 1
 
         if errors:
-            msg.notice(f'done with {errors} error(s).')
+            msg.notice(f'* done with {errors} error(s).')
             return 1
 
-        msg.info('done.')
+        msg.info('* done.')
         return 0
 
 
