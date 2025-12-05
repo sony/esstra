@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <filesystem>
 
 #include "gcc-plugin.h"
 #include "output.h"
@@ -26,6 +27,7 @@
 
 
 using std::vector;
+using std::tuple;
 using std::string;
 using std::map;
 using std::set;
@@ -36,7 +38,7 @@ int plugin_is_GPL_compatible;
 
 // version numbers
 static const string tool_name = "ESSTRA Core";
-static const string tool_version = "0.4.0";
+static const string tool_version = "0.5.0";
 static const string data_format_version = "0.1.0";
 
 // section name
@@ -45,7 +47,7 @@ static const string section_name = ".esstra";
 // metadata
 static vector<string> allpaths;
 using FileInfo = map<string, string>;
-static std::map<string, FileInfo> infomap;
+static map<string, FileInfo> infomap;
 
 // hash algorithms
 static const vector<string> supported_algos = {
@@ -53,6 +55,11 @@ static const vector<string> supported_algos = {
     "sha256",
 };
 static vector<string> specified_algos;
+
+// path substitution
+static const string subst_map_delimiter = ":";
+static vector<tuple<string, string>> subst_rule;
+static const char file_prefix_map_separator = ' ';
 
 // yaml
 static const string yaml_item = "- ";
@@ -74,29 +81,28 @@ static const string key_sha1 = "SHA1";
 static const string key_sha256 = "SHA256";
 
 // flags
-static bool flag_debug = false;
+enum MessageLevel {
+    L_DEBUG  = 1U,
+    L_INFO   = 1U << 2,
+    L_NOTICE = 1U << 3,
+    L_ERROR  = 1U << 4,
+};
+static uint8_t messages_to_show = L_ERROR | L_NOTICE;
 
 
-/*
- * debug print
- */
-static void
-debug(const char* format, ...) {
-    if (flag_debug) {
-        va_list args;
-        va_start(args, format);
-        fputs("[DEBUG] ", stderr);
-        vfprintf(stderr, format, args);
-        fputs("\n", stderr);
-        va_end(args);
-    }
-}
+// Some OSes (e.g. Hurd) explicitly need to specify PATH_MAX
+// "4096" is specified in Linux, see /usr/include/linux/limits.h
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 
 /*
  * message
  */
 static void
-message(const char* format, ...) {
+message(MessageLevel level, const char* format, ...) {
+    if ((messages_to_show & level) == 0) return;
     va_list args;
     va_start(args, format);
     fprintf(stderr, "[%s] ", tool_name.c_str());
@@ -156,6 +162,38 @@ calc_sha256(uint8_t *buffer, uint32_t size) {
     return bytes_to_string(hash.bytes, SHA256_HASH_SIZE);
 }
 
+/*
+ * remove trailing slahses
+ */
+static inline void
+remove_traliing_slashes(string& path) {
+    while (!path.empty() && path.back() == '/') {
+        path.pop_back();
+    }
+}
+
+/*
+ * substitute path with subst_rule
+ */
+static string
+substitute_path_prefix(const string& path)
+{
+    for (const auto& [subst_from, subst_to] : subst_rule) {
+        message(L_DEBUG, "subst: '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        if (path.size() >= subst_from.size() &&
+            path.compare(0, subst_from.size(), subst_from) == 0) {
+            string subst_rest(path.substr(subst_from.size()));
+            if (subst_rest[0] == '/') {
+                message(L_DEBUG, "eliminate heading '/' from '%s'", subst_rest.c_str());
+                subst_rest = subst_rest.substr(1);
+            }
+            std::filesystem::path path_to(subst_to);
+            std::filesystem::path path_rest(subst_rest);
+            return (subst_to / path_rest).string();
+        }
+    }
+    return path;
+}
 
 /*
  * PLUGIN_INCLUDE_FILE handler - collect paths of source files
@@ -165,19 +203,11 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     string path(reinterpret_cast<const char*>(gcc_data));
 
     if (path[0] == '<') {
-        debug("skip '%s': pseudo file name", path.c_str());
+        message(L_INFO, "skip pseudo file: '%s'", path.c_str());
         return;
     }
 
     // get absolute path
-
-    /*
-     * Some OSes (e.g. Hurd) explicitly need to specify PATH_MAX
-     * "4096" is specified in Linux, see /usr/include/linux/limits.h
-     */
-    #ifndef PATH_MAX
-    #define PATH_MAX 4096
-    #endif
 
     char resolved[PATH_MAX];
     if (!realpath(path.c_str(), resolved)) {
@@ -187,11 +217,13 @@ collect_paths(void* gcc_data, void* /* user_data */) {
 
     string resolved_path(resolved);
     if (find(allpaths.begin(), allpaths.end(), resolved_path) != allpaths.end()) {
-        debug("skip '%s': already registered", resolved_path.c_str());
+        message(L_DEBUG, "skip registered path: '%s'", resolved_path.c_str());
         return;
     }
 
     allpaths.push_back(resolved_path);
+
+    message(L_INFO, "path added '%s'", resolved_path.c_str());
 
     // calc checksum
 
@@ -215,22 +247,22 @@ collect_paths(void* gcc_data, void* /* user_data */) {
     if (size != st_size) {
         fprintf(stderr, "size mismatch: st_size:%lu, read():%zd\n", st_size, size);
     } else {
-      FileInfo finfo;
-      // calculate hashes with specified algorithms
-      finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
+        FileInfo finfo;
+        // calculate hashes with specified algorithms
+        finfo[key_sha1] = "'" + calc_sha1(buffer, size) + "'";
 
-      // just for demonstration
-      for (const auto &algo: specified_algos) {
-        debug("calculate '%s' hash", algo.c_str());
-        if (algo == "md5") {
-          finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
-        } else if (algo == "sha256") {
-          finfo[key_sha256] = "'" + calc_sha256(buffer, size) + "'";
-        } else {
-          fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
+        // just for demonstration
+        for (const auto &algo: specified_algos) {
+            message(L_DEBUG, "calculate '%s' hash", algo.c_str());
+            if (algo == "md5") {
+                finfo[key_md5] = "'" + calc_md5(buffer, size) + "'";
+            } else if (algo == "sha256") {
+                finfo[key_sha256] = "'" + calc_sha256(buffer, size) + "'";
+            } else {
+                fprintf(stderr, "unsupported hash algorithm '%s'\n", algo.c_str());
+            }
         }
-      }
-      infomap[resolved] = finfo;
+        infomap[resolved] = finfo;
     }
 
     delete[] buffer;
@@ -271,10 +303,14 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 
         // enumerate all directories and files
         for (const auto& directory : sorted_dirs) {
-            strings_to_embed.push_back(yaml_item + key_directory + ": " + directory);
+            // ---
+            string substituted = substitute_path_prefix(directory);
+            message(L_DEBUG, "directory: '%s' => '%s'", directory.c_str(), substituted.c_str());
+            // ---
+            strings_to_embed.push_back(yaml_item + key_directory + ": " + substituted);
             strings_to_embed.push_back(yaml_indent + key_files + ":");
             for (const auto& filename : dir_to_files[directory]) {
-                debug("dir: %s", directory.c_str());
+                message(L_DEBUG, "dir: %s", directory.c_str());
                 strings_to_embed.push_back(yaml_indent + yaml_item + key_file + ": " + filename);
                 string path = directory + "/" + filename;
                 for (const auto& elem : infomap[path]) {
@@ -290,7 +326,7 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     for (const auto& item : strings_to_embed) {
         datasize += item.size() + 1;  // plus 1 for null-character temination
     }
-    debug("size=%d", datasize);
+    message(L_DEBUG, "size=%d", datasize);
 
     // add assembly code
     fprintf(asm_out_file, "\t.pushsection %s\n", section_name.c_str());
@@ -299,7 +335,87 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
     }
     fprintf(asm_out_file, "\t.popsection\n");
 
-    message("addded metadata to assembly output of '%s'", in_fnames[0]);
+    message(L_INFO, "added metadata to assembly output of '%s'", in_fnames[0]);
+}
+
+/*
+ * split connected argument
+ */
+static void
+split_connected_args(const char* arg, char separator, vector<string>& parsed_args) {
+    string elem;
+    while (*arg) {
+        if (*arg == separator) {
+            if (elem.length() > 0) {
+                message(L_DEBUG, "parsed: %s", elem.c_str());
+                parsed_args.push_back(elem);
+            }
+            elem = "";
+        } else {
+            elem += string(arg, 1);
+        }
+        arg++;
+    }
+    if (elem.length() > 0) {
+        message(L_DEBUG, "parsed: %s", elem.c_str());
+        parsed_args.push_back(elem);
+    }
+}
+
+/*
+ * parse value of file-prefix-map option
+ */
+static bool
+parse_file_prefix_map_option(const char* arg) {
+    vector<string> args;
+    split_connected_args(arg, file_prefix_map_separator, args);
+
+    int errors = 0;
+    for (const auto& elem : args) {
+        size_t delimiter_pos = elem.find(subst_map_delimiter);
+        message(L_DEBUG, "subst_rule: %s, pos:%u, npos:%u",
+                elem.c_str(), delimiter_pos, string::npos);
+        if (delimiter_pos == string::npos) {
+            message(L_ERROR, "argument '%s' must contain '%s'", elem.c_str(),
+                    subst_map_delimiter.c_str());
+            errors++;
+            continue;
+        }
+        if (delimiter_pos == 0 || delimiter_pos == elem.size() - 1) {
+            message(L_ERROR,
+                    "both sides of '%s' must be strings in argument '%s'",
+                    elem.c_str(), subst_map_delimiter.c_str());
+            errors++;
+            continue;
+        }
+        message(L_DEBUG, "delimiter_pos = %d", delimiter_pos);
+        string subst_from(elem.substr(0, delimiter_pos));
+        string subst_to(elem.substr(delimiter_pos + 1));
+        message(L_DEBUG, "rule (string): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        remove_traliing_slashes(subst_from);
+        remove_traliing_slashes(subst_to);
+        message(L_DEBUG, "rule (after removing slashes): '%s' => '%s'", subst_from.c_str(), subst_to.c_str());
+        if (subst_from.find(subst_map_delimiter) != string::npos ||
+            subst_to.find(subst_map_delimiter) != string::npos) {
+            message(L_ERROR,
+                    "argument '%s' must contain only a single '%s'",
+                    elem.c_str(), subst_map_delimiter.c_str());
+            errors++;
+            continue;
+        }
+        std::filesystem::path path_from(subst_from);
+        std::filesystem::path path_to(subst_to);
+        const tuple<string, string> subst_map = {
+            path_from.string(),
+            path_to.string(),
+        };
+        subst_rule.push_back(subst_map);
+        message(L_DEBUG, "rule (tuple of path): '%s' => '%s'",
+                std::get<0>(subst_map).c_str(),
+                std::get<1>(subst_map).c_str());
+
+    }
+    return errors == 0;
 }
 
 /*
@@ -308,14 +424,10 @@ create_section(void* /* gcc_data */, void* /* user_data */) {
 int
 plugin_init(struct plugin_name_args* plugin_info,
             struct plugin_gcc_version* version) {
-    message("loaded: v%s", tool_version.c_str());
-
     if (!plugin_default_version_check(version, &gcc_version)) {
-        message("initialization failed: version mismatch");
+        message(L_ERROR, "initialization failed: version mismatch");
         return 1;
     }
-
-    message("initializing plugin for '%s'...", in_fnames[0]);
 
     bool error = false;
 
@@ -324,45 +436,48 @@ plugin_init(struct plugin_name_args* plugin_info,
 
     while (argc--) {
         if (strcmp(argv->key, "debug") == 0) {
-            flag_debug = (atoi(argv->value) != 0);
-            if (flag_debug) {
-                debug("debug mode enabled");
+            if (argv->value == NULL || atoi(argv->value) != 0) {
+                messages_to_show |= L_DEBUG | L_ERROR | L_NOTICE | L_INFO;
+                message(L_DEBUG, "debug mode enabled");
+            }
+        } else if (strcmp(argv->key, "file-prefix-map") == 0) {
+            message(L_DEBUG, "file-prefix-map: %s", argv->value);
+            if (!parse_file_prefix_map_option(argv->value)) {
+                error = true;
+                message(L_ERROR, "parse error: file-refix-map");
             }
         } else if (strcmp(argv->key, "checksum") == 0) {
-            debug("arg-checksum: %s", argv->value);
-            auto value = reinterpret_cast<const char*>(argv->value);
-            string algo;
+            message(L_DEBUG, "arg-checksum: %s", argv->value);
             specified_algos.clear(); // delete default algo
-            while (*value) {
-                if (*value == ',') {
-                    if (algo.length() > 0) {
-                        specified_algos.push_back(algo);
-                    }
-                    algo = "";
-                } else {
-                    algo += string(value, 1);
-                }
-                value++;
-            }
-            if (algo.length() > 0) {
-                specified_algos.push_back(algo);
-            }
+            split_connected_args(argv->value, ',', specified_algos);
             // check if specified algos are supported
             for (const auto& algo: specified_algos) {
                 if (!is_algo_supported(algo)) {
-                    fprintf(stderr, "algorithm '%s' not supported\n", algo.c_str());
+                    message(L_ERROR, "algorithm '%s' not supported\n", algo.c_str());
                     error = true;
                 }
-                debug("algo: '%s'", algo.c_str());
+                message(L_DEBUG, "algo: '%s'", algo.c_str());
             }
+        } else if (strcmp(argv->key, "verbose") == 0) {
+            messages_to_show |= L_ERROR | L_NOTICE | L_INFO;
+            message(L_DEBUG, "verbose mode enabled");
+        } else if (strcmp(argv->key, "silent") == 0) {
+            messages_to_show &= ~(L_ERROR | L_INFO | L_DEBUG);
+            message(L_DEBUG, "silent mode enabled");
+        } else if (strcmp(argv->key, "show-error") == 0) {
+            messages_to_show |= L_ERROR;
+            message(L_DEBUG, "show errors");
+        } else {
+            message(L_ERROR, "unknown option: %s", argv->key);
+            error = true;
         }
         argv++;
     }
 
-    debug("main_input_filename: %s", main_input_filename);
+    message(L_INFO, "main_input_filename: %s", main_input_filename);
 
     if (error) {
-        fprintf(stderr, "error occurred.");
+        message(L_ERROR, "error occurred.");
         return 1;
     }
 

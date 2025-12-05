@@ -11,11 +11,10 @@ contains information about all source files involved in the compilation, such
 as absolute paths and checksums. We will verify this using
 [**ESSTRA Utility**](/util/README.md).
 
-Next, we will demonstrate how to use **ESSTRA Utility**'s feature that adds
-license information of source files to the metadata.
-In this sample, we will use the license information files prepared by the license analysis tools.
-Using this information, we will update the metadata with the **ESSTRA Utility**
-Utility and verify that the license information has been correctly associated
+Next, we will demonstrate how to use **ESSTRA Utility**'s feature that adds license information
+of source files to the metadata.  In this sample, we will use the license information files
+prepared by the license analysis tools.  Using this information, we will update the metadata
+with **ESSTRA Utility** and verify that the license information has been correctly associated
 with the metadata.
 
 The license information files
@@ -108,16 +107,13 @@ You can see a list of directories and files as well as SHA-1 hashes in YAML
 format. These files are all involved in the compilation of the file `hello`:
 
 ```yaml
-#
-# BinaryFileName: hello
-# BinaryPath: /home/snagao/esstra/samples/hello/hello
-#
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
+  BinaryFile: /home/snagao/esstra/samples/hello/hello
 SourceFiles:
 - Directory: /home/snagao/esstra/samples/hello
   Files:
@@ -201,10 +197,6 @@ The structure of the output YAML data is as follows, with the information for
 each file grouped by directory:
 
 ```yaml
-#
-# BinaryFileName: <specified_binary_name>
-# BinaryPath: <absolute_path_of_the_specified_binary>
-#
 Headers:
   ToolName: <esstra_tool_name>
   ToolVersion: <esstra_tool_version>
@@ -213,6 +205,7 @@ Headers:
   - <filename_passed_to_gcc>
      :
      :
+  BinaryFile: <path_to_binary_file>
 SourceFiles:
 - Directory: <directory_name>
   Files:
@@ -268,16 +261,13 @@ $ esstra show hello
 The result will be as follows:
 
 ```yaml
-#
-# BinaryFileName: hello
-# BinaryPath: /home/snagao/esstra/samples/hello/hello
-#
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
+  BinaryFile: /home/snagao/esstra/samples/hello/hello
 SourceFiles:
 - Directory: /home/snagao/esstra/samples/hello
   Files:

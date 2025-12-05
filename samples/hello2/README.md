@@ -110,17 +110,14 @@ $ esstra show hello2
 And you will get a result as follows:
 
 ```yaml
-#
-# BinaryFileName: hello2
-# BinaryPath: /home/snagao/esstra/samples/hello2/hello2
-#
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
   - hello_sub.c
+  BinaryFile: /home/snagao/esstra/samples/hello2/hello2
 SourceFiles:
 - Directory: /home/snagao/esstra/samples/hello2
   Files:
@@ -230,17 +227,14 @@ $ esstra show hello2
 You will get the result shown below:
 
 ```yaml
-#
-# BinaryFileName: hello2
-# BinaryPath: /home/snagao/esstra/samples/hello2/hello2
-#
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
   - hello_sub.c
+  BinaryFile: /home/snagao/esstra/samples/hello2/hello2
 SourceFiles:
 - Directory: /home/snagao/esstra/samples/hello2
   Files:

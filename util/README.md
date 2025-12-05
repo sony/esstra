@@ -54,21 +54,18 @@ $ esstra show hello
 would give you an output as follows:
 
 ```yaml
-#
-# BinaryFileName: hello
-# BinaryPath: /home/snagao/esstra/samples/hello/hello
-#
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
+  BinaryFile: /home/snagao/esstra/samples/hello/hello
 SourceFiles:
-- Directory: .
+- Directory: /home/snagao/esstra/samples/hello
   Files:
   - File: hello.c
-    SHA1: 62592ce351eab2dfb75deb8c01101e07d6fe3c67
+    SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
 - Directory: /usr/include
   Files:
   - File: features-time64.h
@@ -92,11 +89,12 @@ $ esstra show hello | yq -oj
 {
   "Headers": {
     "ToolName": "ESSTRA Core",
-    "ToolVersion": "0.4.0",
+    "ToolVersion": "0.5.0",
     "DataFormatVersion": "0.1.0",
     "InputFileNames": [
       "hello.c"
-    ]
+    ],
+    "BinaryFile": "/home/snagao/esstra/samples/hello/hello"
   },
   "SourceFiles": [
     {
@@ -104,9 +102,9 @@ $ esstra show hello | yq -oj
       "Files": [
         {
           "File": "hello.c",
-          "SHA1": "62592ce351eab2dfb75deb8c01101e07d6fe3c67"
+          "SHA1": "4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2"
         }
-      ],
+      ]
       "Directory": "/usr/include",
       "Files": [
         {
@@ -146,10 +144,7 @@ $ esstra rm hello
 * processing 'hello'...
 * done.
 $ esstra show hello
-#
-# BinaryFileName: hello
-#
-Exception: RuntimeError("section not found: .'esstra")
+* section not found: '.esstra'
 ```
 
 ### Command "update"
@@ -233,6 +228,15 @@ the final binary.
 
 To address this, **ESSTRA Utility** provides the shrink command, which removes redundant
 metadata and reduces binary size.
+
+## Common Options
+
+The following options are common to all commands:
+
+* `-v`, `--verbose`: Run in verbose mode.
+* `-s`, `--silent`: Run in silent mode. All messages, including errors, will be suppressed.
+* `-S`, `--show-error`: Output errors even when muted by the `--silent` option.
+* `-D`, `--debug`: Output debug messages and all other types of messages.
 
 ## License
 
