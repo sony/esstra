@@ -112,7 +112,7 @@ And you will get a result as follows:
 ```yaml
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c
@@ -229,7 +229,7 @@ You will get the result shown below:
 ```yaml
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello_main.c

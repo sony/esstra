@@ -109,7 +109,7 @@ format. These files are all involved in the compilation of the file `hello`:
 ```yaml
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
@@ -263,7 +263,7 @@ The result will be as follows:
 ```yaml
 Headers:
   ToolName: ESSTRA Core
-  ToolVersion: 0.4.0
+  ToolVersion: 0.5.0
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
