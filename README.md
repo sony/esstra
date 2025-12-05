@@ -203,7 +203,7 @@ Headers:
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
-  BinaryFile:
+  BinaryFile: /home/snagao/esstra/samples/hello/hello
 SourceFiles:
 - Directory: /home/snagao/esstra/samples/hello
   Files:
@@ -315,7 +315,8 @@ compiling any kind of project -- whether it's open-source or closed-source.
 
 > [!Note]
 > The spec file is intended for quick testing purposes only. For official integration, please
-> incorporate the plugin into your build system by adding the `-fplugin` option.
+> incorporate the **ESSTRA** plugins into your build system by adding the `-fplugin` and
+> `-Wl,-plugin` options.
 
 To uninstall the spec file, run:
 
