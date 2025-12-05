@@ -20,7 +20,7 @@ This document provides a comprehensive guide for building the Linux kernel with 
 
 ### FOSSology Analysis (SPDX Files)
 
-The SPDX files can be generated from a [**FOSSology**](https://github.com/fossology/fossology) scan of the kernel source. Refer [section 5.3](#53-generating-an-spdx-file-with-fossology) for more details.
+The SPDX files can be generated from a [**FOSSology**](https://github.com/fossology/fossology) scan of the kernel source. In this document, we use the results from the following two analysis patterns. Refer [section 5.3](#53-generating-an-spdx-file-with-fossology) for more details.
 
 * Only [**Ojo**](https://fossology.github.io/d9/d3c/ojo.html) agent:
   * This agent uses regular expressions to find out `SPDX-License-Identifier` from a file.
