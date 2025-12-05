@@ -117,6 +117,7 @@ Headers:
   InputFileNames:
   - hello_main.c
   - hello_sub.c
+  BinaryFile: /home/snagao/esstra/samples/hello2/hello2
 SourceFiles:
 - Directory: /home/snagao/esstra/samples/hello2
   Files:
@@ -233,6 +234,7 @@ Headers:
   InputFileNames:
   - hello_main.c
   - hello_sub.c
+  BinaryFile: /home/snagao/esstra/samples/hello2/hello2
 SourceFiles:
 - Directory: /home/snagao/esstra/samples/hello2
   Files:

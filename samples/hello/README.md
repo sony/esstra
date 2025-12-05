@@ -113,6 +113,7 @@ Headers:
   DataFormatVersion: 0.1.0
   InputFileNames:
   - hello.c
+  BinaryFile: /home/snagao/esstra/samples/hello/hello
 SourceFiles:
 - Directory: /home/snagao/esstra/samples/hello
   Files:
