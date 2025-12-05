@@ -14,8 +14,7 @@ This document provides a comprehensive guide for building the Linux kernel with 
 ### Source Files
 
 * **Linux Kernel**: Version `6.8.0-79-generic`
-
-    Please note that an updated report using the latest stable version will be provided in the future.
+  * Please note that an updated report using the latest stable version will be provided in the future.
 
 * **ESSTRA**: Version `0.4.0`
 
