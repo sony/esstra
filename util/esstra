@@ -38,7 +38,7 @@ class Message():
         ])
 
     def set_verbose_mode(self):
-        self.__enabled_levels += set([
+        self.__enabled_levels |= set([
             self.Level.ERROR,
             self.Level.NOTICE,
             self.Level.INFO,
