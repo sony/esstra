@@ -64,7 +64,7 @@ To enable **ESSTRA** integration, the kernel source files require the following 
     *** ESSTRA plugin not found at /usr/local/lib/gcc/x86_64-linux-gnu/11/plugin/esstracore.so. Please install esstra plugin..  Stop.
     ```
 > [!note]
-> Currently, as described in [README.md](https://github.com/sony/esstra/blob/main/README.md), **ESSTRA** collects source file information during the build process using a GCC plugin, so it does not support files that require other compilers. For Rust/LLVM, a proof of concept (PoC) is being conducted at https://github.com/sony/esstra/tree/poc/rust-llvm/poc.
+> Currently, as described in [README.md](https://github.com/sony/esstra/blob/main/README.md), **ESSTRA** collects source file information during the build process using a GCC plugin, so it does not support files that require other compilers. For Rust/LLVM, a proof of concept (PoC) is being conducted at https://github.com/sony/esstra/tree/poc/rust-llvm/poc. The above modifications to the Kernel were made for the x86 architecture.
 
 ## 4. Build Process
 
