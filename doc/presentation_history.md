@@ -2,9 +2,12 @@
 
 ## 2025.12.12 Open Compliance Summit Japan 2025
 - Description: https://sched.co/28lhB
+- Slide: https://static.sched.com/hosted_files/opencompliancesummit2025/81/Enhancing%20SBOM%20Quality-OCS-2025.pdf
 
 ## 2025.10.28 OSS Security Technical Workshop(OWS) 2025
+- Note: Japanese only
 - Description: https://www.iwsec.org/ows/2025/main.html#special
+- Slide: https://www.iwsec.org/ows/2025/Materials/OWS2025-presentation-sony.pdf
 
 ## 2025.08.25 Open Source Summit Europe 2025
 - Description: https://sched.co/25VpB
