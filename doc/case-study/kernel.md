@@ -295,21 +295,21 @@ $ esstra show ./scripts/sorttable > esstra_output_for_scripts_sortable.yaml
 #### Step 2: Extract the List of Source Files from the Metadata
 
 ```sh
-$ yq '.SourceFiles[] | select(.Directory | test("^/home/linux-hwe-6.8-6.8.0")) | .Directory + "/" + .Files[].File' esstra_output_for_vmlinux.yaml > source_details_of_vmlinux.txt
+$ yq '.SourceFiles[] | select(.Directory | test("^/home/linux-hwe-6.8-6.8.0")) | .Directory + "/" + .Files[].File' esstra_output_for_vmlinux.yaml > source_details_of_vmlinux-6.8.0_ojo.txt
 
-$ yq '.SourceFiles[] | select(.Directory | test("^/home/linux-hwe-6.8-6.8.0")) | .Directory + "/" + .Files[].File' esstra_output_for_scripts_sortable.yaml > source_details_of_scripts_sortable.txt
+$ yq '.SourceFiles[] | select(.Directory | test("^/home/linux-hwe-6.8-6.8.0")) | .Directory + "/" + .Files[].File' esstra_output_for_scripts_sortable.yaml > source_details_of_scripts_sortable-6.8.0_ojo.txt
 ```
 
 > [!note]
-> Source license mapping for `vmlinux` can be found in [source_details_of_vmlinux.txt](./output-examples/source_details_of_vmlinux.txt) and for `scripts/sortable` in [source_details_of_scripts_sortable.txt](./output-examples/source_details_of_scripts_sortable.txt) .
+> Source license mapping for `vmlinux` can be found in [source_details_of_vmlinux-6.8.0_ojo.txt](./output-examples/source_details_of_vmlinux-6.8.0_ojo.txt) and for `scripts/sortable` in [source_details_of_scripts_sortable-6.8.0_ojo.txt](./output-examples/source_details_of_scripts_sortable-6.8.0_ojo.txt) .
 
 #### Step 3: Count the Total Number of Source Files
 
 ```sh
-$ cat source_details_of_vmlinux.txt | wc -l
+$ cat source_details_of_vmlinux-6.8.0_ojo.txt | wc -l
 6467
 
-$ cat source_details_of_scripts_sortable.txt | wc -l
+$ cat source_details_of_scripts_sortable-6.8.0_ojo.txt | wc -l
 11
 ```
 
@@ -325,14 +325,14 @@ $ while IFS= read -r file; do
     if grep -q -i "SPDX-License-Identifier:" "$file"; then
         echo "$file"
     fi
-done < source_details_of_vmlinux.txt | wc -l
+done < source_details_of_vmlinux-6.8.0_ojo.txt | wc -l
 5805
 
 $ while IFS= read -r file; do
     if grep -q -i "SPDX-License-Identifier:" "$file"; then
         echo "$file"
     fi
-done < source_details_of_scripts_sortable.txt | wc -l
+done < source_details_of_scripts_sortable-6.8.0_ojo.txt | wc -l
 11
 ```
 
@@ -361,13 +361,13 @@ To verify this, a three-step process was used to isolate and identify files that
 
 ##### Step 1: Identify All Source Files Lacking an SPDX-License-Identifier
 
-First, we filtered the complete list of `vmlinux` source files (`source_details_of_vmlinux.txt`) to create a new list containing only those files that do not have an `SPDX-License-Identifier` tag.
+First, we filtered the complete list of `vmlinux` source files (`source_details_of_vmlinux-6.8.0_ojo.txt`) to create a new list containing only those files that do not have an `SPDX-License-Identifier` tag.
 
 ```sh
 $ while IFS= read -r file; do \
     if grep -q -i "SPDX-License-Identifier:" "$file"; then :; \
     else echo "$file"; fi; \
-  done < ./source_details_of_vmlinux.txt > non_spdx_license_identifier.txt
+  done < ./source_details_of_vmlinux-6.8.0_ojo.txt > non_spdx_license_identifier.txt
 ```
 
 ##### Step 2: Isolate Generated Files
