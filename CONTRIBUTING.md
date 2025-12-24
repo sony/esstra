@@ -4,9 +4,7 @@ We gratefully accept contributions from the community. Please take a moment to r
 
 ## Discussions
 
-We use GitHub Discussions as a public and searchable forum for open conversations about ESSTRA.  
-Please use Discussions for feature proposals, design topics, and general questions.  
-There are categories such as "General", "Ideas", and "Q&A" in Discussions. Please select the appropriate category for your topic.
+We use GitHub Discussions as a public and searchable forum for open conversations about ESSTRA. Please use Discussions for feature proposals, design topics, and general questions. There are categories such as "General", "Ideas", and "Q&A" in Discussions. Please select the appropriate category for your topic.
 
 ## Bug Reports
 
