@@ -2,6 +2,12 @@
 
 We gratefully accept contributions from the community. Please take a moment to review this document and our [Code of Conduct](CODE_OF_CONDUCT.md) in order to make the contribution process efficient and pleasant for everyone involved.
 
+## Discussions
+
+We use GitHub Discussions as a public and searchable forum for open conversations about ESSTRA.  
+Please use Discussions for feature proposals, design topics, and general questions.  
+There are categories such as "General", "Ideas", and "Q&A" in Discussions. Please select the appropriate category for your topic.
+
 ## Bug Reports
 
 If you think you have found a bug, first make sure that you are testing against the latest version, in case your issue has already been fixed. Search our issues list on GitHub to see if a similar or related problem has already been reported.
