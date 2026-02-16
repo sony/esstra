@@ -6,6 +6,9 @@ PREFIX ?= /usr/local
 ESSTRACORE := esstracore.so
 ESSTRALINK := esstralink.so
 ESSTRAUTIL := esstra
+UTIL2 := esstra-full-paths
+UTIL3 := has-spdx-id.py
+UTIL4 := esstra-to-spdx-list.sh
 
 SUBDIRS := core link util
 
@@ -28,7 +31,7 @@ all clean:
 
 install: all
 	install -m 0755 -D -t $(INSTALLDIR_PLUGIN) core/$(ESSTRACORE) link/$(ESSTRALINK)
-	install -m 0755 -D -t $(INSTALLDIR_BIN) util/$(ESSTRAUTIL)
+	install -m 0755 -D -t $(INSTALLDIR_BIN) util/$(ESSTRAUTIL) util/$(UTIL2) util/$(UTIL3) util/$(UTIL4)
 
 install-specs: all
 	@gcc -dumpspecs | \
@@ -40,6 +43,9 @@ uninstall: uninstall-specs
 	rm -f $(INSTALLDIR_PLUGIN)/$(ESSTRACORE)
 	rm -f $(INSTALLDIR_PLUGIN)/$(ESSTRALINK)
 	rm -f $(INSTALLDIR_BIN)/$(ESSTRAUTIL)
+	rm -f $(INSTALLDIR_BIN)/$(UTIL2)
+	rm -f $(INSTALLDIR_BIN)/$(UTIL3)
+	rm -f $(INSTALLDIR_BIN)/$(UTIL4)
 
 uninstall-specs:
 	@[ -e $(SPECFILE) ] && \
