@@ -809,7 +809,7 @@ class CommandUpdate(CommandBase):
                 spdx_info.read(info_file)
         except Exception as ex:
             msg.error(f'* cannot read {info_file!r}: {ex!r}')
-            return False
+            return 1
 
         for binary in args.binary:
             if binary.endswith(f'.{args.backup_suffix}'):
@@ -844,10 +844,10 @@ class CommandUpdate(CommandBase):
 
         if errors:
             msg.notice(f'* done with {errors} error(s).')
-            return False
+            return 1
 
         msg.info('* done.')
-        return True
+        return 0
 
 
 class CommandRemove(CommandBase):
