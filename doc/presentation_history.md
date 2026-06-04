@@ -1,5 +1,9 @@
 # Presentation History
 
+## 2026.01.30 FOSDEM 2026 Fringe: FOSS license and security compliance tools workshop
+- Lightning talk: https://github.com/aboutcode-org/workshop/issues/84
+- Others: https://github.com/Open-Source-Compliance/Sharing-creates-value/blob/master/docs/Tooling-Landscape/OSS-Based-License-Compliance-Tools.md#enhancing-software-supply-chain-transparency-esstra
+
 ## 2025.12.12 Open Compliance Summit Japan 2025
 - Description: https://sched.co/28lhB
 - Slide: https://static.sched.com/hosted_files/opencompliancesummit2025/81/Enhancing%20SBOM%20Quality-OCS-2025.pdf
