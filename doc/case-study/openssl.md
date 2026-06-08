@@ -18,8 +18,7 @@ licenses and generate a license information file.
 * [ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit)
 
 We will then update the metadata using ESSTRA Utility based on this
-information and verify that the license information has been correctly added to
-the metadata.
+information and verify that the license information has been correctly added to the metadata.
 
 The operational procedures for the above mentioned license analysis tools are also explained in this
 guide.
@@ -240,18 +239,18 @@ Here, we will demonstrate how to use the open-source software license analysis t
 We will use the FOSSology container image provided on
 [Docker Hub](https://hub.docker.com/).
 
-We will be using version 4.1.0 for this demo.
+We will be using version 4.4.0 for this demo.
 
 Pull the FOSSology container image with the following command:
 
 ```sh
-$ docker pull fossology/fossology:4.1.0
+$ docker pull fossology/fossology:4.4.0
 ```
 
 Once the image is successful pulled, start the FOSSology server with the following command:
 
 ```sh
-$ docker run -p 8081:80 fossology/fossology:4.1.0
+$ docker run -p 8081:80 fossology/fossology:4.4.0
 ```
 
 This will allow you to access the FOSSology server via port 8081 on the
@@ -327,14 +326,14 @@ Below is a portion of the downloaded file
 [`SPDX2TV_openssl-3.4.1.tar.gz_fossology.spdx`](./output-examples/openssl/SPDX2TV_openssl-3.4.1.tar.gz_fossology.spdx):
 
 ```yaml
-SPDXVersion: SPDX-2.2
+SPDXVersion: SPDX-2.3
 DataLicense: CC0-1.0
 
 ##-------------------------
 ## Document Information
 ##-------------------------
 
-DocumentNamespace: http://1f9d9e80ed71/repo/SPDX2TV_openssl-3.4.1.tar.gz.spdx
+DocumentNamespace: http://9612d035aba4/repo/SPDX2TV_openssl-3.4.1.tar.gz_1768902667.spdx
 DocumentName: /srv/fossology/repository/report
 SPDXID: SPDXRef-DOCUMENT
 
@@ -342,13 +341,13 @@ SPDXID: SPDXRef-DOCUMENT
 ## Creation Information
 ##-------------------------
 
-Creator: Tool: spdx2
+Creator: Tool: fossology-4.4.0.1
 Creator: Person: fossy (y)
 CreatorComment: <text>
 This document was created using license information and a generator from Fossology.
 </text>
-Created: 2025-03-05T08:31:25Z
-LicenseListVersion: 2.6
+Created: 2026-01-20T09:51:08Z
+LicenseListVersion: 3.22
 
 ##-------------------------
 ## Package Information
@@ -709,8 +708,7 @@ This means that out of all the files, only **16.685%** were used in the generate
 
 ## Summary
 
-In this demo, we first compiled the OpenSSL source files using ESSTRA Core
-to generate the ELFs and confirmed that the metadata in the generated ELF includes information about all the files involved in the compilation.
+In this demo, we first compiled the OpenSSL source files using ESSTRA Core to generate the ELFs and confirmed that the metadata in the generated ELF includes information about all the files involved in the compilation.
 
 Next, we used ESSTRA Utility to add license information to the metadata of the generated ELF.
 To generate the license information, we demonstrated how to use the following open-source license analysis tools to scan the licenses of all the files in the
