@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
+# SPDX-FileCopyrightText: Copyright 2024-2026 Sony Group Corporation
 # SPDX-License-Identifier: MIT
 
 from abc import ABC, abstractmethod
@@ -89,6 +89,8 @@ class MetadataHandler:
     KEY_FILES = 'Files'
     KEY_FILE = 'File'
     KEY_LICENSE_INFO = 'LicenseInfo'
+    KEY_LICENSE_DETECTED = 'LicenseDetected'
+    KEY_LICENSE_CONCLUDED = 'LicenseConcluded'
     HASH_ALGORITHM = 'SHA1'
 
     def __init__(self, binary_path):
@@ -377,6 +379,10 @@ class MetadataHandler:
                 identifier = (filepath, checksum)
                 if identifier not in path_and_sum_found:
                     path_and_sum_found.add(identifier)
+                    if cls.KEY_LICENSE_INFO in fileinfo \
+                            and cls.KEY_LICENSE_DETECTED not in fileinfo:
+                        fileinfo[cls.KEY_LICENSE_DETECTED] = \
+                            fileinfo.pop(cls.KEY_LICENSE_INFO)
                     sourcefiles.setdefault(dirname, [])
                     sourcefiles[dirname].append(fileinfo)
 
@@ -422,6 +428,7 @@ class SpdxTagValueInfo:
     TAG_FILE_NAME = 'FileName'
     TAG_FILE_CHECKSUM = 'FileChecksum'
     TAG_LICENSE_INFO_IN_FILE = 'LicenseInfoInFile'
+    TAG_LICENSE_CONCLUDED = 'LicenseConcluded'
     TAG_LICENSE_ID = 'LicenseID'
     TAG_TEXT_BEGIN = '<text>'
     TAG_TEXT_END = '</text>'
@@ -790,7 +797,7 @@ class CommandShrink(CommandBase):
 
 class CommandUpdate(CommandBase):
     NAME = 'update'
-    DESCRIPTION = 'update embedded information with SPDX tag/value file'
+    DESCRIPTION = 'update embedded license information with SPDX tag/value file(s)'
 
     def setup_parser(self, parser):
         super().setup_parser(parser, binaries=True, backup=True)
@@ -798,7 +805,11 @@ class CommandUpdate(CommandBase):
             '-i', '--info-file', required=True,
             nargs='+',
             action='extend',
-            help='spdx tag/value file containing license information')
+            help='SPDX tag/value file(s) with per-file license info. For each '
+                 'source file (matched by checksum), LicenseInfoInFile '
+                 '(scanner detection) accumulates into LicenseDetected '
+                 '(deduplicated) and LicenseConcluded (human decision) replaces '
+                 'the recorded conclusion')
 
     def run_command(self, args):
         errors = 0
@@ -828,9 +839,25 @@ class CommandUpdate(CommandBase):
                 spdx_fileinfo = spdx_info.get_fileinfo(filepath, checksum)
                 if not spdx_fileinfo:
                     continue
-                license_info = spdx_fileinfo[
-                    SpdxTagValueInfo.TAG_LICENSE_INFO_IN_FILE]
-                fileinfo[MetadataHandler.KEY_LICENSE_INFO] = license_info
+
+                detected = [
+                    lic for lic
+                    in spdx_fileinfo.get(SpdxTagValueInfo.TAG_LICENSE_INFO_IN_FILE, [])
+                    if lic not in ('NOASSERTION', 'NONE')]
+                if detected:
+                    merged = list(
+                        fileinfo.get(MetadataHandler.KEY_LICENSE_DETECTED, []))
+                    for lic in detected:
+                        if lic not in merged:
+                            merged.append(lic)
+                    fileinfo[MetadataHandler.KEY_LICENSE_DETECTED] = merged
+
+                concluded = [
+                    lic for lic
+                    in spdx_fileinfo.get(SpdxTagValueInfo.TAG_LICENSE_CONCLUDED, [])
+                    if lic not in ('NOASSERTION', 'NONE')]
+                if concluded:
+                    fileinfo[MetadataHandler.KEY_LICENSE_CONCLUDED] = concluded[0]
 
             try:
                 handler.update_metadata(

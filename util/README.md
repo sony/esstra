@@ -158,9 +158,16 @@ Since ESSTRA is at an early stage in development, we have developed a feature
 that attaches license information as a sort of feasibility study.
 
 To attach license information, you need to prepare an
-SPDX tag-value file with a minimum version of [SPDX 2.2](https://spdx.github.io/spdx-spec/v2.2.2/) file
-including `LicenseInfoInFile:` tags.
+SPDX tag-value file with a minimum version of [SPDX 2.2](https://spdx.github.io/spdx-spec/v2.2.2/)
+including `LicenseInfoInFile:` (a scanner's *detected* licenses) and/or
+`LicenseConcluded:` (a reviewer's *concluded* license) tags.
 Some license scanners like [FOSSology](https://fossology.github.io/) and [ScanCode toolkit](https://github.com/aboutcode-org/scancode-toolkit) can generate such files.
+
+The two are stored in separate metadata fields: detected licenses go to
+`LicenseDetected` (a list) and the concluded license goes to `LicenseConcluded`
+(a single value). Keeping them apart lets a reader of the binary tell a
+scanner's guess from a reviewer's decision. `NOASSERTION` / `NONE` values are
+skipped.
 
 A typical usage is:
 
@@ -175,23 +182,15 @@ files at once, you can specify them all on the command line:
 $ esstra update <binary> [<binary> ...] -i <spdx-tv-file> [<spdx-tv-file> ..]
 ```
 
-When multiple SPDX tag-value files are provided, or when license information is already
-embedded in the binary metadata, all license data for each file will be **appended** in a
-deduplicated manner.  For example, if the binary metadata specifies that the file:
+On re-run (multiple SPDX tag-value files, or metadata that already carries
+license information), the two fields behave differently:
 
-* `/home/snagao/esstra/samples/hello2/hello_main.c`
-
-is licensed under:
-
-* `MIT`
-
-and the SPDX tag-value file assigns the same file the license:
-
-* `BSD-3-Clause`
-
-then the resulting license information for that file will be:
-
-* `[MIT, BSD-3-Clause]`
+* **Detected** licenses are **accumulated** (appended, deduplicated). For
+  example, if the metadata already records `MIT` as detected for a file and an
+  SPDX tag-value file adds `BSD-3-Clause` for the same file, the result is
+  `LicenseDetected: [MIT, BSD-3-Clause]`.
+* The **concluded** license is **replaced** (last write wins), since a file has
+  a single concluded license.
 
 For more details on the `update` command, please refer to the document
 [Sample "hello2"](../samples/hello2/README.md).
