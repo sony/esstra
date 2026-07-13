@@ -207,13 +207,13 @@ implicitly `#include`'d.
 Here, similar to
 [Sample "hello"](../hello/README.md#adding-license-information-to-metadata),
 we will use the license information file
-[`SPDX2TV_esstra.spdx`](../output-examples/SPDX2TV_esstra.spdx)
+[`SPDX2TV_esstra_fossology.spdx`](../output-examples/SPDX2TV_esstra_fossology.spdx)
 that has already been prepared.
 Next, you can add license information to the metadata in the binary
 `hello2` using the following command:
 
 ```sh
-$ esstra update hello2 -i SPDX2TV_esstra.spdx
+$ esstra update hello2 -i SPDX2TV_esstra_fossology.spdx
 * processing 'hello2'...
 * done.
 ```
@@ -240,15 +240,15 @@ SourceFiles:
   Files:
   - File: hello_main.c
     SHA1: f7f5c447d68fd9685594a31cb10c8d8b1dd5ebd6
-    LicenseInfo:
+    LicenseDetected:
     - MIT
   - File: hello_sub.c
     SHA1: cfb72998ae0242237fa42c8bcf61ee5887137392
-    LicenseInfo:
+    LicenseDetected:
     - BSD-3-Clause
   - File: hello_sub.h
     SHA1: 3e5b3ed1aed966c0e0c183eac8fe6ea02dfa62a0
-    LicenseInfo:
+    LicenseDetected:
     - LGPL-2.1-or-later
 - Directory: /usr/include
   Files:
@@ -259,7 +259,7 @@ SourceFiles:
 
 ```
 
-From the above result, you can see that the `LicenseInfo` tags have been added
+From the above result, you can see that the `LicenseDetected` tags have been added
 to the metadata for the files
 [`hello_main.c`](./hello_main.c),
 [`hello_sub.c`](./hello_sub.c), and
