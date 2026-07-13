@@ -92,6 +92,7 @@ class MetadataHandler:
     KEY_LICENSE_DETECTED = 'LicenseDetected'
     KEY_LICENSE_CONCLUDED = 'LicenseConcluded'
     HASH_ALGORITHM = 'SHA1'
+    HASH_ALGORITHMS = ('SHA256', 'SHA1')  # strongest first
 
     def __init__(self, binary_path):
         if not Path(binary_path).exists():
@@ -433,7 +434,7 @@ class SpdxTagValueInfo:
     TAG_TEXT_BEGIN = '<text>'
     TAG_TEXT_END = '</text>'
     GROUP_HEADERS = (TAG_FILE_NAME, TAG_LICENSE_ID)
-    HASH_ALGORITHM = 'SHA1'
+    HASH_ALGORITHMS = ('SHA256', 'SHA1')  # strongest first
 
     def __init__(self):
         self._fileinfos = {}
@@ -443,18 +444,25 @@ class SpdxTagValueInfo:
             lines = fp.readlines()
         self.__update_fileinfos(lines)
 
-    def get_fileinfo(self, path, checksum):
-        if checksum not in self._fileinfos:
-            msg.debug(f'* path {path!r} with sum {checksum!r} not found')
-            return None
-
-        for fileinfo in self._fileinfos[checksum]:
-            filepath = fileinfo[self.TAG_FILE_NAME][0]
-            if self.__check_filepath(path, filepath):
-                msg.debug(f'* FOUND: {path!r} with sum {checksum!r}')
+    def get_fileinfo(self, path, checksums):
+        for algorithm in self.HASH_ALGORITHMS:
+            checksum = checksums.get(algorithm)
+            if not checksum or checksum not in self._fileinfos:
+                continue
+            for fileinfo in self._fileinfos[checksum]:
+                filepath = fileinfo[self.TAG_FILE_NAME][0]
+                if not self.__check_filepath(path, filepath):
+                    continue
+                if self.__strongest_common_algorithm(
+                        checksums, fileinfo) != algorithm:
+                    msg.debug(f'* skip {algorithm} match for {path!r}: '
+                              f'a stronger shared hash exists')
+                    continue
+                msg.debug(f'* FOUND: {path!r} via {algorithm}:{checksum!r}')
                 return fileinfo
+            msg.debug(f'* {algorithm}:{checksum!r} found but path {path!r} not matched')
 
-        msg.debug(f'* sum {checksum!r} found but path {path!r} not matched: {filepath!r}')
+        msg.debug(f'* no checksum match for {path!r}: {checksums!r}')
         return None
 
     # private
@@ -471,20 +479,36 @@ class SpdxTagValueInfo:
                 fileinfo.setdefault(tag, [])
                 fileinfo[tag].append(value)
 
-        # update self._fileinfo as a dict whose keys are checksums
-        checksum = None
+        # index file info under every checksum algorithm we understand
         for fileinfo in fileinfo_list:
-            if self.TAG_FILE_CHECKSUM in fileinfo:
-                for checksum_value in fileinfo[self.TAG_FILE_CHECKSUM]:
-                    if checksum_value.startswith(self.HASH_ALGORITHM):
-                        checksum = checksum_value.split()[1]
-                        self._fileinfos.setdefault(checksum, [])
-                        self._fileinfos[checksum].append(fileinfo)
+            if self.TAG_FILE_CHECKSUM not in fileinfo:
+                continue
+            for checksum_value in fileinfo[self.TAG_FILE_CHECKSUM]:
+                parts = checksum_value.split()
+                if len(parts) < 2:
+                    continue
+                algorithm = parts[0].rstrip(':')
+                if algorithm in self.HASH_ALGORITHMS:
+                    checksum = parts[1]
+                    self._fileinfos.setdefault(checksum, [])
+                    self._fileinfos[checksum].append(fileinfo)
 
     @staticmethod
     def __check_filepath(spdx_filename, path):
         # TODO: use more accurate comparison
         return Path(spdx_filename).name == Path(path).name
+
+    @classmethod
+    def __strongest_common_algorithm(cls, checksums, fileinfo):
+        fileinfo_algorithms = set()
+        for checksum_value in fileinfo.get(cls.TAG_FILE_CHECKSUM, []):
+            parts = checksum_value.split()
+            if len(parts) >= 2:
+                fileinfo_algorithms.add(parts[0].rstrip(':'))
+        for algorithm in cls.HASH_ALGORITHMS:
+            if algorithm in checksums and algorithm in fileinfo_algorithms:
+                return algorithm
+        return None
 
     @classmethod
     def __parse_tag_value_lines(cls, lines):
@@ -836,7 +860,12 @@ class CommandUpdate(CommandBase):
                 continue
 
             for _, filepath, checksum, fileinfo in handler.enumerate_files():
-                spdx_fileinfo = spdx_info.get_fileinfo(filepath, checksum)
+                checksums = {
+                    algorithm: fileinfo[algorithm]
+                    for algorithm in MetadataHandler.HASH_ALGORITHMS
+                    if algorithm in fileinfo
+                }
+                spdx_fileinfo = spdx_info.get_fileinfo(filepath, checksums)
                 if not spdx_fileinfo:
                     continue
 
