@@ -238,6 +238,11 @@ The following options are common to all commands:
 * `-S`, `--show-error`: Output errors even when muted by the `--silent` option.
 * `-D`, `--debug`: Output debug messages and all other types of messages.
 
+
+## Tests
+
+See the [tests README](../tests/README.md) for instructions on running the functional tests.
+
 ## License
 
 See the [LICENSE](/LICENSE) file.
