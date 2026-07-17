@@ -169,6 +169,10 @@ The two are stored in separate metadata fields: detected licenses go to
 scanner's guess from a reviewer's decision. `NOASSERTION` / `NONE` values are
 skipped.
 
+Files in the binary's metadata are matched against the SPDX entries by
+checksum, using the strongest hash algorithm present on both sides
+(SHA-256 preferred over SHA-1).
+
 A typical usage is:
 
 ```sh
