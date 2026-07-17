@@ -273,7 +273,7 @@ SourceFiles:
   Files:
   - File: hello.c
     SHA1: 4bbee85215cbcb6a4f1625e4851cca19b0d3f6e2
-    LicenseInfo:
+    LicenseDetected:
     - MIT
 - Directory: /usr/include
   Files:
@@ -286,7 +286,7 @@ SourceFiles:
 > The above data will be similar for either of the SPDX reports used.
 
 From the above result, we can see that the file [`hello.c`](./hello.c) has
-been tagged with `LicenseInfo`, and the value assigned to it is `MIT`.
+been tagged with `LicenseDetected`, and the value recorded there is `MIT`.
 
 Please note that the files
 [`SPDX2TV_esstra_fossology.spdx`](../output-examples/SPDX2TV_esstra_fossology.spdx) and [`SPDX2TV_esstra_scancode.spdx`](../output-examples/SPDX2TV_esstra_scancode.spdx) contain only the
