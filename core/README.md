@@ -169,6 +169,10 @@ $ gcc -fplugin=/path/to/.../esstracore.so \
       hello_main.c hello_sub.c -o hello2
 ```
 
+## Tests
+
+See the [tests README](../tests/README.md) for instructions on running the functional tests.
+
 ## Known Issues
 
 Here is the list of known issues in the current version:
