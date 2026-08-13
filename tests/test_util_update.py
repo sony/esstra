@@ -32,11 +32,13 @@ def verify_license_info(metadata, expected_files, expected_license=['NOASSERTION
         for fileinfo in directory.get("Files", []):
             filename = fileinfo.get("File")
             if filename in expected_files:
-                binary_license = fileinfo.get("LicenseInfo")
-                assert binary_license == expected_license, \
-                    f"File '{filename}': Expected {expected_license}, got {binary_license}"
+                binary_license = fileinfo.get("LicenseConcluded")
+                if filename == 'nolicense.c':
+                    assert binary_license == None, f"File is having license: {binary_license}"
+                else:
+                    assert binary_license == expected_license, \
+                        f"File '{filename}': Expected {expected_license}, got {binary_license}"
                 found_files.add(filename)
-
     # Verify all expected files were found
     missing_files = expected_files - found_files
     assert not missing_files, f"Missing files in metadata: {missing_files}"
@@ -66,7 +68,7 @@ def test_update_basic(setup_test_files):
     metadata = yaml.safe_load(stdout)
     
     # Use the helper function
-    verify_license_info(metadata, "simple.c")
+    verify_license_info(metadata, "simple.c", expected_license='MIT')
 
 
 @pytest.mark.update_test(serial="02")
@@ -90,7 +92,7 @@ def test_update_multiple_binaries(setup_test_files):
     
     # Use the helper function with multiple files
     expected_files = ["main.c", "helper.c"]
-    verify_license_info(metadata, expected_files)
+    verify_license_info(metadata, expected_files, expected_license='Apache-2.0')
 
 
 @pytest.mark.update_test(serial="03")
@@ -219,7 +221,7 @@ def test_update_backup(setup_test_files):
     metadata = yaml.safe_load(stdout)
     
     # Use the helper function
-    verify_license_info(metadata, "simple.c")
+    verify_license_info(metadata, "simple.c", expected_license='MIT')
 
     # Remove the backup file
     Path(f'{binary}.bak').unlink()
@@ -244,7 +246,7 @@ def test_update_with_backup_suffix(setup_test_files):
     metadata = yaml.safe_load(stdout)
     
     # Use the helper function
-    verify_license_info(metadata, "simple.c")
+    verify_license_info(metadata, "simple.c", expected_license='MIT')
 
     # Not Removing the backup file for next backup overwrite test
 
@@ -268,7 +270,31 @@ def test_update_with_backup_overwrite(setup_test_files):
     assert return_code == 0
     metadata = yaml.safe_load(stdout)
     # Use the helper function
-    verify_license_info(metadata, "simple.c")
+    verify_license_info(metadata, "simple.c", expected_license='MIT')
 
     # Remove the backup file
     Path(f'{binary}{backup_extension}').unlink()
+
+@pytest.mark.update_test(serial="12")
+def test_update_noasseration_license(setup_test_files):
+    """
+    Verify basic update command.
+
+    Command:
+    esstra update binary -i info_file
+
+    Expected Behaviour:
+    Metadata is updated successfully.
+    """
+    binary = setup_test_files["metadata_with_nolicense"]
+    info_file4 = setup_test_files["info_file4"]
+
+    cmd = f"{ESSTRA_UTIL} update {binary} -i {info_file4} && {ESSTRA_UTIL} show {binary}"
+    stdout, stderr, return_code = run_command(cmd)
+
+    assert return_code == 0, f"Command failed with return code {return_code}"
+
+    metadata = yaml.safe_load(stdout)
+    
+    # Use the helper function
+    verify_license_info(metadata, "nolicense.c")
