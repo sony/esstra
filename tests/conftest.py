@@ -135,7 +135,9 @@ def generate_test_files(get_esstra_so_link_paths):
     simple_c = test_dir / 'simple.c'
     helper_c = test_dir / 'helper.c'
     main_c = test_dir / 'main.c'
+    nolicense_c = test_dir / 'nolicense.c'
     simple_spdx = test_dir / 'simple.spdx'
+    nolicense_spdx = test_dir / 'nolicense.spdx'
     main_spdx = test_dir / 'main.spdx'
     helper_spdx = test_dir / 'helper.spdx'
 
@@ -143,6 +145,10 @@ def generate_test_files(get_esstra_so_link_paths):
     # Create a simple C file for testing
     with open(simple_c, 'w') as f:
         f.write('''
+        // SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
+        // SPDX-License-Identifier: MIT
+        // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.
+
         #include <stdio.h>
         int main() {
             printf("Hello, ESSTRA!\\n");
@@ -152,6 +158,10 @@ def generate_test_files(get_esstra_so_link_paths):
 
     with open(main_c, 'w') as f:
         f.write('''
+        // SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
+        // SPDX-License-Identifier: Apache-2.0
+        // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.
+
         #include <stdio.h>
         extern void helper_function();
         int main() {
@@ -163,28 +173,42 @@ def generate_test_files(get_esstra_so_link_paths):
 
     with open(helper_c, 'w') as f:
         f.write('''
+        // SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
+        // SPDX-License-Identifier: Apache-2.0
+        // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.
+
         #include <stdio.h>
         void helper_function() {
             printf("Helper function\\n");
         }
         ''')
 
-    with open(simple_spdx, 'w') as f:
+    with open(nolicense_c, 'w') as f:
+        f.write('''
+
+        #include <stdio.h>
+        int main() {
+            printf("Hello, ESSTRA!\\n");
+            return 0;
+        }
+        ''')
+
+    with open(nolicense_spdx, 'w') as f:
         f.write('''SPDXVersion: SPDX-2.3
 ##-------------------------
 ## Package Information
 ##-------------------------
 
 
-PackageName: simple.c
-PackageFileName: simple.c
-SPDXID: SPDXRef-upload10
+PackageName: nolicense.c
+PackageFileName: nolicense.c
+SPDXID: SPDXRef-upload97
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: true
 PackageVerificationCode: da39a3ee5e6b4b0d3255bfef95601890afd80709
-PackageChecksum: SHA1: fd625aa98c9c6bb46eec471756aa6695370739fe
-PackageChecksum: SHA256: f17f59bfb808758246e8d493ef1161fa5938b1dbe6c969b1d03e1edc2cdafa7a
-PackageChecksum: MD5: 356a486f81ceae00bea28b8696f3c3d9
+PackageChecksum: SHA1: be4e3a6024a982e153d46965565779faf8d7851c
+PackageChecksum: SHA256: 913e9d935c3315b68f51d6fbc25f4264b7d17d3b216ace1ee7e29ebb4b63ffa1
+PackageChecksum: MD5: 221e380183e638de1868c78afadd2064
 PackageLicenseConcluded: NOASSERTION
 PackageLicenseDeclared: NOASSERTION
 PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
@@ -194,7 +218,53 @@ PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
 PackageLicenseInfoFromFiles: NOASSERTION
 PackageCopyrightText: NOASSERTION
 
-Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload10
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload97
+
+
+##--------------------------
+## File Information
+##--------------------------
+
+##File
+
+FileName: nolicense.c
+SPDXID: SPDXRef-item963255
+FileChecksum: SHA1: be4e3a6024a982e153d46965565779faf8d7851c
+FileChecksum: SHA256: 913e9d935c3315b68f51d6fbc25f4264b7d17d3b216ace1ee7e29ebb4b63ffa1
+FileChecksum: MD5: 221e380183e638de1868c78afadd2064
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+
+
+##-------------------------
+## License Information
+##-------------------------
+''')
+
+    with open(simple_spdx, 'w') as f:
+        f.write('''SPDXVersion: SPDX-2.3
+PackageName: simple.c
+PackageFileName: simple.c
+SPDXID: SPDXRef-upload91
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: true
+PackageVerificationCode: 3cf26fdbf3598ff70852d561e42b485dcd46a083
+PackageChecksum: SHA1: c8a4dfa5aac5fe929f61d9a9f9b0b77aff5798a6
+PackageChecksum: SHA256: 60cd085631a2b5d8b78ef3610bfe4ee686622387a632ec460bf36ccd314c1594
+PackageChecksum: MD5: e1b21bc57d8a9c2103526982bf27243e
+PackageLicenseConcluded: NOASSERTION
+PackageLicenseDeclared: NOASSERTION
+PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
+ - nomos ("4.5.1".9197d3)
+ - monk ("4.5.1".9197d3)
+ - ojo ("4.5.1".9197d3) </text>
+PackageLicenseInfoFromFiles: NOASSERTION
+PackageCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload91
+
 
 ##--------------------------
 ## File Information
@@ -203,13 +273,14 @@ Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload10
 ##File
 
 FileName: simple.c
-SPDXID: SPDXRef-item231002
-FileChecksum: SHA1: fd625aa98c9c6bb46eec471756aa6695370739fe
-FileChecksum: SHA256: f17f59bfb808758246e8d493ef1161fa5938b1dbe6c969b1d03e1edc2cdafa7a
-FileChecksum: MD5: 356a486f81ceae00bea28b8696f3c3d9
-LicenseConcluded: NOASSERTION
-LicenseInfoInFile: NOASSERTION
-FileCopyrightText: NOASSERTION
+SPDXID: SPDXRef-item963244
+FileChecksum: SHA1: 0129aec9d2a42cfab11ddb7047826c8251e345af
+FileChecksum: SHA256: d50970670ecd19dc8d0e63ada977b526206bbffe947fa4ddb994a6212131e068
+FileChecksum: MD5: 8bbb37408d7931e064b20ff8e4a28db2
+LicenseConcluded: MIT
+
+LicenseInfoInFile: MIT
+FileCopyrightText: <text> Copyright 2024-2025 Sony Group Corporation SPDX-License-Identifier: MIT NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION. </text>
 
 
 
@@ -249,23 +320,23 @@ LicenseListVersion: 3.22
 
 PackageName: main.c
 PackageFileName: main.c
-SPDXID: SPDXRef-upload11
-PackageDownloadLocation: NOASSERTION
+SPDXID: SPDXRef-upload96
+PackageDownloadLocation: Apache-2.0
 FilesAnalyzed: true
 PackageVerificationCode: da39a3ee5e6b4b0d3255bfef95601890afd80709
-PackageChecksum: SHA1: ee7b1dce06e15b37613711b52efa454d00d1c710
-PackageChecksum: SHA256: 37d7c75e9792a6515a3eab6aba2b4d2d7c455916169c474a569cdb8824503e3a
-PackageChecksum: MD5: 5e7569d1aaa15eb06d0883337db76f41
-PackageLicenseConcluded: NOASSERTION
-PackageLicenseDeclared: NOASSERTION
+PackageChecksum: SHA1: 07b524056efbe8eedd7ec4eafb6cafa5daf3f365
+PackageChecksum: SHA256: 0332844aaeef01a61200238afaf0a12fb133b54f1101da72bd4ea0f81d76fb8a
+PackageChecksum: MD5: b18dd198ca0be355f1bf595e83525c3c
+PackageLicenseConcluded: Apache-2.0
+PackageLicenseDeclared: Apache-2.0
 PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
  - nomos ("4.5.1".9197d3)
  - monk ("4.5.1".9197d3)
  - ojo ("4.5.1".9197d3) </text>
-PackageLicenseInfoFromFiles: NOASSERTION
-PackageCopyrightText: NOASSERTION
+PackageLicenseInfoFromFiles: Apache-2.0
+PackageCopyrightText: Apache-2.0
 
-Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload11
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload96
 
 
 ##--------------------------
@@ -275,13 +346,14 @@ Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload11
 ##File
 
 FileName: main.c
-SPDXID: SPDXRef-item231003
-FileChecksum: SHA1: ee7b1dce06e15b37613711b52efa454d00d1c710
-FileChecksum: SHA256: 37d7c75e9792a6515a3eab6aba2b4d2d7c455916169c474a569cdb8824503e3a
-FileChecksum: MD5: 5e7569d1aaa15eb06d0883337db76f41
-LicenseConcluded: NOASSERTION
-LicenseInfoInFile: NOASSERTION
-FileCopyrightText: NOASSERTION
+SPDXID: SPDXRef-item963254
+FileChecksum: SHA1: 07b524056efbe8eedd7ec4eafb6cafa5daf3f365
+FileChecksum: SHA256: 0332844aaeef01a61200238afaf0a12fb133b54f1101da72bd4ea0f81d76fb8a
+FileChecksum: MD5: b18dd198ca0be355f1bf595e83525c3c
+LicenseConcluded: Apache-2.0
+
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright 2024-2025 Sony Group Corporation SPDX-License-Identifier: Apache-2.0 NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION. </text>
 
 
 
@@ -321,23 +393,23 @@ LicenseListVersion: 3.22
 
 PackageName: helper.c
 PackageFileName: helper.c
-SPDXID: SPDXRef-upload12
-PackageDownloadLocation: NOASSERTION
+SPDXID: SPDXRef-upload94
+PackageDownloadLocation: Apache-2.0
 FilesAnalyzed: true
 PackageVerificationCode: da39a3ee5e6b4b0d3255bfef95601890afd80709
-PackageChecksum: SHA1: e75bf3d67a4e6cf6deabed831f8b1d38d6b287e2
-PackageChecksum: SHA256: fffba1968c8704f690a214cf92ac8dd0b8afecd73b565edf6ec3e07763146cc9
-PackageChecksum: MD5: 6d6469b093e630173717b1cb2a90bdf7
-PackageLicenseConcluded: NOASSERTION
-PackageLicenseDeclared: NOASSERTION
+PackageChecksum: SHA1: 027e8dfe742b4d3f5247b055a360ee356e7e4ee6
+PackageChecksum: SHA256: f1b09093cb3bbc138ccc10669c1d6c0c890e01b0bc5ed59164d3f464bb4b48fa
+PackageChecksum: MD5: 945bf576468e850f91738a41eab455df
+PackageLicenseConcluded: Apache-2.0
+PackageLicenseDeclared: Apache-2.0
 PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
  - nomos ("4.5.1".9197d3)
  - monk ("4.5.1".9197d3)
  - ojo ("4.5.1".9197d3) </text>
-PackageLicenseInfoFromFiles: NOASSERTION
-PackageCopyrightText: NOASSERTION
+PackageLicenseInfoFromFiles: Apache-2.0
+PackageCopyrightText: Apache-2.0
 
-Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload12
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload94
 
 
 ##--------------------------
@@ -347,13 +419,14 @@ Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload12
 ##File
 
 FileName: helper.c
-SPDXID: SPDXRef-item231004
-FileChecksum: SHA1: e75bf3d67a4e6cf6deabed831f8b1d38d6b287e2
-FileChecksum: SHA256: fffba1968c8704f690a214cf92ac8dd0b8afecd73b565edf6ec3e07763146cc9
-FileChecksum: MD5: 6d6469b093e630173717b1cb2a90bdf7
-LicenseConcluded: NOASSERTION
-LicenseInfoInFile: NOASSERTION
-FileCopyrightText: NOASSERTION
+SPDXID: SPDXRef-item963247
+FileChecksum: SHA1: 027e8dfe742b4d3f5247b055a360ee356e7e4ee6
+FileChecksum: SHA256: f1b09093cb3bbc138ccc10669c1d6c0c890e01b0bc5ed59164d3f464bb4b48fa
+FileChecksum: MD5: 945bf576468e850f91738a41eab455df
+LicenseConcluded: Apache-2.0
+
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright 2024-2025 Sony Group Corporation SPDX-License-Identifier: Apache-2.0 NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION. </text>
 
 
 
@@ -365,12 +438,15 @@ FileCopyrightText: NOASSERTION
 
     # Generate binaries
     binary_with_metadata = test_dir / 'binary_with_metadata'
+    binary_with_metadata_no_license = test_dir / 'binary_with_metadata_no_license'
     multi_source_binary_with_metadata = (test_dir / 'multi_source_binary_'
                                          'with_metadata')
     binary_without_plugin = test_dir / 'binary_without_plugin'
 
     compile_with_plugin(get_esstra_so_link_paths, str(simple_c),
                         str(binary_with_metadata), fail_on_error=True)
+    compile_with_plugin(get_esstra_so_link_paths, str(nolicense_c),
+                        str(binary_with_metadata_no_license), fail_on_error=True)
     multiple_source_files = f'{str(main_c)} {str(helper_c)}'
     compile_with_plugin(get_esstra_so_link_paths, multiple_source_files,
                         str(multi_source_binary_with_metadata),
@@ -391,12 +467,14 @@ def setup_test_files(generate_test_files):
     # Create test binary files with metadata
     test_dir = Path(TEST_DIR)
     binary_with_metadata = test_dir / 'binary_with_metadata'
+    binary_with_metadata_no_license = test_dir / 'binary_with_metadata_no_license'
     binary_without_plugin = test_dir / 'binary_without_plugin'
     multi_source_binary_with_metadata = (test_dir / 'multi_source_binary_'
                                          'with_metadata')
     info_file = (test_dir / 'simple.spdx')
     info_file2 = (test_dir / 'main.spdx')
     info_file3 = (test_dir / 'helper.spdx')
+    info_file4 = (test_dir / 'nolicense.spdx')
 
     # Ensure test files exist
     assert binary_with_metadata.exists(), 'Test binary with metadata not found'
@@ -409,6 +487,7 @@ def setup_test_files(generate_test_files):
 
     return {
         'with_metadata': str(binary_with_metadata),
+        'metadata_with_nolicense': str(binary_with_metadata_no_license),
         'without_plugin': str(binary_without_plugin),
         'with_multiple_metadata': (f'{str(binary_with_metadata)} '
                                    f'{str(multi_source_binary_with_metadata)}'
@@ -417,6 +496,7 @@ def setup_test_files(generate_test_files):
             multi_source_binary_with_metadata),
         'info_file': str(info_file),
         'info_file2': str(info_file2),
-        'info_file3': str(info_file3)
+        'info_file3': str(info_file3),
+        'info_file4': str(info_file4)
 
     }
