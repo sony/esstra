@@ -160,7 +160,7 @@ def generate_test_files(get_esstra_so_link_paths):
         f.write('''
         // SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
         // SPDX-License-Identifier: Apache-2.0
-        // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.   
+        // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.
 
         #include <stdio.h>
         extern void helper_function();
@@ -175,7 +175,7 @@ def generate_test_files(get_esstra_so_link_paths):
         f.write('''
         // SPDX-FileCopyrightText: Copyright 2024-2025 Sony Group Corporation
         // SPDX-License-Identifier: Apache-2.0
-        // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.   
+        // NOTICE: THE LICENSE STATEMENT ABOVE IS JUST FOR DEMONSTRATION.
 
         #include <stdio.h>
         void helper_function() {
@@ -291,6 +291,28 @@ FileCopyrightText: <text> Copyright 2024-2025 Sony Group Corporation SPDX-Licens
 
     with open(main_spdx, 'w') as f:
         f.write('''SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+
+##-------------------------
+## Document Information
+##-------------------------
+
+DocumentNamespace: http://ea44739a46f5/repo/SPDX2TV_main.c.spdx
+DocumentName: /srv/fossology/repository/report
+SPDXID: SPDXRef-DOCUMENT
+
+##-------------------------
+## Creation Information
+##-------------------------
+
+Creator: Tool: fossology-4.5.1
+Creator: Person: fossy (y)
+CreatorComment: <text>
+This document was created using license information and a generator from Fossology.
+</text>
+Created: 2026-06-16T15:42:36Z
+LicenseListVersion: 3.22
+
 ##-------------------------
 ## Package Information
 ##-------------------------
@@ -299,20 +321,20 @@ FileCopyrightText: <text> Copyright 2024-2025 Sony Group Corporation SPDX-Licens
 PackageName: main.c
 PackageFileName: main.c
 SPDXID: SPDXRef-upload96
-PackageDownloadLocation: NOASSERTION
+PackageDownloadLocation: Apache-2.0
 FilesAnalyzed: true
 PackageVerificationCode: da39a3ee5e6b4b0d3255bfef95601890afd80709
-PackageChecksum: SHA1: ef48acfddeb3093228932471eb8b4ee196a1907f
+PackageChecksum: SHA1: 07b524056efbe8eedd7ec4eafb6cafa5daf3f365
 PackageChecksum: SHA256: 0332844aaeef01a61200238afaf0a12fb133b54f1101da72bd4ea0f81d76fb8a
 PackageChecksum: MD5: b18dd198ca0be355f1bf595e83525c3c
-PackageLicenseConcluded: NOASSERTION
-PackageLicenseDeclared: NOASSERTION
+PackageLicenseConcluded: Apache-2.0
+PackageLicenseDeclared: Apache-2.0
 PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
  - nomos ("4.5.1".9197d3)
  - monk ("4.5.1".9197d3)
  - ojo ("4.5.1".9197d3) </text>
-PackageLicenseInfoFromFiles: NOASSERTION
-PackageCopyrightText: NOASSERTION
+PackageLicenseInfoFromFiles: Apache-2.0
+PackageCopyrightText: Apache-2.0
 
 Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload96
 
@@ -325,7 +347,7 @@ Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload96
 
 FileName: main.c
 SPDXID: SPDXRef-item963254
-FileChecksum: SHA1: ef48acfddeb3093228932471eb8b4ee196a1907f
+FileChecksum: SHA1: 07b524056efbe8eedd7ec4eafb6cafa5daf3f365
 FileChecksum: SHA256: 0332844aaeef01a61200238afaf0a12fb133b54f1101da72bd4ea0f81d76fb8a
 FileChecksum: MD5: b18dd198ca0be355f1bf595e83525c3c
 LicenseConcluded: Apache-2.0
@@ -342,6 +364,28 @@ FileCopyrightText: <text> Copyright 2024-2025 Sony Group Corporation SPDX-Licens
 
     with open(helper_spdx, 'w') as f:
         f.write('''SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+
+##-------------------------
+## Document Information
+##-------------------------
+
+DocumentNamespace: http://ea44739a46f5/repo/SPDX2TV_helper.c.spdx
+DocumentName: /srv/fossology/repository/report
+SPDXID: SPDXRef-DOCUMENT
+
+##-------------------------
+## Creation Information
+##-------------------------
+
+Creator: Tool: fossology-4.5.1
+Creator: Person: fossy (y)
+CreatorComment: <text>
+This document was created using license information and a generator from Fossology.
+</text>
+Created: 2026-06-16T15:42:56Z
+LicenseListVersion: 3.22
+
 ##-------------------------
 ## Package Information
 ##-------------------------
@@ -350,20 +394,20 @@ FileCopyrightText: <text> Copyright 2024-2025 Sony Group Corporation SPDX-Licens
 PackageName: helper.c
 PackageFileName: helper.c
 SPDXID: SPDXRef-upload94
-PackageDownloadLocation: NOASSERTION
+PackageDownloadLocation: Apache-2.0
 FilesAnalyzed: true
 PackageVerificationCode: da39a3ee5e6b4b0d3255bfef95601890afd80709
-PackageChecksum: SHA1: b5a3ec06073c82df6aff252b5856c3734006093f
+PackageChecksum: SHA1: 027e8dfe742b4d3f5247b055a360ee356e7e4ee6
 PackageChecksum: SHA256: f1b09093cb3bbc138ccc10669c1d6c0c890e01b0bc5ed59164d3f464bb4b48fa
 PackageChecksum: MD5: 945bf576468e850f91738a41eab455df
-PackageLicenseConcluded: NOASSERTION
-PackageLicenseDeclared: NOASSERTION
+PackageLicenseConcluded: Apache-2.0
+PackageLicenseDeclared: Apache-2.0
 PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
  - nomos ("4.5.1".9197d3)
  - monk ("4.5.1".9197d3)
  - ojo ("4.5.1".9197d3) </text>
-PackageLicenseInfoFromFiles: NOASSERTION
-PackageCopyrightText: NOASSERTION
+PackageLicenseInfoFromFiles: Apache-2.0
+PackageCopyrightText: Apache-2.0
 
 Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload94
 
@@ -376,7 +420,7 @@ Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload94
 
 FileName: helper.c
 SPDXID: SPDXRef-item963247
-FileChecksum: SHA1: b5a3ec06073c82df6aff252b5856c3734006093f
+FileChecksum: SHA1: 027e8dfe742b4d3f5247b055a360ee356e7e4ee6
 FileChecksum: SHA256: f1b09093cb3bbc138ccc10669c1d6c0c890e01b0bc5ed59164d3f464bb4b48fa
 FileChecksum: MD5: 945bf576468e850f91738a41eab455df
 LicenseConcluded: Apache-2.0
@@ -402,7 +446,7 @@ FileCopyrightText: <text> Copyright 2024-2025 Sony Group Corporation SPDX-Licens
     compile_with_plugin(get_esstra_so_link_paths, str(simple_c),
                         str(binary_with_metadata), fail_on_error=True)
     compile_with_plugin(get_esstra_so_link_paths, str(nolicense_c),
-                            str(binary_with_metadata_no_license), fail_on_error=True)
+                        str(binary_with_metadata_no_license), fail_on_error=True)
     multiple_source_files = f'{str(main_c)} {str(helper_c)}'
     compile_with_plugin(get_esstra_so_link_paths, multiple_source_files,
                         str(multi_source_binary_with_metadata),
