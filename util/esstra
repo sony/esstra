@@ -11,6 +11,8 @@ from pathlib import Path
 import subprocess
 import re
 import tempfile
+import json
+import hashlib
 from enum import Enum
 import yaml
 
@@ -254,6 +256,9 @@ class MetadataHandler:
 
     # private
     def __run_command(self, command_line):
+        if isinstance(command_line, list):
+            return subprocess.run(
+                command_line, capture_output=True, shell=False, encoding='utf-8')
         return subprocess.run(
             command_line, capture_output=True, shell=True, encoding='utf-8')
 
@@ -275,13 +280,15 @@ class MetadataHandler:
 
         result = self.__run_command('gcc -xc -E -v /dev/null')
         if result.returncode:
-            raise RuntimeError('could not obtain system header paths')
+            # Fallback if gcc not installed on the system inspecting the binary
+            return ['/usr/include', '/usr/local/include']
         c_paths = extract_search_paths(result.stderr.splitlines())
 
         result = self.__run_command('gcc -xc++ -E -v /dev/null')
         if result.returncode:
-            raise RuntimeError('could not obtain system header paths')
-        cpp_paths = extract_search_paths(result.stderr.splitlines())
+            cpp_paths = []
+        else:
+            cpp_paths = extract_search_paths(result.stderr.splitlines())
 
         return sorted(list(set(c_paths + cpp_paths)))
 
@@ -413,11 +420,7 @@ class MetadataHandler:
         if not overwrite_backup and Path(backup_path).exists():
             raise RuntimeError(f'file already exists: {backup_path!r}')
 
-        result = self.__run_command(f'cp -a {binary_path} {backup_path}')
-
-        if result.returncode:
-            raise RuntimeError(f'cp returned code {result.returncode} '
-                               f'with output {result.stderr!r}')
+        shutil.copy2(binary_path, backup_path)
 
 
     @staticmethod
@@ -906,6 +909,330 @@ class CommandUpdate(CommandBase):
         return 0
 
 
+class CommandExport(CommandBase):
+    NAME = 'export'
+    DESCRIPTION = 'export metadata to standard SBOM formats (cyclonedx, spdx)'
+    SUPPORTED_FORMATS = ('cyclonedx', 'spdx')
+
+    def setup_parser(self, parser):
+        super().setup_parser(parser, binaries=True)
+        parser.add_argument(
+            '-f', '--format',
+            default='cyclonedx',
+            choices=self.SUPPORTED_FORMATS,
+            help='SBOM format (cyclonedx or spdx)')
+        parser.add_argument(
+            '-o', '--output',
+            help='write output to file instead of stdout')
+
+    def run_command(self, args):
+        errors = 0
+        outputs = []
+        for given_path in args.binary:
+            path = str(Path(given_path).resolve())
+            try:
+                handler = MetadataHandler(path)
+                data = handler.get_shrunk_data()
+                headers = data.get(MetadataHandler.KEY_HEADERS, {})
+                binary_name = headers.get(MetadataHandler.KEY_BINARY_FILE, Path(path).name)
+
+                if args.format == 'cyclonedx':
+                    sbom = self._to_cyclonedx(data, path, binary_name)
+                elif args.format == 'spdx':
+                    sbom = self._to_spdx(data, path, binary_name)
+                outputs.append(json.dumps(sbom, indent=2))
+            except Exception as ex:
+                msg.error(f'* {ex}')
+                errors += 1
+
+        if outputs:
+            result = '\n'.join(outputs)
+            if args.output:
+                with open(args.output, 'w', encoding='utf-8') as f:
+                    f.write(result + '\n')
+            else:
+                print(result)
+
+        return 1 if errors > 0 else 0
+
+    def _to_cyclonedx(self, data, path, binary_name):
+        components = []
+        for dir_entry in data.get(MetadataHandler.KEY_SOURCE_FILES, []):
+            dir_name = dir_entry.get(MetadataHandler.KEY_DIRECTORY, '')
+            for finfo in dir_entry.get(MetadataHandler.KEY_FILES, []):
+                file_rel = finfo.get(MetadataHandler.KEY_FILE, '')
+                file_path = str(Path(dir_name) / file_rel)
+                hashes = []
+                for algo in ('SHA256', 'SHA1', 'MD5'):
+                    if algo in finfo:
+                        hashes.append({
+                            'alg': algo.replace('SHA', 'SHA-'),
+                            'content': finfo[algo]
+                        })
+                comp = {
+                    'type': 'file',
+                    'name': file_path,
+                    'hashes': hashes
+                }
+                licenses = []
+                for lic in finfo.get(MetadataHandler.KEY_LICENSE_DETECTED, []):
+                    licenses.append({'license': {'id': lic}})
+                if MetadataHandler.KEY_LICENSE_CONCLUDED in finfo:
+                    licenses.append({'license': {'id': finfo[MetadataHandler.KEY_LICENSE_CONCLUDED]}})
+                if licenses:
+                    comp['licenses'] = licenses
+                components.append(comp)
+
+        return {
+            'bomFormat': 'CycloneDX',
+            'specVersion': '1.5',
+            'metadata': {
+                'component': {
+                    'type': 'application',
+                    'name': binary_name
+                }
+            },
+            'components': components
+        }
+
+    def _to_spdx(self, data, path, binary_name):
+        files = []
+        spdx_id_counter = 1
+        for dir_entry in data.get(MetadataHandler.KEY_SOURCE_FILES, []):
+            dir_name = dir_entry.get(MetadataHandler.KEY_DIRECTORY, '')
+            for finfo in dir_entry.get(MetadataHandler.KEY_FILES, []):
+                file_rel = finfo.get(MetadataHandler.KEY_FILE, '')
+                file_path = str(Path(dir_name) / file_rel)
+                checksums = []
+                for algo in ('SHA256', 'SHA1', 'MD5'):
+                    if algo in finfo:
+                        checksums.append({
+                            'algorithm': algo,
+                            'checksumValue': finfo[algo]
+                        })
+                detected = finfo.get(MetadataHandler.KEY_LICENSE_DETECTED, [])
+                lic_in_file = ' AND '.join(detected) if detected else 'NOASSERTION'
+                lic_concluded = finfo.get(MetadataHandler.KEY_LICENSE_CONCLUDED, 'NOASSERTION')
+                files.append({
+                    'fileName': file_path,
+                    'SPDXID': f'SPDXRef-File-{spdx_id_counter}',
+                    'checksums': checksums,
+                    'licenseConcluded': lic_concluded,
+                    'licenseInfoInFiles': [lic_in_file] if detected else ['NOASSERTION']
+                })
+                spdx_id_counter += 1
+
+        return {
+            'spdxVersion': 'SPDX-2.3',
+            'dataLicense': 'CC0-1.0',
+            'SPDXID': 'SPDXRef-DOCUMENT',
+            'name': binary_name,
+            'files': files
+        }
+
+
+class CommandVerify(CommandBase):
+    NAME = 'verify'
+    DESCRIPTION = 'verify integrity of source files against embedded checksums'
+
+    def setup_parser(self, parser):
+        super().setup_parser(parser, binaries=True)
+        parser.add_argument(
+            '--source-root',
+            default='.',
+            help='root directory of the source tree to verify against')
+
+    def run_command(self, args):
+        source_root = Path(args.source_root).resolve()
+        overall_errors = 0
+
+        for given_path in args.binary:
+            path = str(Path(given_path).resolve())
+            try:
+                handler = MetadataHandler(path)
+            except Exception as ex:
+                msg.error(f'* {ex}')
+                overall_errors += 1
+                continue
+
+            msg.info(f'* verifying source integrity for {path!r}...')
+            checked = 0
+            mismatches = 0
+            missing = 0
+
+            for _, filepath, checksum, fileinfo in handler.enumerate_files():
+                checked += 1
+                file_p = Path(filepath)
+                if not file_p.is_absolute():
+                    file_p = source_root / file_p
+
+                if not file_p.is_file():
+                    msg.error(f'  [MISSING] {file_p}')
+                    missing += 1
+                    continue
+
+                algo_name = None
+                expected_sum = None
+                for algo in ('SHA256', 'SHA1', 'MD5'):
+                    if algo in fileinfo:
+                        algo_name = algo
+                        expected_sum = fileinfo[algo]
+                        break
+
+                hasher = getattr(hashlib, algo_name.lower())()
+                with open(file_p, 'rb') as f:
+                    for chunk in iter(lambda: f.read(65536), b''):
+                        hasher.update(chunk)
+                computed_sum = hasher.hexdigest()
+
+                if computed_sum.lower() != expected_sum.lower():
+                    msg.error(f'  [MISMATCH] {file_p} (expected {expected_sum}, got {computed_sum})')
+                    mismatches += 1
+                else:
+                    msg.debug(f'  [OK] {file_p}')
+
+            if mismatches or missing:
+                msg.notice(f'* verified {checked} file(s): {mismatches} mismatch(es), {missing} missing.')
+                overall_errors += 1
+            else:
+                msg.notice(f'* verified {checked} file(s): all matched.')
+
+        return 1 if overall_errors > 0 else 0
+
+
+class CommandDiff(CommandBase):
+    NAME = 'diff'
+    DESCRIPTION = 'compare embedded metadata between two binary files'
+
+    def setup_parser(self, parser):
+        super().setup_parser(parser)
+        parser.add_argument('binary1', help='first binary file')
+        parser.add_argument('binary2', help='second binary file')
+
+    def run_command(self, args):
+        try:
+            h1 = MetadataHandler(args.binary1)
+            h2 = MetadataHandler(args.binary2)
+        except Exception as ex:
+            msg.error(f'* {ex}')
+            return 1
+
+        files1 = {filepath: (checksum, fileinfo) for _, filepath, checksum, fileinfo in h1.enumerate_files()}
+        files2 = {filepath: (checksum, fileinfo) for _, filepath, checksum, fileinfo in h2.enumerate_files()}
+
+        set1, set2 = set(files1.keys()), set(files2.keys())
+        added = set2 - set1
+        removed = set1 - set2
+        common = set1 & set2
+
+        modified = []
+        for path in common:
+            sum1, info1 = files1[path]
+            sum2, info2 = files2[path]
+            if sum1 != sum2 or info1.get(MetadataHandler.KEY_LICENSE_CONCLUDED) != info2.get(MetadataHandler.KEY_LICENSE_CONCLUDED):
+                modified.append((path, sum1, sum2))
+
+        msg.notice(f'* Comparing {args.binary1} <-> {args.binary2}:')
+        if not (added or removed or modified):
+            msg.notice('  Metadata is identical.')
+            return 0
+
+        for path in sorted(added):
+            msg.notice(f'  [+] Added: {path}')
+        for path in sorted(removed):
+            msg.notice(f'  [-] Removed: {path}')
+        for path, sum1, sum2 in sorted(modified):
+            msg.notice(f'  [*] Modified: {path} ({sum1[:8]}.. -> {sum2[:8]}..)')
+
+        msg.notice(f'* Summary: +{len(added)} -{len(removed)} *{len(modified)}')
+        return 1
+
+
+class CommandStats(CommandBase):
+    NAME = 'stats'
+    DESCRIPTION = 'display metadata metrics and summary statistics'
+
+    def setup_parser(self, parser):
+        super().setup_parser(parser, binaries=True)
+
+    def run_command(self, args):
+        for given_path in args.binary:
+            path = str(Path(given_path).resolve())
+            try:
+                handler = MetadataHandler(path)
+            except Exception as ex:
+                msg.error(f'* {ex}')
+                continue
+
+            total = 0
+            with_lic = 0
+            licenses = set()
+
+            for _, filepath, _, fileinfo in handler.enumerate_files():
+                total += 1
+                det = fileinfo.get(MetadataHandler.KEY_LICENSE_DETECTED, [])
+                conc = fileinfo.get(MetadataHandler.KEY_LICENSE_CONCLUDED)
+                if det or conc:
+                    with_lic += 1
+                for l in det:
+                    licenses.add(l)
+                if conc:
+                    licenses.add(conc)
+
+            print(f'Binary: {Path(path).name}')
+            print(f'  Total files:     {total}')
+            print(f'  Files w/ license: {with_lic} ({(with_lic/total*100) if total else 0:.1f}%)')
+            print(f'  Unique licenses:  {", ".join(sorted(licenses)) if licenses else "None"}')
+        return 0
+
+
+class CommandCheckLicense(CommandBase):
+    NAME = 'check-license'
+    DESCRIPTION = 'verify license compliance against denied or allowed policy'
+
+    def setup_parser(self, parser):
+        super().setup_parser(parser, binaries=True)
+        parser.add_argument('--deny', nargs='+', default=[], help='deny specific license IDs (e.g. GPL-3.0)')
+        parser.add_argument('--allow', nargs='+', default=[], help='allow ONLY specific license IDs')
+
+    def run_command(self, args):
+        violations = 0
+        deny_set = set(args.deny)
+        allow_set = set(args.allow)
+
+        for given_path in args.binary:
+            path = str(Path(given_path).resolve())
+            try:
+                handler = MetadataHandler(path)
+            except Exception as ex:
+                msg.error(f'* {ex}')
+                violations += 1
+                continue
+
+            for _, filepath, _, fileinfo in handler.enumerate_files():
+                file_lics = set(fileinfo.get(MetadataHandler.KEY_LICENSE_DETECTED, []))
+                if MetadataHandler.KEY_LICENSE_CONCLUDED in fileinfo:
+                    file_lics.add(fileinfo[MetadataHandler.KEY_LICENSE_CONCLUDED])
+
+                # Check denied
+                denied_found = file_lics & deny_set
+                if denied_found:
+                    msg.error(f'  [DENIED] {filepath}: contains denied license {", ".join(denied_found)}')
+                    violations += 1
+
+                # Check allowed
+                if allow_set and file_lics and not (file_lics & allow_set):
+                    msg.error(f'  [NOT ALLOWED] {filepath}: license {", ".join(file_lics)} not in allowlist')
+                    violations += 1
+
+        if violations > 0:
+            msg.notice(f'* License check failed with {violations} violation(s).')
+            return 1
+
+        msg.notice('* License compliance check passed.')
+        return 0
+
+
 class CommandRemove(CommandBase):
     NAME = 'rm'
     DESCRIPTION = 'remove metadata from binary files built with ESSTRA Core'
@@ -944,6 +1271,11 @@ def main():
         CommandShow,
         CommandShrink,
         CommandUpdate,
+        CommandExport,
+        CommandVerify,
+        CommandDiff,
+        CommandStats,
+        CommandCheckLicense,
         CommandRemove
     )
     return dispatcher.run_command()

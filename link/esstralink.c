@@ -106,7 +106,7 @@ oncleanup(void)
             if (exitcode == 0) {
                 message(L_INFO, "[%s] metadata in '%s' successfully updated", tool_name, link_output_name);
             } else {
-                message(L_ERROR, "[%s] ESSTRA Utility failed with code %d",
+                message(L_ERROR, "[%s] ESSTRA Utility failed on '%s' with code %d",
                         tool_name, link_output_name, exitcode);
                 retcode = LDPS_ERR;
             }
