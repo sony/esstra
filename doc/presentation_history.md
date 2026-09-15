@@ -1,5 +1,8 @@
 # Presentation History
 
+## 2026.08.27 OpenChain Korea Work Group - Tooling & Legal Subgroup 29th Meeting
+- https://openchain-project.github.io/OpenChain-KWG/en/subgroup/tooling-legal/29th-meeting/
+
 ## 2026.01.30 FOSDEM 2026 Fringe: FOSS license and security compliance tools workshop
 - Lightning talk: https://github.com/aboutcode-org/workshop/issues/84
 - Others: https://github.com/Open-Source-Compliance/Sharing-creates-value/blob/master/docs/Tooling-Landscape/OSS-Based-License-Compliance-Tools.md#enhancing-software-supply-chain-transparency-esstra
