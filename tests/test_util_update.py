@@ -2,45 +2,63 @@ import pytest
 from conftest import run_command
 import yaml
 from pathlib import Path
+import re
 
 ESSTRA_UTIL = "util/esstra"
 
 
-def verify_license_info(metadata, expected_files, expected_license=['NOASSERTION']):
-    """
-    Verify license information for specified files in metadata.
-    
+def verify_license_info(metadata, expected_files, expected_license):
+    """Verify license information for specified files in metadata.
+
     Args:
-        metadata: Parsed YAML metadata dictionary
-        expected_files: Set or list of filenames to verify
-        expected_license: Expected license value (default: ['NOASSERTION'])
-    
+        metadata: Parsed YAML metadata dictionary.
+        expected_files: Set or list of filenames to verify.
+        expected_license: Expected license value.
+
     Returns:
-        set: Found files that matched
-    
+        set: Found files that matched.
+
     Raises:
-        AssertionError: If license doesn't match or files are missing
+        AssertionError: If license doesn't match or files are missing.
     """
     if isinstance(expected_files, str):
         expected_files = {expected_files}
     elif isinstance(expected_files, list):
         expected_files = set(expected_files)
-    
+
     found_files = set()
 
     for directory in metadata.get("SourceFiles", []):
         for fileinfo in directory.get("Files", []):
             filename = fileinfo.get("File")
-            if filename in expected_files:
-                binary_license = fileinfo.get("LicenseInfo")
-                assert binary_license == expected_license, \
-                    f"File '{filename}': Expected {expected_license}, got {binary_license}"
-                found_files.add(filename)
+            if filename not in expected_files:
+                continue
 
-    # Verify all expected files were found
+            binary_license = fileinfo.get("LicenseConcluded")
+            detected_license = fileinfo.get("LicenseDetected")
+
+            if filename == "nolicense.c":
+                assert binary_license is None, (
+                    f"File is having license: {binary_license}"
+                )
+            else:
+                assert binary_license == expected_license, (
+                    f"File '{filename}': Expected {expected_license}, "
+                    f"got {binary_license}"
+                )
+                assert (
+                    detected_license is not None
+                    and expected_license in detected_license
+                ), (
+                    f"File '{filename}': Expected {expected_license} "
+                    f"in detected list, got {detected_license}"
+                )
+
+            found_files.add(filename)
+
     missing_files = expected_files - found_files
     assert not missing_files, f"Missing files in metadata: {missing_files}"
-    
+
     return found_files
 
 
@@ -58,15 +76,17 @@ def test_update_basic(setup_test_files):
     binary = setup_test_files["with_metadata"]
     info_file = setup_test_files["info_file"]
 
-    cmd = f"{ESSTRA_UTIL} update {binary} -i {info_file} && {ESSTRA_UTIL} show {binary}"
+    cmd = (f"{ESSTRA_UTIL} update {binary} -i {info_file} && "
+           f"{ESSTRA_UTIL} show {binary}")
     stdout, stderr, return_code = run_command(cmd)
 
-    assert return_code == 0, f"Command failed with return code {return_code}"
+    assert return_code == 0, \
+        f"Command failed with return code {return_code}"
 
     metadata = yaml.safe_load(stdout)
     
     # Use the helper function
-    verify_license_info(metadata, "simple.c")
+    verify_license_info(metadata, "simple.c", expected_license='MIT')
 
 
 @pytest.mark.update_test(serial="02")
@@ -81,16 +101,20 @@ def test_update_multiple_binaries(setup_test_files):
     ]
 
     # Run the update command
-    cmd = f"{ESSTRA_UTIL} update {binaries} -i {' '.join(info_files)} && {ESSTRA_UTIL} show {binaries}"
+    cmd = (f"{ESSTRA_UTIL} update {binaries} -i "
+           f"{' '.join(info_files)} && "
+           f"{ESSTRA_UTIL} show {binaries}")
     stdout, stderr, return_code = run_command(cmd)
 
-    assert return_code == 0, f"Command failed with return code {return_code}"
+    assert return_code == 0, \
+        f"Command failed with return code {return_code}"
 
     metadata = yaml.safe_load(stdout)
     
     # Use the helper function with multiple files
     expected_files = ["main.c", "helper.c"]
-    verify_license_info(metadata, expected_files)
+    verify_license_info(metadata, expected_files,
+                        expected_license='Apache-2.0')
 
 
 @pytest.mark.update_test(serial="03")
@@ -101,8 +125,8 @@ def test_update_invalid_info_file(setup_test_files):
     binary = setup_test_files["with_metadata"]
 
     cmd = (
-    f"{ESSTRA_UTIL} update "
-    f"{binary} -i non_existent.spdx"
+        f"{ESSTRA_UTIL} update "
+        f"{binary} -i non_existent.spdx"
     )
 
     stdout, stderr, return_code = run_command(cmd)
@@ -119,8 +143,8 @@ def test_update_non_existent_binary(setup_test_files):
     info_file = setup_test_files["info_file"]
 
     cmd = (
-    f"{ESSTRA_UTIL} update "
-    f"non_existent_binary -i {info_file}"
+        f"{ESSTRA_UTIL} update "
+        f"non_existent_binary -i {info_file}"
     )
 
     stdout, stderr, return_code = run_command(cmd)
@@ -137,8 +161,8 @@ def test_update_silent_option(setup_test_files):
     info_file = setup_test_files["info_file"]
 
     cmd = (
-    f"{ESSTRA_UTIL} update "
-    f"--silent non_existent_binary -i {info_file}"
+        f"{ESSTRA_UTIL} update "
+        f"--silent non_existent_binary -i {info_file}"
     )
 
     stdout, stderr, return_code = run_command(cmd)
@@ -154,9 +178,9 @@ def test_update_show_error_option(setup_test_files):
     info_file = setup_test_files["info_file"]
 
     cmd = (
-    f"{ESSTRA_UTIL} update "
-    f"--silent --show-error "
-    f"non_existent_binary -i {info_file}"
+        f"{ESSTRA_UTIL} update "
+        f"--silent --show-error "
+        f"non_existent_binary -i {info_file}"
     )
 
     stdout, stderr, return_code = run_command(cmd)
@@ -189,7 +213,7 @@ def test_update_ignore_errors(setup_test_files):
     info_file = setup_test_files["info_file"]
 
     cmd = (
-    f"{ESSTRA_UTIL} update -I {binary}  -i {info_file}"
+        f"{ESSTRA_UTIL} update -I {binary}  -i {info_file}"
     )
 
     stdout, stderr, return_code = run_command(cmd)
@@ -208,9 +232,9 @@ def test_update_backup(setup_test_files):
     info_file = setup_test_files["info_file"]
 
     cmd = (
-    f"{ESSTRA_UTIL} update "
-    f"{binary} -b -i {info_file}  && {ESSTRA_UTIL} "
-    f" show {binary}.bak"
+        f"{ESSTRA_UTIL} update "
+        f"{binary} -b -i {info_file}  && {ESSTRA_UTIL} "
+        f"show {binary}.bak"
     )
 
     stdout, stderr, return_code = run_command(cmd)
@@ -219,56 +243,97 @@ def test_update_backup(setup_test_files):
     metadata = yaml.safe_load(stdout)
     
     # Use the helper function
-    verify_license_info(metadata, "simple.c")
+    verify_license_info(metadata, "simple.c", expected_license='MIT')
 
     # Remove the backup file
     Path(f'{binary}.bak').unlink()
 
+
 @pytest.mark.update_test(serial="10")
 def test_update_with_backup_suffix(setup_test_files):
-    '''Verify 'esstra shrink' with backup suffix option
+    """Verify 'esstra update' with backup suffix option.
 
     Command:
         $ python3 esstra.py update -b -s .backup binary
 
     Expected Behavior:
-        Backup file created with original metadata using `.backup` extension.
-    '''
+        Backup file created with original metadata using `.backup`
+        extension.
+    """
     binary = setup_test_files['with_metadata']
     info_file = setup_test_files["info_file"]
     backup_extension = '.backup'
-    cmd = (f'{ESSTRA_UTIL} update -b --backup-suffix {backup_extension}'
-           f' {binary} -i {info_file} && {ESSTRA_UTIL} show {binary}{backup_extension}')
+    cmd = (f'{ESSTRA_UTIL} update -b '
+           f'--backup-suffix {backup_extension} '
+           f'{binary} -i {info_file} && '
+           f'{ESSTRA_UTIL} show {binary}{backup_extension}')
     stdout, stderr, return_code = run_command(cmd)
     assert return_code == 0
     metadata = yaml.safe_load(stdout)
     
     # Use the helper function
-    verify_license_info(metadata, "simple.c")
+    verify_license_info(metadata, "simple.c", expected_license='MIT')
 
     # Not Removing the backup file for next backup overwrite test
 
 
 @pytest.mark.update_test(serial="11")
 def test_update_with_backup_overwrite(setup_test_files):
-    '''Verify 'esstra update' with backup overwrite option
+    """Verify 'esstra update' with backup overwrite option.
 
     Command:
         $ python3 esstra.py update -b --backup-suffix .backup -O binary
 
     Expected Behavior:
-        Backup file created with original metadata using `.backup` extension.
-    '''
+        Backup file created with original metadata using `.backup`
+        extension.
+    """
     binary = setup_test_files['with_metadata']
     info_file = setup_test_files["info_file"]
     backup_extension = '.backup'
-    cmd = (f'{ESSTRA_UTIL} update -b --backup-suffix {backup_extension} -O {binary} -i {info_file} && '
+    cmd = (f'{ESSTRA_UTIL} update -b '
+           f'--backup-suffix {backup_extension} -O {binary} '
+           f'-i {info_file} && '
            f'{ESSTRA_UTIL} show {binary}{backup_extension}')
     stdout, stderr, return_code = run_command(cmd)
     assert return_code == 0
     metadata = yaml.safe_load(stdout)
     # Use the helper function
-    verify_license_info(metadata, "simple.c")
+    verify_license_info(metadata, "simple.c", expected_license='MIT')
 
     # Remove the backup file
     Path(f'{binary}{backup_extension}').unlink()
+
+
+@pytest.mark.update_test(serial="12")
+def test_update_noassertion_license(setup_test_files):
+    """
+    Verify basic update command.
+
+    Command:
+    esstra update binary -i info_file
+
+    Expected Behaviour:
+    Metadata is updated successfully with checksum matching.
+    """
+    binary = setup_test_files["metadata_with_nolicense"]
+    info_file4 = setup_test_files["info_file4"]
+
+    cmd = (f"{ESSTRA_UTIL} update -D {binary} -i {info_file4} && "
+           f"{ESSTRA_UTIL} show {binary}")
+    stdout, stderr, return_code = run_command(cmd)
+
+    assert return_code == 0, \
+        f"Command failed with return code {return_code}"
+
+    # Verify checksum matching occurred
+    pattern = r"\* FOUND: '.*/nolicense\.c' via SHA1:'[a-f0-9]{40}'"
+    assert re.search(pattern, stderr), \
+        f"nolicense.c checksum match not found in stderr:\n{stderr}"
+
+    metadata = yaml.safe_load(stdout)
+    
+    # Verify license was actually updated
+    verify_license_info(metadata, "nolicense.c",
+                        expected_license='NOASSERTION')
+    
