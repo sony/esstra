@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+# esstra-full-paths
+#   parse esstra output and show full filepaths
+#
+# do I need to strip off a base dir here?
+
+import fileinput
+
+cur_dir = ""
+for line in fileinput.input():
+    line = line.strip()
+    if line.startswith("- Directory:"):
+        cur_dir = line.split("Directory: ", 1)[1]
+        continue
+    if line.startswith("- File:"):
+        filename = line.split("File: ", 1)[1]
+        print( "- Path: " + cur_dir + "/" + filename)
