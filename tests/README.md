@@ -158,6 +158,7 @@ The following test cases are included for `esstra update`:
 1. Update with backup file creation
 1. Update with custom backup suffix
 1. Update with backup overwrite option
+1. Update on a source file without license data (NOASSERTION in the info file)
 
 
 #### Esstra rm
