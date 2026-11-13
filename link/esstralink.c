@@ -22,7 +22,7 @@
 #endif
 
 static const char *tool_name = "ESSTRA Link";
-static const char *tool_version = "0.5.0";
+static const char *tool_version = "0.6.0";
 
 static ld_plugin_message plugin_message = NULL;
 static const char *link_output_name = NULL;
