@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import pytest
+import subprocess
 
 from conftest import run_command
 
@@ -29,7 +30,6 @@ def test_show_basic(setup_test_files):
 
 
 @pytest.mark.show_test(serial="02")
-@pytest.mark.skip(reason="Feature not implemented yet")
 def test_show_raw(setup_test_files):
     '''Test the `esstra show` command with `--raw` option
 
@@ -37,15 +37,30 @@ def test_show_raw(setup_test_files):
         $ esstra.py show -r binary
 
     Expected Behavior:
-        YAML output should have a `---` formatting.
+        The embedded YAML should be displayed.
     '''
     binary = setup_test_files['with_metadata']
     cmd = f'{ESSTRA_UTIL} show -r {binary}'
     stdout, stderr, return_code = run_command(cmd)
 
     assert return_code == 0
-    # Raw output should have '---' YAML formatting
-    # assert '---' in stdout
+    assert 'Headers' in stdout
+    assert 'SourceFiles' in stdout
+
+
+def test_show_raw_does_not_parse_metadata(setup_test_files, tmp_path):
+    """Raw display must work without loading or validating the YAML."""
+    metadata = tmp_path / 'raw.yaml'
+    raw_data = '---\n[unfinished YAML sequence\n'
+    metadata.write_text(raw_data)
+    binary = tmp_path / 'raw-binary'
+    subprocess.run([
+        'objcopy', '--update-section', f'.esstra={metadata}',
+        str(setup_test_files['with_metadata']), str(binary)
+    ], check=True)
+    stdout, stderr, return_code = run_command(f'{ESSTRA_UTIL} show --raw {binary}')
+    assert return_code == 0, stderr
+    assert stdout == raw_data
 
 
 @pytest.mark.show_test(serial="04")

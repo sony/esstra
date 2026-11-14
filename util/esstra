@@ -94,7 +94,7 @@ class MetadataHandler:
     HASH_ALGORITHM = 'SHA1'
     HASH_ALGORITHMS = ('SHA256', 'SHA1')  # strongest first
 
-    def __init__(self, binary_path):
+    def __init__(self, binary_path, raw_only=False):
         if not Path(binary_path).exists():
             raise FileNotFoundError(f'not found: {binary_path!r}')
         if not Path(binary_path).is_file():
@@ -105,6 +105,9 @@ class MetadataHandler:
 
         self._binary_path = binary_path
         self._raw_data = self.__extract_metadata(binary_path)
+        if raw_only:
+            # Raw display only needs the extracted bytes, not YAML processing.
+            return
         self._parsed_data = self.__decode_metadata(self._raw_data)
         self._shrunk_data = self.__shrink_parsed_data(self._parsed_data, self._binary_path)
 
@@ -685,7 +688,7 @@ class CommandShow(CommandBase):
             path = str(Path(given_path).resolve())
             errors = 0
             try:
-                handler = MetadataHandler(path)
+                handler = MetadataHandler(path, raw_only=args.raw)
             except Exception as ex:
                 msg.error(f'* {ex}')
                 errors += 1
