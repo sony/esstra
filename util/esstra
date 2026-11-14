@@ -681,9 +681,9 @@ class CommandShow(CommandBase):
             help='display raw data')
 
     def run_command(self, args):
+        errors = 0
         for given_path in args.binary:
             path = str(Path(given_path).resolve())
-            errors = 0
             try:
                 handler = MetadataHandler(path)
             except Exception as ex:

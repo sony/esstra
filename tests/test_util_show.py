@@ -10,6 +10,22 @@ TEST_DIR = 'test_binaries'
 ESSTRA_UTIL = 'util/esstra'
 
 
+@pytest.mark.parametrize('missing_first', [True, False])
+@pytest.mark.parametrize('ignore_errors', [True, False])
+def test_show_mixed_success_and_failure(setup_test_files, missing_first, ignore_errors):
+    """A later successful file must not erase an earlier failure."""
+    binary = setup_test_files['with_metadata']
+    paths = ['non_existent_file', str(binary)]
+    if not missing_first:
+        paths.reverse()
+    option = '--ignore-errors' if ignore_errors else ''
+    stdout, stderr, return_code = run_command(
+        f'{ESSTRA_UTIL} show {option} {" ".join(paths)}')
+    assert return_code == (0 if ignore_errors else 1)
+    assert 'not found' in stderr
+    assert 'SourceFiles' in stdout
+
+
 @pytest.mark.show_test(serial="01")
 def test_show_basic(setup_test_files):
     '''Verify basic show command
