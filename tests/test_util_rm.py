@@ -194,3 +194,25 @@ def test_remove_with_ignore_errors(setup_test_files):
     stdout, stderr, return_code = run_command(cmd)
     assert return_code == 0 and 'failed to remove metadata' and 'errors ignored.' in stderr
 
+
+
+@pytest.mark.rm_test(serial="10")
+def test_remove_skips_backup_file(setup_test_files):
+    '''Test the `esstra rm` command on a backup file it created
+
+    Command:
+        $ python3 esstra.py rm -b binary
+        $ python3 esstra.py rm binary.bak
+
+    Expected Behaviour:
+        binary.bak is skipped with a notice and keeps its metadata.
+    '''
+    binary = create_test_copy(setup_test_files)
+    cmd = f'{ESSTRA_UTIL} rm -b {binary} && {ESSTRA_UTIL} rm {binary}.bak'
+    stdout, stderr, return_code = run_command(cmd)
+    assert return_code == 0 and 'skip backup file' in stderr
+    cmd_show = f'{ESSTRA_UTIL} show {binary}.bak'
+    show_stdout, show_stderr, show_return_code = run_command(cmd_show)
+    assert show_return_code == 0 and 'SourceFiles' in show_stdout
+    # Remove the backup file
+    Path(f'{binary}.bak').unlink()

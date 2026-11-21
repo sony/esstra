@@ -737,7 +737,7 @@ class CommandShrink(CommandBase):
             return 1
 
         for binary in args.binary:
-            if binary.endswith(f'.{args.backup_suffix}'):
+            if args.backup_suffix and binary.endswith(args.backup_suffix):
                 msg.notice(f'* skip backup file {binary!r}.')
                 continue
             msg.info(f'* shrinking metadata of {binary!r}...')
@@ -847,7 +847,7 @@ class CommandUpdate(CommandBase):
             return 1
 
         for binary in args.binary:
-            if binary.endswith(f'.{args.backup_suffix}'):
+            if args.backup_suffix and binary.endswith(args.backup_suffix):
                 msg.notice(f'* skip backup file {binary!r}.')
                 continue
             msg.info(f'* updating metadata of {binary!r}...')
@@ -916,7 +916,7 @@ class CommandRemove(CommandBase):
     def run_command(self, args):
         errors = 0
         for binary in args.binary:
-            if binary.endswith(f'.{args.backup_suffix}'):
+            if args.backup_suffix and binary.endswith(args.backup_suffix):
                 msg.notice(f'* skip backup file {binary!r}.')
                 continue
             msg.info(f'* removing metadata from {binary!r}...')
